@@ -17,7 +17,10 @@ ORANGE = \033[0;38;5;166m
 SRCDIR = srcs/
 
 SRCS_FIL = \
+		math_utils/vector.c \
+		math_utils/quaternion.c \
 		main.c\
+		test.c \
 
 SRCS = $(addprefix $(SRCDIR), $(SRCS_FIL))
 
@@ -39,7 +42,7 @@ $(OBJDIR):
 
 $(NAME): $(OBJS)
 	@make -C $(LIBFT_DIR)
-	@$(CC) $(LIBFT_A) $(CFLAGS) $(OBJS) -o $(NAME) && echo "$(GREEN)$(NAME) was created$(RESET)"
+	@$(CC) $(LIBFT_A) $(CFLAGS) $(MLX) $(OBJS) -o $(NAME) && echo "$(GREEN)$(NAME) was created$(RESET)"
 
 $(OBJDIR)%.o: $(SRCDIR)%.c
 	@$(CC) $(CFLAGS) -c $< -o $@ && echo "$(GREEN)object files were created$(RESET)"
