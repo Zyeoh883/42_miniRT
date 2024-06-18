@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/14 11:54:40 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/14 17:24:14 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/18 19:48:42 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,15 +18,15 @@ void	vector_test(void)
 	float	brr[3];
 	float	result[3];
 
-	arr[0] = 2;
-	arr[1] = 1;
-	arr[2] = 2;
-	brr[0] = -1;
-	brr[1] = -1;
-	brr[2] = 0;
+	arr[0] = 0;
+	arr[1] = 0;
+	arr[2] = 1;
+	brr[0] = 1 / sqrt(3);
+	brr[1] = 1 / sqrt(3);
+	brr[2] = 1 / sqrt(3);
 	vector_cross_product(arr, brr, result);
 	printf("Cross-Product: %f %f %f\n", result[0], result[1], result[2]);
-	printf("Dot-Product: %f\n", vector_dot_product(arr, brr));
+	// printf("Dot-Product: %f\n", vector_dot_product(arr, brr));
 }
 
 void	qua_test(void)
@@ -36,18 +36,18 @@ void	qua_test(void)
 	float	result[4];
 	float	rot_vector[4];
 
-	arr[0] = 2;
-	arr[1] = 4;
-	arr[2] = 1;
-	arr[3] = 3;
+	arr[0] = 4;
+	arr[1] = 1;
+	arr[2] = 3;
+	arr[3] = 2;
 	
-	brr[0] = 3;
-	brr[1] = 5;
-	brr[2] = 2;
-	brr[3] = 1;
+	brr[0] = 5;
+	brr[1] = 2;
+	brr[2] = 1;
+	brr[3] = 3;
 	
 	quat_product(brr, arr, result);
-	printf("Quad Dot-Product: %f %f %f %f\n", result[0], result[1], result[2],
+	printf("quat Dot-Product: %f %f %f %f\n", result[0], result[1], result[2],
 		result[3]);
 	quat_conjugate(result, result);
 	printf("Conjugate: %f %f %f %f\n\n", result[0], result[1], result[2],
@@ -63,12 +63,12 @@ void	qua_test(void)
 	
 
 	arr[0] = 0;
-	arr[1] = 0;
-	arr[2] = 1;
+	arr[1] = 1;
+	arr[2] = 0;
 	arr[3] = 0;
 	
-	brr[0] = 0;
-	brr[1] = 1;
+	brr[0] = 1;
+	brr[1] = 0;
 	brr[2] = 0;
 	brr[3] = 0;
 

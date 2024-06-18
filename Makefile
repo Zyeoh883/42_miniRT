@@ -19,6 +19,7 @@ SRCDIR = srcs/
 SRCS_FIL = \
 		math_utils/vector.c \
 		math_utils/quaternion.c \
+		math_utils/print_math.c \
 		main.c\
 		test.c \
 
