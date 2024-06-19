@@ -6,96 +6,101 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/14 12:08:41 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/18 19:47:24 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/19 20:59:01 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minirt.h"
 
-void	quat_rotate(float p[4], float q[4], float result[4])
+inline void	tester(void)
 {
-	float	q_conjugate[4];
-	float	temp[4];
-
-	quat_conjugate(q, q_conjugate);
-	quat_product(q, p, temp);
-	quat_product(temp, q_conjugate, result);
+	return ;
 }
 
-void	quat_product(float A[4], float B[4], float result[4])
+t_vector	quat_rotate(t_quat q, t_vector v_result) // rotate point
 {
-	float	v_1[3];
-	float	v_2[3];
+	t_quat	q_conjugate;
+	t_quat	q_v;
+	t_quat	rotated;
 
-	result[0] = (A[3] * B[3] - vector_dot_product(A, B));
-	vector_cross_product(A, B, result);
-	ft_memcpy(v_1, A, sizeof(float[3]));
-	ft_memcpy(v_2, B, sizeof(float[3]));
-	vector_scalar_product(v_1, B[3]);
-	vector_addition(result, v_1);
-	vector_scalar_product(v_2, A[3]);
-	vector_addition(result, v_2);
+	q_v.w = 0;
+	q_v.i = v_result.i;
+	q_v.j = v_result.j;
+	q_v.k = v_result.k;
+	q_conjugate = quat_conjugate(q);
+	rotated = quat_product(quat_product(q, q_v), q_conjugate);
+	return ((t_vector){rotated.i, rotated.j, rotated.k});
 }
 
-void	quat_conjugate(float quat[4], float conjugate[4])
+t_quat	quat_product(t_quat q1, t_quat q2)
+// get result of quaternion after rotating
 {
-	conjugate[0] = -quat[0];
-	conjugate[1] = -quat[1];
-	conjugate[2] = -quat[2];
-	conjugate[3] = quat[3];
+	return ((t_quat){
+		q1.w * q2.w - q1.i * q2.i - q1.j * q2.j - q1.k * q2.k,
+		q1.w * q2.i + q1.i * q2.w + q1.j * q2.k - q1.k * q2.j,
+		q1.w * q2.j - q1.i * q2.k + q1.j * q2.w + q1.k * q2.i,
+		q1.w * q2.k + q1.i * q2.j - q1.j * q2.i + q1.k * q2.w,
+	});
 }
 
-void	angle_to_quat(float radian, float rot_vector[3], float result[4])
+t_quat	quat_conjugate(t_quat q)
+{
+	return ((t_quat){q.w, -q.i, -q.j, -q.k});
+}
+
+t_quat	angle_to_quat(float radian, t_vector rot)
 {
 	float	sine;
 
 	radian /= 2;
 	sine = sin(radian);
-	result[3] = cos(radian);
-	result[0] = sine * rot_vector[0];
-	result[1] = sine * rot_vector[1];
-	result[2] = sine * rot_vector[2];
+	return ((t_quat){cos(radian), rot.i * sine, rot.j * sine, rot.k * sine});
 }
 
-void	quat_sum(float A[4], float B[4], float result[4])
+t_quat	quat_sum(t_quat q1, t_quat q2)
 {
-	result[0] = A[0] + B[0];
-	result[1] = A[1] + B[1];
-	result[2] = A[2] + B[2];
-	result[3] = A[3] + B[3];
+	return ((t_quat){q1.w + q2.w, q1.i + q2.i, q1.j + q2.j, q1.k + q2.k});
 }
 
-void	quat_scalar_product(float quat[4], float scale)
+t_quat	quat_scalar_product(t_quat q, float scale)
 {
-	quat[0] *= scale;
-	quat[1] *= scale;
-	quat[2] *= scale;
-	quat[3] *= scale;
+	return ((t_quat){q.w * scale, q.i * scale, q.j * scale, q.k * scale});
 }
 
-void	quat_slerp(float dest[4], float src[4], float steps[2], float result[4])
+t_quat	quat_slerp(t_quat dest, t_quat src, float angle, float t)
 {
 	float	sine;
-	float	quat_0[4];
-	float	quat_1[4];
+	t_quat	q1;
+	t_quat	q2;
 
-	ft_memcpy(quat_0, dest, sizeof(float[4]));
-	ft_memcpy(quat_1, src, sizeof(float[4]));
-	sine = sin(steps[1]);
-	quat_scalar_product(quat_0, sin((1 - steps[0]) * steps[1]) / sine);
-	quat_scalar_product(quat_1, sin(steps[0] * steps[1]) / sine);
-	quat_sum(quat_0, quat_1, result);
+	sine = sin(angle);
+	q1 = quat_scalar_product(dest, sin((1 - t) * angle) / sine);
+	q2 = quat_scalar_product(src, sin(t * angle) / sine);
+	return ((t_quat){q1.w + q2.w, q1.i + q2.i, q1.j + q2.j, q1.k + q2.k});
 }
 
-float	quat_abs(float quat[4])
+float	quat_abs(t_quat q)
 {
-	return (sqrt(quat[0] * quat[0] + quat[1] * quat[1] + quat[2] * quat[2]
-			+ quat[3] * quat[3]));
+	return (sqrt(q.w * q.w + q.i * q.i + q.j * q.j + q.k * q.k));
 }
 
-// void quat_normalize(float quat[4])
-// {
-// 	float abs;
+t_quat	quat_normalize(t_quat q)
+{
+	return (quat_scalar_product(q, sqrt(quat_abs(q))));
+}
 
-// 	abs =
+// void	quat_product(float A[4], float B[4], float q_result[4])
+// // get result of quaternion after rotating
+// {
+// 	float v_1[3];
+// 	float v_2[3];
+
+// 	q_result[3] = (A[3] * B[3] - vector_dot_product(A, B));
+// 	vector_cross_product(A, B, q_result);
+// 	ft_memcpy(v_1, A, sizeof(float[3]));
+// 	ft_memcpy(v_2, B, sizeof(float[3]));
+// 	vector_scalar_product(v_1, B[3]);
+// 	vector_addition(q_result, v_1);
+// 	vector_scalar_product(v_2, A[3]);
+// 	vector_addition(q_result, v_2);
 // }

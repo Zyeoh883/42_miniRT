@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "iterator": "c",
+        "__locale": "c",
+        "vector": "c",
+        "iosfwd": "c"
+    }
+}
