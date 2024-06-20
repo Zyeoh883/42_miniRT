@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/14 11:54:40 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/19 20:51:38 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/20 20:35:17 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ void	qua_test(void)
 	rot_vector.j = 1;
 	rot_vector.k = 0;
 	
-	q_result = angle_to_quat(M_PI / 2, rot_vector);
+	q_result = angle_to_quat(rot_vector, M_PI / 2);
 	printf("Quaternion angle: %f %f %f %f\n\n\n", q_result.w, q_result.i, q_result.j,
 		q_result.k);
 	
@@ -88,3 +88,4 @@ void	qua_test(void)
 	t += 0.5;
 	// }	
 }
+

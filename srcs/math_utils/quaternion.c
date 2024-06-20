@@ -6,29 +6,27 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/14 12:08:41 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/19 20:59:01 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/20 20:45:55 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minirt.h"
 
-inline void	tester(void)
+ void	tester(void)
 {
 	return ;
 }
 
-t_vector	quat_rotate(t_quat q, t_vector v_result) // rotate point
+t_vector	quat_rotate(t_quat q, t_vector v) // rotate point
 {
-	t_quat	q_conjugate;
 	t_quat	q_v;
 	t_quat	rotated;
 
 	q_v.w = 0;
-	q_v.i = v_result.i;
-	q_v.j = v_result.j;
-	q_v.k = v_result.k;
-	q_conjugate = quat_conjugate(q);
-	rotated = quat_product(quat_product(q, q_v), q_conjugate);
+	q_v.i = v.i;
+	q_v.j = v.j;
+	q_v.k = v.k;
+	rotated = quat_product(quat_product(q, q_v), quat_conjugate(q));
 	return ((t_vector){rotated.i, rotated.j, rotated.k});
 }
 
@@ -48,7 +46,7 @@ t_quat	quat_conjugate(t_quat q)
 	return ((t_quat){q.w, -q.i, -q.j, -q.k});
 }
 
-t_quat	angle_to_quat(float radian, t_vector rot)
+t_quat	angle_to_quat(t_vector rot, float radian)
 {
 	float	sine;
 

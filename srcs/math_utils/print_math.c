@@ -6,27 +6,24 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 16:01:01 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/18 19:32:18 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/20 20:10:33 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minirt.h"
 
-void	print_vector(float vector[3])
+void	print_vector(t_vector v)
 {
-	printf("%f %f %f\n", vector[0], vector[1], vector[2]);
+	printf("%f %f %f\n\n", v.i, v.j, v.k);
 }
 
-void	print_quat(float quat[4])
+void	print_quat(t_quat q)
 {
 	float	angle;
-    float temp[4];
-
-    ft_memcpy(temp, quat, sizeof(float [4]));
-    // temp 
-	printf("%f %f %f %f\n", temp[0], temp[1], temp[2], temp[3]);
-	angle = acos(temp[0]);
-	printf("q_vector: %f %f %f\n", temp[1] / sin(angle / 2), temp[2] / sin(angle / 2),
-		temp[3] / sin(angle / 2));
-    printf("angle : %f\n\n", angle * 180 / M_PI);
+	
+	printf("%f %f %f %f\n", q.w, q.i, q.j, q.k);
+	angle = acos(q.w);
+    printf("angle : %f\n", angle * 180 / M_PI);
+	printf("q_vector: %f %f %f\n\n", q.i / sin(angle / 2), q.j / sin(angle / 2),
+		q.k / sin(angle / 2));
 }

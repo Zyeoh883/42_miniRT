@@ -22,6 +22,7 @@ SRCS_FIL = \
 		math_utils/print_math.c \
 		main.c\
 		test.c \
+		ray.c \
 
 SRCS = $(addprefix $(SRCDIR), $(SRCS_FIL))
 
