@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/13 19:16:07 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/19 20:56:34 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/21 17:11:56 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,14 @@ typedef struct s_ray
 	t_vector	position;
 	t_vector	direction;
 }				t_ray;
+
+typedef struct s_sphere
+{
+	t_vector	position;
+	t_quat		quat;
+	float		radius;
+	int			color;
+}				t_sphere;
 
 // __attribute__((packed,aligned(4))
 // __attribute__((packed))

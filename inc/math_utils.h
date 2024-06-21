@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/14 11:30:35 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/20 21:51:40 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/21 17:01:06 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ float		vector_dot_product(t_vector v1, t_vector v2);
 t_vector	vector_scalar_product(t_vector v, float scale);
 t_vector	vector_sum(t_vector v1, t_vector v2);
 t_vector	vector_addition(t_vector v1, t_vector v2);
+t_vector	vector_subtraction(t_vector v1, t_vector v2);
 void		vector_normalize(t_vector *v);
 // t_vector	vector_normalize(t_vector v);
 
@@ -49,6 +50,7 @@ t_quat		quat_normalize(t_quat q);
 void		print_vector(t_vector v);
 void		print_quat(t_quat q);
 
-t_ray	create_ray(t_camera *camera, int i, int j, int width, int height);
+t_ray		create_ray(t_camera *camera, float i, float j, float width,
+				float height);
 
 #endif

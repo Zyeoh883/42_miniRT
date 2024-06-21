@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/20 21:52:08 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/21 18:39:47 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,12 +30,18 @@ t_camera	init_camera(t_data data)
 	camera.quat.i = 0;
 	camera.quat.j = 0;
 	camera.quat.k = 0;
+	camera.quat = angle_to_quat((t_vector){0, 1, 0}, M_PI / 4);
 	// fov
 	camera.fov = 90;
 	camera.fov *= M_PI / 180;
-	camera.aspect_ratio = data.win_width / data.win_height;
+	printf("win width: %d\n", data.win_width);
+	printf("win height: %d\n", data.win_height);
+	camera.aspect_ratio = (float)data.win_width / data.win_height;
+	printf("AP: %f\n", camera.aspect_ratio);
 	camera.pixel_width = 2 * tan(camera.fov / 2);
-	camera.pixel_height = camera.pixel_height / camera.aspect_ratio;
+	camera.pixel_height = camera.pixel_width / camera.aspect_ratio;
+	printf("width: %f\n", camera.pixel_width);
+	printf("height: %f\n\n", camera.pixel_height);
 	return (camera);
 }
 
@@ -43,6 +49,8 @@ int	initialize(t_data *data)
 {
 	data->win_width = 1920;
 	data->win_height = 1080;
+	// data->win_width = 100;
+	// data->win_height = 100;
 	data->img = mlx_new_image(data->mlx_ptr, data->win_width, data->win_height);
 	data->addr = mlx_get_data_addr(data->img, &data->bits_per_pixel,
 			&data->line_length, &data->endian);
@@ -51,41 +59,81 @@ int	initialize(t_data *data)
 	return (1);
 }
 
-void	test(t_data data, t_camera camera)
-{
-	t_vector	rot_vector;
-	t_quat		rot_quat_y;
-	t_quat		rot_quat_z;
-	t_quat		rot_quat;
-	// t_vector	res_vector;
-	t_ray		ray;
+// t_data *data,
 
-	// orient camera quat
-	rot_vector.i = 2;
-	rot_vector.j = 2;
-	rot_vector.k = 2;
-	vector_normalize(&rot_vector);
-	print_vector(rot_vector);
-	rot_vector.i = 0;
-	rot_vector.j = 1;
-	rot_vector.k = 0;
-	rot_quat_y = angle_to_quat(rot_vector, atan(camera.pixel_width)
-			* data.win_width / 2);
-	rot_vector.i = 0;
-	rot_vector.j = 0;
-	rot_vector.k = 1;
-	rot_quat_z = angle_to_quat(rot_vector, atan(camera.pixel_width)
-			* data.win_width / 2);
-	// print_quat(rot_quat_y);
-	// print_quat(rot_quat_z);
-	rot_quat = quat_product(rot_quat_y, rot_quat_z);
-	// print_quat(rot_quat);
-	// res_vector = quat_rotate(rot_quat, rot_vector);
-	// print_vector(res_vector);
-	// quat_rotate(camera.quat, rot_quat, camera.quat);
-	// print_quat(camera.quat);
-	ray = create_ray(&camera, 0, 0, data.win_width, data.win_height);
-	print_vector(ray.direction);
+void	intersect_ray_sphere(t_camera *camera, t_sphere *sphere, t_ray ray,
+		float t[2])
+{
+	t_vector	sphere_to_camera;
+	float		a;
+	float		b;
+	float		c;
+	float		discriminant;
+
+	sphere_to_camera = vector_subtraction(camera->position, sphere->position);
+	a = vector_dot_product(ray.direction, ray.direction);
+	b = 2 * vector_dot_product(sphere_to_camera, ray.direction);
+	c = vector_dot_product(sphere_to_camera, sphere_to_camera) - sphere->radius;
+	// calculate num of intersects
+	discriminant = b * b - 4 * a * c;
+	if (discriminant < 0)
+	{
+		t[0] = INFINITY;
+		t[1] = INFINITY;
+		return ;
+	}
+	t[0] = (-b + sqrt(discriminant)) / (2 * a);
+	t[1] = (-b - sqrt(discriminant)) / (2 * a);
+}
+
+int	render_ray(t_camera *camera, t_ray ray)
+{
+	t_sphere	sphere;
+	int			color_result;
+	float		t[2];
+
+	// rot
+	sphere.quat.w = 1;
+	sphere.quat.i = 0;
+	sphere.quat.j = 0;
+	sphere.quat.k = 0;
+	// pos
+	sphere.position.i = 0;
+	sphere.position.j = 0;
+	sphere.position.k = 3;
+	// radius
+	sphere.radius = 1;
+	// color
+	sphere.color = 0xFFFFFF;
+	color_result = sphere.color;
+	// data,
+	intersect_ray_sphere(camera, &sphere, ray, t);
+	if (t[0] == INFINITY)
+		return (0);
+	return (color_result);
+}
+
+void	render_frame(t_data *data, t_camera *camera)
+{
+	t_ray	ray;
+	int		color;
+	int		x;
+	int		y;
+
+	y = -1;
+	while (++y < data->win_height)
+	{
+		x = -1;
+		while (++x < data->win_width)
+		{
+			ray = create_ray(camera, x, y, data->win_width, data->win_height);
+			color = render_ray(camera, ray);
+			// printf("%d", color);
+			my_mlx_put_pixels(data, x, y, color);
+		}
+		// printf("\n");
+	}
+	// fflush(stdout);
 }
 
 int	main(void)
@@ -97,9 +145,10 @@ int	main(void)
 	if (!initialize(&data))
 		return (1);
 	camera = init_camera(data);
-	test(data, camera);
-	// mlx_put_image_to_window(&data, data.win_ptr, data.img, 0, 0);
-	// mlx_loop(data.mlx_ptr);
+	render_frame(&data, &camera);
+	// test(data, camera);
+	mlx_put_image_to_window(&data, data.win_ptr, data.img, 0, 0);
+	mlx_loop(data.mlx_ptr);
 	return (0);
 }
 

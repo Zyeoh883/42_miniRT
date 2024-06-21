@@ -4,6 +4,7 @@
         "__locale": "c",
         "vector": "c",
         "iosfwd": "c",
-        "complex": "c"
+        "complex": "c",
+        "minirt.h": "c"
     }
 }

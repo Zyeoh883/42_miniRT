@@ -23,6 +23,7 @@ SRCS_FIL = \
 		main.c\
 		test.c \
 		ray.c \
+		mlx.c \
 
 SRCS = $(addprefix $(SRCDIR), $(SRCS_FIL))
 

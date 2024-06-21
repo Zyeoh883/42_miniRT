@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:49 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/14 14:42:52 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/21 17:32:49 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,9 @@ typedef struct s_data
 	int		key;
 	int		key_held;
 }			t_data;
+
+// custom mlx
+void	my_mlx_put_pixels(t_data *data, int x, int y, int color);
 
 // tests
 void		vector_test(void);

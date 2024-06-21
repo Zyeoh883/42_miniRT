@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/14 11:31:47 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/20 22:51:35 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/21 17:00:55 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,11 @@ t_vector	vector_sum(t_vector v1, t_vector v2)
 t_vector	vector_addition(t_vector v1, t_vector v2)
 {
 	return ((t_vector){v1.i + v2.i, v1.j + v2.j, v1.k + v2.k});
+}
+
+t_vector	vector_subtraction(t_vector v1, t_vector v2)
+{
+	return ((t_vector){v1.i - v2.i, v1.j - v2.j, v1.k - v2.k});
 }
 
 void	vector_normalize(t_vector *v)

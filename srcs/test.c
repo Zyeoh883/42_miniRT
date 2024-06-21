@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/14 11:54:40 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/20 20:35:17 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/21 18:39:53 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,3 +89,39 @@ void	qua_test(void)
 	// }	
 }
 
+void	test(t_data data, t_camera camera)
+{
+	t_vector	rot_vector;
+	t_quat		rot_quat_y;
+	t_quat		rot_quat_z;
+	t_quat		rot_quat;
+	t_ray		ray;
+
+	// t_vector	res_vector;
+	// orient camera quat
+	rot_vector.i = 2;
+	rot_vector.j = 2;
+	rot_vector.k = 2;
+	vector_normalize(&rot_vector);
+	// print_vector(rot_vector);
+	rot_vector.i = 0;
+	rot_vector.j = 1;
+	rot_vector.k = 0;
+	rot_quat_y = angle_to_quat(rot_vector, atan(camera.pixel_width)
+			* data.win_width / 2);
+	rot_vector.i = 0;
+	rot_vector.j = 0;
+	rot_vector.k = 1;
+	rot_quat_z = angle_to_quat(rot_vector, atan(camera.pixel_width)
+			* data.win_width / 2);
+	// print_quat(rot_quat_y);
+	// print_quat(rot_quat_z);
+	rot_quat = quat_product(rot_quat_y, rot_quat_z);
+	// print_quat(rot_quat);
+	// res_vector = quat_rotate(rot_quat, rot_vector);
+	// print_vector(res_vector);
+	// quat_rotate(camera.quat, rot_quat, camera.quat);
+	// print_quat(camera.quat);
+	ray = create_ray(&camera, 0, 0, data.win_width, data.win_height);
+	print_vector(ray.direction);
+}
