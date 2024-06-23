@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
+/*   By: Zyeoh <yeohzishen2002@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/21 18:39:47 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/23 03:31:23 by Zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,8 +82,9 @@ void	intersect_ray_sphere(t_camera *camera, t_sphere *sphere, t_ray ray,
 		t[1] = INFINITY;
 		return ;
 	}
-	t[0] = (-b + sqrt(discriminant)) / (2 * a);
-	t[1] = (-b - sqrt(discriminant)) / (2 * a);
+	discriminant = sqrt(discriminant);
+	t[0] = (-b + discriminant) / (2 * a);
+	t[1] = (-b - discriminant) / (2 * a);
 }
 
 int	render_ray(t_camera *camera, t_ray ray)
@@ -142,6 +143,11 @@ int	main(void)
 	t_camera	camera;
 
 	data.mlx_ptr = mlx_init();
+	if (!data.mlx_ptr)
+	{
+		perror("mlx_init");
+		return (1);
+	}
 	if (!initialize(&data))
 		return (1);
 	camera = init_camera(data);

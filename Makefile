@@ -1,8 +1,9 @@
 # Compiler and flags
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror $(INCLUDES) -fsanitize=address -g #-std=c99 
-INCLUDES = -Iinc -I$(LIBFT_DIR)
-MLX = -lmlx -framework OpenGL -framework AppKit
+INCLUDES = -Iinc -I$(LIBFT_DIR) -I$(MLX_DIR)
+# MLX = -lmlx -framework OpenGL -framework AppKit
+MLX =  -L$(MLX_DIR) -lmlx_Linux -L/usr/lib -lXext -lX11 -lm
 
 # Output executable
 NAME = miniRT
@@ -34,6 +35,9 @@ OBJS = $(patsubst $(SRCDIR)%.c, $(OBJDIR)%.o, $(SRCS))
 # Libraries
 LIBFT_DIR = libft/
 LIBFT_A = $(LIBFT_DIR)libft.a
+MLX_DIR = minilibx_linux/
+MLX_A = $(MLX_DIR)libmlx_Linux.a
+
 
 # Build targets
 all: $(OBJDIR) $(NAME)
@@ -45,7 +49,8 @@ $(OBJDIR):
 
 $(NAME): $(OBJS)
 	@make -C $(LIBFT_DIR)
-	@$(CC) $(LIBFT_A) $(CFLAGS) $(MLX) $(OBJS) -o $(NAME) && echo "$(GREEN)$(NAME) was created$(RESET)"
+	@make -C $(MLX_DIR)
+	@$(CC) $(LIBFT_A) $(MLX_A) $(CFLAGS) $(OBJS) -o $(NAME) $(MLX) && echo "$(GREEN)$(NAME) was created$(RESET)"
 
 $(OBJDIR)%.o: $(SRCDIR)%.c
 	@$(CC) $(CFLAGS) -c $< -o $@ && echo "$(GREEN)object files were created$(RESET)"
@@ -56,10 +61,12 @@ RM = rm -rf
 clean:
 	@$(RM) $(OBJDIR) && echo "$(ORANGE)object files were deleted$(RESET)"
 	@make clean -C $(LIBFT_DIR) && echo "$(ORANGE)libft object files were deleted$(RESET)"
+	@make clean -C $(MLX_DIR) && echo "$(ORANGE)MLX object files were deleted$(RESET)"
 
 fclean: clean
 	@$(RM) $(NAME) && echo "$(ORANGE)$(NAME) was deleted$(RESET)"
 	@make fclean -C $(LIBFT_DIR) && echo "$(ORANGE)libft.a was deleted$(RESET)"
+	@make clean -C $(MLX_DIR) && echo "$(ORANGE)MLX object files were deleted$(RESET)"
 
 re: fclean all
 
