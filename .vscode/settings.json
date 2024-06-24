@@ -7,6 +7,11 @@
         "complex": "c",
         "minirt.h": "c",
         "macos_defines.h": "c",
-        "__node_handle": "c"
+        "__node_handle": "c",
+        "array": "cpp",
+        "string": "cpp",
+        "string_view": "cpp",
+        "math_utils.h": "c",
+        "mlx_int.h": "c"
     }
 }

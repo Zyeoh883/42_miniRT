@@ -1,28 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   input.c                                            :+:      :+:    :+:   */
+/*   mlx_handlers.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/06/23 13:45:42 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/23 14:14:21 by zyeoh            ###   ########.fr       */
+/*   Created: 2024/06/24 10:43:27 by zyeoh             #+#    #+#             */
+/*   Updated: 2024/06/24 14:28:19 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minirt.h"
+#ifndef MLX_HANLDERS_H
+# define MLX_HANLDERS_H
 
-// int	input_translate(t_data *data)
-// {
-// 	if (data->key == I_KEY)
-// 		translate(data->map, 0, -10, 0);
-// 	else if (data->key == J_KEY)
-// 		translate(data->map, -10, 0, 0);
-// 	else if (data->key == K_KEY)
-// 		translate(data->map, 0, 10, 0);
-// 	else if (data->key == L_KEY)
-// 		translate(data->map, 10, 0, 0);
-// 	else
-// 		return (0);
-// 	return (1);
-// }
+typedef struct s_data	t_data;
+
+void					my_mlx_put_pixels(t_data *data, int x, int y,
+							int color);
+int						deal_key_release(int key, t_data *data);
+int						deal_key_press(int key, t_data *data);
+int						deal_input(t_data *data);
+
+// inputs
+int						input_translate(t_data *data);
+int						input_rotation(t_data *data);
+
+#endif

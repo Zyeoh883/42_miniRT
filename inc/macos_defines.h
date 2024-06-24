@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/23 13:24:03 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/23 13:43:22 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/24 14:56:08 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,5 +36,7 @@
 # define SEVEN_KEY 26
 # define B_KEY 11
 # define ESC_KEY 53
+# define SPACE_KEY 49
+# define SHIFT_KEY 257
 
 #endif

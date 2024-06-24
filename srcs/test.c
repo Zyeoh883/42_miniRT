@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/14 11:54:40 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/21 18:39:53 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/24 11:18:30 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,6 +122,6 @@ void	test(t_data data, t_camera camera)
 	// print_vector(res_vector);
 	// quat_rotate(camera.quat, rot_quat, camera.quat);
 	// print_quat(camera.quat);
-	ray = create_ray(&camera, 0, 0, data.win_width, data.win_height);
+	ray = create_ray(camera, 0, 0, data.win_width, data.win_height);
 	print_vector(ray.direction);
 }

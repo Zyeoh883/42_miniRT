@@ -17,13 +17,14 @@ ORANGE = \033[0;38;5;166m
 SRCDIR = srcs/
 
 SRCS_FIL = \
+		main.c\
 		math_utils/vector.c \
 		math_utils/quaternion.c \
 		math_utils/print_math.c \
-		main.c\
+		mlx_handlers/mlx.c \
+		mlx_handlers/input_translate.c \
 		test.c \
 		ray.c \
-		mlx.c \
 
 SRCS = $(addprefix $(SRCDIR), $(SRCS_FIL))
 
