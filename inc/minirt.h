@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:49 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/24 14:44:18 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/24 17:11:45 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,14 @@
 #  define PTR_NULL "(nil)"
 # endif
 
+typedef struct s_inputs
+{
+	int			key;
+	int			key_held;
+	int			mouse_x;
+	int			mouse_y;
+}				t_inputs;
+
 typedef struct s_data
 {
 	t_camera	camera;
@@ -40,8 +48,7 @@ typedef struct s_data
 	int			endian;
 	int			win_height;
 	int			win_width;
-	int			key;
-	int			key_held;
+	t_inputs	inputs;
 }				t_data;
 
 // init

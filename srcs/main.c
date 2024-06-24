@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/24 16:10:54 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/24 18:04:05 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,15 +44,16 @@ int	initialize(t_data *data)
 {
 	// data->win_width = 1920;
 	// data->win_height = 1080;
-	data->win_width = 500;
-	data->win_height = 500;
+	data->win_width = 300;
+	data->win_height = 300;
 	data->img = mlx_new_image(data->mlx_ptr, data->win_width, data->win_height);
 	data->addr = mlx_get_data_addr(data->img, &data->bits_per_pixel,
 			&data->line_length, &data->endian);
 	data->win_ptr = mlx_new_window(data->mlx_ptr, data->win_width,
 			data->win_height, "miniRT");
 	data->camera = init_camera(*data);
-	data->key = -1;
+	ft_bzero(&data->inputs, sizeof(t_inputs));
+	data->inputs.key = -1;
 	render_frame(*data);
 	return (1);
 }
@@ -96,6 +97,7 @@ int	main(void)
 	mlx_hook(data.win_ptr, 2, 0, deal_key_press, &data);
 	mlx_hook(data.win_ptr, 3, 1, deal_key_release, &data);
 	mlx_loop_hook(data.mlx_ptr, deal_input, &data);
+	mlx_hook(data.win_ptr, 6, 1L<<6, mouse_hook, &data);
 	// mlx_mouse_hook(data.win_ptr, mouse_hook, &data);
 	mlx_loop(data.mlx_ptr);
 	// mlx_put_image_to_window(&data, data.win_ptr, data.img, 0, 0);
