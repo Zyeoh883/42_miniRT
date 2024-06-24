@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/21 18:39:47 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/24 09:52:48 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,31 +17,34 @@
 // 	return ((quat){quat.w, -quat.i, -quat.j, -quat.k});
 // }
 
-t_camera	init_camera(t_data data)
+t_camera	*init_camera(t_data data)
 {
-	t_camera	camera;
+	t_camera	*camera;
 
+	camera = ft_calloc(1, sizeof(t_camera));
+	if (!camera)
+		return (NULL);
 	// position
-	camera.position.i = 0;
-	camera.position.j = 0;
-	camera.position.k = 0;
+	camera->position.i = 0;
+	camera->position.j = 0;
+	camera->position.k = 0;
 	// direction
-	camera.quat.w = 1;
-	camera.quat.i = 0;
-	camera.quat.j = 0;
-	camera.quat.k = 0;
-	camera.quat = angle_to_quat((t_vector){0, 1, 0}, M_PI / 4);
+	camera->quat.w = 1;
+	camera->quat.i = 0;
+	camera->quat.j = 0;
+	camera->quat.k = 0;
+	camera->quat = angle_to_quat((t_vector){0, 1, 0}, M_PI / 4);
 	// fov
-	camera.fov = 90;
-	camera.fov *= M_PI / 180;
+	camera->fov = 90;
+	camera->fov *= M_PI / 180;
 	printf("win width: %d\n", data.win_width);
 	printf("win height: %d\n", data.win_height);
-	camera.aspect_ratio = (float)data.win_width / data.win_height;
-	printf("AP: %f\n", camera.aspect_ratio);
-	camera.pixel_width = 2 * tan(camera.fov / 2);
-	camera.pixel_height = camera.pixel_width / camera.aspect_ratio;
-	printf("width: %f\n", camera.pixel_width);
-	printf("height: %f\n\n", camera.pixel_height);
+	camera->aspect_ratio = (float)data.win_width / data.win_height;
+	printf("AP: %f\n", camera->aspect_ratio);
+	camera->pixel_width = 2 * tan(camera->fov / 2);
+	camera->pixel_height = camera->pixel_width / camera->aspect_ratio;
+	printf("width: %f\n", camera->pixel_width);
+	printf("height: %f\n\n", camera->pixel_height);
 	return (camera);
 }
 
@@ -56,6 +59,9 @@ int	initialize(t_data *data)
 			&data->line_length, &data->endian);
 	data->win_ptr = mlx_new_window(data->mlx_ptr, data->win_width,
 			data->win_height, "miniRT");
+	data->camera = init_camera(*data);
+	if (!data->camera)
+		return (0);
 	return (1);
 }
 
@@ -73,7 +79,7 @@ void	intersect_ray_sphere(t_camera *camera, t_sphere *sphere, t_ray ray,
 	sphere_to_camera = vector_subtraction(camera->position, sphere->position);
 	a = vector_dot_product(ray.direction, ray.direction);
 	b = 2 * vector_dot_product(sphere_to_camera, ray.direction);
-	c = vector_dot_product(sphere_to_camera, sphere_to_camera) - sphere->radius;
+	c = vector_dot_product(sphere_to_camera, sphere_to_camera) - (sphere->radius * sphere->radius);
 	// calculate num of intersects
 	discriminant = b * b - 4 * a * c;
 	if (discriminant < 0)
@@ -82,8 +88,9 @@ void	intersect_ray_sphere(t_camera *camera, t_sphere *sphere, t_ray ray,
 		t[1] = INFINITY;
 		return ;
 	}
-	t[0] = (-b + sqrt(discriminant)) / (2 * a);
-	t[1] = (-b - sqrt(discriminant)) / (2 * a);
+	discriminant = sqrt(discriminant);
+	t[0] = (-b + discriminant) / (2 * a);
+	t[1] = (-b - discriminant) / (2 * a);
 }
 
 int	render_ray(t_camera *camera, t_ray ray)
@@ -100,7 +107,7 @@ int	render_ray(t_camera *camera, t_ray ray)
 	// pos
 	sphere.position.i = 0;
 	sphere.position.j = 0;
-	sphere.position.k = 3;
+	sphere.position.k = 9;
 	// radius
 	sphere.radius = 1;
 	// color
@@ -144,7 +151,6 @@ int	main(void)
 	data.mlx_ptr = mlx_init();
 	if (!initialize(&data))
 		return (1);
-	camera = init_camera(data);
 	render_frame(&data, &camera);
 	// test(data, camera);
 	mlx_put_image_to_window(&data, data.win_ptr, data.img, 0, 0);

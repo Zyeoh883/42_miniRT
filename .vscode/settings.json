@@ -5,6 +5,8 @@
         "vector": "c",
         "iosfwd": "c",
         "complex": "c",
-        "minirt.h": "c"
+        "minirt.h": "c",
+        "macos_defines.h": "c",
+        "__node_handle": "c"
     }
 }
