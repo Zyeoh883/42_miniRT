@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/24 18:04:05 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/25 09:02:08 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,6 +94,7 @@ int	main(void)
 	if (!initialize(&data))
 		return (1);
 	// render_frame(data);
+	mlx_mouse_hide();
 	mlx_hook(data.win_ptr, 2, 0, deal_key_press, &data);
 	mlx_hook(data.win_ptr, 3, 1, deal_key_release, &data);
 	mlx_loop_hook(data.mlx_ptr, deal_input, &data);

@@ -6,13 +6,13 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/14 12:08:41 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/24 12:53:29 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/25 09:12:00 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minirt.h"
 
-inline t_vector	quat_rotate(t_quat q, t_vector v) // rotate point
+inline t_vector	quat_rotate(const t_quat q, const t_vector v) // rotate point
 {
 	t_quat q_v;
 	t_quat rotated;
@@ -22,7 +22,7 @@ inline t_vector	quat_rotate(t_quat q, t_vector v) // rotate point
 	return ((t_vector){rotated.i, rotated.j, rotated.k});
 }
 
-inline t_quat	quat_product(t_quat q1, t_quat q2)
+inline t_quat	quat_product(const t_quat q1, const t_quat q2)
 // get result of quaternion after rotating
 {
 	return ((t_quat){
@@ -33,12 +33,12 @@ inline t_quat	quat_product(t_quat q1, t_quat q2)
 	});
 }
 
-inline t_quat	quat_conjugate(t_quat q)
+inline t_quat	quat_conjugate(const t_quat q)
 {
 	return ((t_quat){q.w, -q.i, -q.j, -q.k});
 }
 
-inline t_quat	angle_to_quat(t_vector rot, float radian)
+inline t_quat	angle_to_quat(const t_vector rot, const float radian)
 {
 	float	sine;
 
@@ -46,17 +46,17 @@ inline t_quat	angle_to_quat(t_vector rot, float radian)
 	return ((t_quat){cos(radian), rot.i * sine, rot.j * sine, rot.k * sine});
 }
 
-inline t_quat	quat_sum(t_quat q1, t_quat q2)
+inline t_quat	quat_sum(const t_quat q1, const t_quat q2)
 {
 	return ((t_quat){q1.w + q2.w, q1.i + q2.i, q1.j + q2.j, q1.k + q2.k});
 }
 
-inline t_quat	quat_scalar_product(t_quat q, float scale)
+inline t_quat	quat_scalar_product(const t_quat q, const float scale)
 {
 	return ((t_quat){q.w * scale, q.i * scale, q.j * scale, q.k * scale});
 }
 
-inline t_quat	quat_slerp(t_quat dest, t_quat src, float angle, float t)
+inline t_quat	quat_slerp(const t_quat dest, const t_quat src, const float angle, const float t)
 {
 	float	sine;
 	t_quat	q1;
@@ -68,7 +68,7 @@ inline t_quat	quat_slerp(t_quat dest, t_quat src, float angle, float t)
 	return ((t_quat){q1.w + q2.w, q1.i + q2.i, q1.j + q2.j, q1.k + q2.k});
 }
 
-inline float	quat_abs(t_quat q)
+inline float	quat_abs(const t_quat q)
 {
 	return (sqrt(q.w * q.w + q.i * q.i + q.j * q.j + q.k * q.k));
 }

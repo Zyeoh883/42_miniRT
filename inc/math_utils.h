@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/14 11:30:35 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/24 14:29:30 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/25 09:17:24 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,23 +28,23 @@
 // void	quat_slerp(float dest[4], float src[4], float steps[2],
 // 			float q_result[4]);
 // float	quat_abs(float quat[4]);
-t_vector	vector_cross_product(t_vector v1, t_vector v2);
-float		vector_dot_product(t_vector v1, t_vector v2);
-t_vector	vector_scalar_product(t_vector v, float scale);
-t_vector	vector_sum(t_vector v1, t_vector v2);
-t_vector	vector_addition(t_vector v1, t_vector v2);
-t_vector	vector_subtraction(t_vector v1, t_vector v2);
+t_vector	vector_cross_product(const t_vector v1, const t_vector v2);
+float		vector_dot_product(const t_vector v1, t_vector v2);
+t_vector	vector_scalar_product(const t_vector v, float scale);
+t_vector	vector_sum(const t_vector v1, const t_vector v2);
+t_vector	vector_addition(const t_vector v1, const t_vector v2);
+t_vector	vector_subtraction(const t_vector v1, const t_vector v2 );
 void		vector_normalize(t_vector *v);
 // t_vector	vector_normalize(t_vector v);
 
-t_vector	quat_rotate(t_quat q, t_vector v);
-t_quat		quat_product(t_quat q1, t_quat q2);
-t_quat		quat_conjugate(t_quat q);
-t_quat		angle_to_quat(t_vector rot, float radian);
-t_quat		quat_sum(t_quat q1, t_quat q2);
-t_quat		quat_scalar_product(t_quat q, float scale);
-t_quat		quat_slerp(t_quat dest, t_quat src, float angle, float t);
-float		quat_abs(t_quat q);
+t_vector	quat_rotate(const t_quat q, const t_vector v);
+t_quat		quat_product(const t_quat q1, const t_quat q2);
+t_quat		quat_conjugate(const t_quat q);
+t_quat		angle_to_quat(const t_vector rot, const float radian);
+t_quat		quat_sum(const t_quat q1, const t_quat q2);
+t_quat		quat_scalar_product(const t_quat q, const float scale);
+t_quat		quat_slerp(const t_quat dest, const t_quat src, const float angle, const float t);
+float		quat_abs(const t_quat q);
 void		quat_normalize(t_quat *q);
 
 void		print_vector(t_vector v);

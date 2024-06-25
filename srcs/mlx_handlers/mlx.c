@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/21 17:31:34 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/24 18:04:45 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/24 22:41:48 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,18 +77,17 @@ int	deal_input(t_data *data)
 int	mouse_hook(int x, int y, t_data *data)
 {
 	float sensitivity;
-	if (input_translate(data))
-		;
+	
+	input_translate(data);
 	if (!data->inputs.mouse_x && !data->inputs.mouse_x)
 	{
 		data->inputs.mouse_x = x;
 		data->inputs.mouse_y = y;
 	}
-
-	printf("Mouse is at %d %d\n", x - data->inputs.mouse_x, y - data->inputs.mouse_y);
+	// printf("Mouse is at %d %d\n", x - data->inputs.mouse_x, y - data->inputs.mouse_y);
 	sensitivity = M_PI / 24;
 	// data->key_held = true;
-	if (y - data->inputs.mouse_y > 0)
+	if (y - data->inputs.mouse_y > 0) // TODO set a vertical limit for rotation
 		data->camera.quat = quat_product(data->camera.quat, angle_to_quat((t_vector){1, 0, 0}, sensitivity));
 	else if (y - data->inputs.mouse_y < 0)
 		data->camera.quat = quat_product(data->camera.quat, angle_to_quat((t_vector){-1, 0, 0}, sensitivity));

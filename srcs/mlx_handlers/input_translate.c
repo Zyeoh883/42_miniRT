@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 10:33:06 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/24 18:00:49 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/25 08:39:15 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,20 +17,20 @@ int	input_translate(t_data *data)
 	t_vector	v;
 
 	if (data->inputs.key == W_KEY)
-		v = (t_vector){0, 0, 2};
+		v = (t_vector){0, 0, 5};
 	else if (data->inputs.key == A_KEY)
-		v = (t_vector){-2, 0, 0};
+		v = (t_vector){-5, 0, 0};
 	else if (data->inputs.key == D_KEY)
-		v = (t_vector){2, 0, 0};
+		v = (t_vector){5, 0, 0};
 	else if (data->inputs.key == S_KEY)
-		v = (t_vector){0, 0, -2};
+		v = (t_vector){0, 0, -5};
 	else if (data->inputs.key == SPACE_KEY)
 		v = (t_vector){0, 2, 0};
 	else if (data->inputs.key == SHIFT_KEY)
 		v = (t_vector){0, -2, 0};
 	else
 		return (0);
-	if (data->inputs.key != SPACE_KEY && data->inputs.key != SPACE_KEY)
+	if (data->inputs.key != SPACE_KEY && data->inputs.key != SHIFT_KEY)
 		data->camera.position = vector_addition(data->camera.position, quat_rotate(data->camera.quat, v));
 	else
 		data->camera.position = vector_addition(data->camera.position, v);
