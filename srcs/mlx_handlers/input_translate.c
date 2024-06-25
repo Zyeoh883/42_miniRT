@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 10:33:06 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/25 08:39:15 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/25 14:39:16 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,27 +17,28 @@ int	input_translate(t_data *data)
 	t_vector	v;
 
 	if (data->inputs.key == W_KEY)
-		v = (t_vector){0, 0, 5};
+		v = (t_vector){0, 0, 1};
 	else if (data->inputs.key == A_KEY)
-		v = (t_vector){-5, 0, 0};
+		v = (t_vector){-1, 0, 0};
 	else if (data->inputs.key == D_KEY)
-		v = (t_vector){5, 0, 0};
+		v = (t_vector){1, 0, 0};
 	else if (data->inputs.key == S_KEY)
-		v = (t_vector){0, 0, -5};
+		v = (t_vector){0, 0, -1};
 	else if (data->inputs.key == SPACE_KEY)
 		v = (t_vector){0, 2, 0};
-	else if (data->inputs.key == SHIFT_KEY)
+	else if (data->inputs.key == CTRL_KEY)
 		v = (t_vector){0, -2, 0};
 	else
 		return (0);
-	if (data->inputs.key != SPACE_KEY && data->inputs.key != SHIFT_KEY)
-		data->camera.position = vector_addition(data->camera.position, quat_rotate(data->camera.quat, v));
+	if (data->inputs.key != SPACE_KEY && data->inputs.key != CTRL_KEY)
+		data->camera.pos = vector_addition(data->camera.pos, quat_rotate(data->camera.quat, v));
 	else
-		data->camera.position = vector_addition(data->camera.position, v);
+		data->camera.pos = vector_addition(data->camera.pos, v);
+	// printf("%d\n", data->inputs.key);
 	return (1);
 }
 
-int	input_rotation(t_data *data)
+int	input_rotation(t_data *data) // back up rotation
 {
 	t_vector v;
 

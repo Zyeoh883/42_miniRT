@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/21 17:31:34 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/24 22:41:48 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/25 14:52:15 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,12 +50,6 @@ int	deal_input(t_data *data)
 	// ft_printf("input is %d\n", data->inputs.key);
 	if (input_translate(data))
 		;
-	else if (input_rotation(data))
-		;
-	// else if (input_scale(data))
-	// 	;
-	// else if (input_perspective(data))
-	// 	;
 	// ! add slerp to reset key
 	// else if (data->inputs.key == B_KEY && !data->inputs.key_held)
 	// {
@@ -76,27 +70,23 @@ int	deal_input(t_data *data)
 
 int	mouse_hook(int x, int y, t_data *data)
 {
-	float sensitivity;
-	
 	input_translate(data);
-	if (!data->inputs.mouse_x && !data->inputs.mouse_x)
+	quat_normalize(&data->camera.quat);
+	if (y - data->inputs.mouse_y > 0 && data->camera.pitch_angle < CAM_LOCK)
 	{
-		data->inputs.mouse_x = x;
-		data->inputs.mouse_y = y;
+		data->camera.pitch_angle += CAM_SENS;
+		data->camera.quat = quat_product(data->camera.quat, angle_to_quat((t_vector){1, 0, 0}, CAM_SENS));
 	}
-	// printf("Mouse is at %d %d\n", x - data->inputs.mouse_x, y - data->inputs.mouse_y);
-	sensitivity = M_PI / 24;
-	// data->key_held = true;
-	if (y - data->inputs.mouse_y > 0) // TODO set a vertical limit for rotation
-		data->camera.quat = quat_product(data->camera.quat, angle_to_quat((t_vector){1, 0, 0}, sensitivity));
-	else if (y - data->inputs.mouse_y < 0)
-		data->camera.quat = quat_product(data->camera.quat, angle_to_quat((t_vector){-1, 0, 0}, sensitivity));
+	else if (y - data->inputs.mouse_y < 0 && data->camera.pitch_angle > -CAM_LOCK)
+	{
+		data->camera.pitch_angle -= CAM_SENS;
+		data->camera.quat = quat_product(data->camera.quat, angle_to_quat((t_vector){-1, 0, 0}, CAM_SENS));
+	}
 	if (x - data->inputs.mouse_x > 0)
-		data->camera.quat = quat_product(angle_to_quat((t_vector){0, 1, 0}, sensitivity), data->camera.quat);
+		data->camera.quat = quat_product(angle_to_quat((t_vector){0, 1, 0}, CAM_SENS), data->camera.quat);
 	else if (x - data->inputs.mouse_x < 0)
-		data->camera.quat = quat_product(angle_to_quat((t_vector){0, -1, 0}, sensitivity), data->camera.quat);
-	data->inputs.mouse_x = x;
-	data->inputs.mouse_y = y;
+		data->camera.quat = quat_product(angle_to_quat((t_vector){0, -1, 0}, CAM_SENS), data->camera.quat);
+	mlx_mouse_move(data->win_ptr, data->win_width / 2, data->win_height / 2);
 	render_frame(*data);	
 	return (0);
 }

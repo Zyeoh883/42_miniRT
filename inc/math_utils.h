@@ -6,12 +6,15 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/14 11:30:35 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/25 09:17:24 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/25 13:12:24 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MATH_UTILS_H
 # define MATH_UTILS_H
+
+# define TO_RADIAN M_PI / 180
+# define TO_DEGREE M_PI / 180
 
 // void		vector_cross_product(float A[3], float B[3], float result[3]);
 // float		vector_dot_product(float A[3], float B[3]);
@@ -37,7 +40,7 @@ t_vector	vector_subtraction(const t_vector v1, const t_vector v2 );
 void		vector_normalize(t_vector *v);
 // t_vector	vector_normalize(t_vector v);
 
-t_vector	quat_rotate(const t_quat q, const t_vector v);
+t_vector	quat_rotate(t_quat q, const t_vector v);
 t_quat		quat_product(const t_quat q1, const t_quat q2);
 t_quat		quat_conjugate(const t_quat q);
 t_quat		angle_to_quat(const t_vector rot, const float radian);

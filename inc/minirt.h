@@ -6,15 +6,15 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:49 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/24 17:11:45 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/25 15:40:23 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MINIRT_H
 # define MINIRT_H
 
-# include "../libft/libft.h"
 # include "data_struct.h"
+# include "libft.h"
 # include "math_utils.h"
 # include "mlx.h"
 # include "mlx_handlers.h"
@@ -27,6 +27,9 @@
 # elif defined(__linux__)
 #  define PTR_NULL "(nil)"
 # endif
+
+# define CAM_SENS M_PI / 24
+# define CAM_LOCK 80 * TO_RADIAN
 
 typedef struct s_inputs
 {
@@ -54,6 +57,8 @@ typedef struct s_data
 // init
 t_camera		init_camera(t_data data);
 int				initialize(t_data *data);
+t_list			*create_ll_objects(void);
+t_object		*create_objects_array(t_list *root_node);
 
 void			render_frame(t_data data);
 
@@ -67,5 +72,8 @@ t_ray			create_ray(t_camera camera, float i, float j, float width,
 void			intersect_ray_sphere(t_camera camera, t_sphere sphere,
 					t_ray ray, float t[2]);
 int				render_ray(t_camera camera, t_ray ray);
+
+// error_handling
+void			perror_and_exit(char *str, int exit_code);
 
 #endif

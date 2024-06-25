@@ -6,18 +6,19 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/14 12:08:41 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/25 09:12:00 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/25 12:04:43 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minirt.h"
 
-inline t_vector	quat_rotate(const t_quat q, const t_vector v) // rotate point
+inline t_vector	quat_rotate(t_quat q, const t_vector v) // rotate point
 {
 	t_quat q_v;
 	t_quat rotated;
 
 	q_v = (t_quat){0, v.i, v.j, v.k};
+	quat_normalize(&q);
 	rotated = quat_product(quat_product(q, q_v), quat_conjugate(q));
 	return ((t_vector){rotated.i, rotated.j, rotated.k});
 }
@@ -39,6 +40,14 @@ inline t_quat	quat_conjugate(const t_quat q)
 }
 
 inline t_quat	angle_to_quat(const t_vector rot, const float radian)
+{
+	float	sine;
+
+	sine = sin(radian / 2);
+	return ((t_quat){cos(radian / 2), rot.i * sine, rot.j * sine, rot.k * sine});
+}
+
+inline t_quat	quat_angle(const t_vector rot, const float radian)
 {
 	float	sine;
 
@@ -75,7 +84,7 @@ inline float	quat_abs(const t_quat q)
 
 inline void	quat_normalize(t_quat *q)
 {
-	*q = quat_scalar_product(*q, sqrt(quat_abs(*q)));
+	*q = quat_scalar_product(*q, 1 / (quat_abs(*q)));
 }
 
 // void	quat_product(float A[4], float B[4], float q_result[4])
