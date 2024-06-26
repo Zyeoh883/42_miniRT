@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 15:13:56 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/26 18:25:29 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/26 18:50:21 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,8 +59,8 @@ void	intersect_ray_sphere(t_sphere sphere, t_ray ray, float t[2])
 	float		discriminant;
 
 	sphere_to_camera = vector_subtraction(*ray.pos, sphere.pos);
-	printf("3. ");
-	print_vector(*ray.pos);
+	// printf("3. ");
+	// print_vector(*ray.pos);
 	a = vector_dot_product(ray.direction, ray.direction);
 	b = 2 * vector_dot_product(sphere_to_camera, ray.direction);
 	c = vector_dot_product(sphere_to_camera, sphere_to_camera) - (sphere.radius

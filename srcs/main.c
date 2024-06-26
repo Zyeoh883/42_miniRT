@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/26 18:26:41 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/26 19:03:33 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,8 +44,8 @@ int	initialize(t_data *data)
 {
 	// data->win_width = 1920;
 	// data->win_height = 1080;
-	data->win_width = 10;
-	data->win_height = 10;
+	data->win_width = 300;
+	data->win_height = 300;
 	data->img = mlx_new_image(data->mlx_ptr, data->win_width, data->win_height);
 	data->addr = mlx_get_data_addr(data->img, &data->bits_per_pixel,
 			&data->line_length, &data->endian);
@@ -74,21 +74,23 @@ void	render_frame(t_data data)
 	y = -1;
 	// printf("camera pos is:");
 	// print_vector(data.camera.pos);
+	// double time_start = (double)clock() / CLOCKS_PER_SEC;
 	while (++y < data.win_height)
 	{
 		x = -1;
 		while (++x < data.win_width)
 		{
-			ray = create_ray(data.camera, x, y, data.win_width,
+			ray = create_ray(&data.camera, x, y, data.win_width,
 					data.win_height);
-			printf("0. ");
-			print_vector(data.camera.pos);
+			// printf("0. ");
+			// print_vector(data.camera.pos);
 			color = render_ray(ray);
 			// printf("%d\n", color);
 			if (color)
 				my_mlx_put_pixels(&data, x, y, color);
 		}
 	}
+	// printf("time taken is %f\n", (double)clock() / CLOCKS_PER_SEC - time_start);
 	mlx_put_image_to_window(&data, data.win_ptr, data.img, 0, 0);
 }
 	// fflush(stdout);

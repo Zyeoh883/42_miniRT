@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:49 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/26 18:29:27 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/26 18:59:01 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 # include <math.h>
 # include <stdbool.h>
 # include <stdio.h>
+# include <time.h>
 
 # if defined(__APPLE__)
 #  include "macos_defines.h"
@@ -67,7 +68,7 @@ void			vector_test(void);
 void			qua_test(void);
 
 // rays
-t_ray			create_ray(t_camera camera, float i, float j, float width,
+t_ray			create_ray(t_camera *camera, float i, float j, float width,
 					float height);
 void			intersect_ray_sphere(t_sphere sphere, t_ray ray, float t[2]);
 int				render_ray(t_ray ray);

@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 16:33:56 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/26 18:27:32 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/26 18:50:26 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,16 +15,16 @@
 // (2 * i / width) lies between 0 to 2
 // (2 * i / width - 1) lies between -1 to 1, an offset is added
 
-t_ray	create_ray(t_camera camera, float i, float j, float width, float height)
+t_ray	create_ray(t_camera *camera, float i, float j, float width, float height)
 {
 	t_ray	ray;
 
-	ray.pos = &camera.pos;
+	ray.pos = &camera->pos;
 	// print_vector(*ray.pos);
-	ray.direction.i = (2 * i / width - 1) * camera.pixel_width;
-	ray.direction.j = (1 - 2 * j / height) * camera.pixel_height;
+	ray.direction.i = (2 * i / width - 1) * camera->pixel_width;
+	ray.direction.j = (1 - 2 * j / height) * camera->pixel_height;
 	ray.direction.k = 1;
-	ray.direction = quat_rotate(camera.quat, ray.direction);
+	ray.direction = quat_rotate(camera->quat, ray.direction);
 	vector_normalize(&ray.direction);
 	// ray.direction = vector_normalize(ray.direction);
 	return (ray);
@@ -38,8 +38,8 @@ int	render_ray(t_ray ray)
 	float		closest_t;
 	int			n;
 
-	printf("1. ");
-	print_vector(*ray.pos);
+	// printf("1. ");
+	// print_vector(*ray.pos);
 	// rot
 	sphere[0].quat = (t_quat){1, 0, 0, 0};
 	sphere[0].pos = (t_vector){0, 0, 3};
@@ -79,8 +79,8 @@ int	render_ray(t_ray ray)
 	closest_sphere = NULL;
 	closest_t = INFINITY;
 	n = -1;
-	printf("2. ");
-	print_vector(*ray.pos);
+	// printf("2. ");
+	// print_vector(*ray.pos);
 	while (++n < 7)
 	{
 		intersect_ray_sphere(sphere[n], ray, t);
