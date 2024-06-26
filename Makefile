@@ -26,6 +26,7 @@ SRCS_FIL = \
 		create/scene_objects.c \
 		error_handling/memory_error.c \
 		intersects/object_intercept.c \
+		utils/utils.c \
 		test.c \
 		ray.c \
 

@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/13 19:16:07 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/26 18:04:36 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/26 22:41:53 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ typedef struct s_vector
 	float				k;
 }						t_vector;
 
-typedef struct s_quat
+typedef struct s_quat // TODO set w to fourth value for speed (small improvement)
 {
 	float				w;
 	float				i;
@@ -43,7 +43,7 @@ typedef struct s_camera
 
 typedef struct s_ray
 {
-	t_vector			*pos; // TODO change to pointer, is always objects position
+	t_vector 			*pos;
 	t_vector			direction;
 }						t_ray;
 
@@ -57,15 +57,16 @@ typedef struct s_sphere
 
 typedef struct s_OBB
 {
-	t_vector			pos;
+	t_vector			max;
+	t_vector			min;
 	t_quat				quat;
 	t_vector			half_len;
 }						t_OBB;
 
 typedef struct s_object // ! type == 0 means NULL terminated
 {
-	struct s_OBB		obb;
-	char				type;
+	struct s_OBB obb;
+	char type;
 	union
 	{
 		struct s_sphere	sphere;

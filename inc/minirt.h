@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:49 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/26 18:59:01 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/26 23:18:20 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,16 @@
 # elif defined(__linux__)
 #  define PTR_NULL "(nil)"
 # endif
+
+// funni stuff
+# include <altivec.h>
+# include <xmmintrin.h>
+# include <emmintrin.h>
+# include <pmmintrin.h>
+# include <tmmintrin.h>
+# include <smmintrin.h>
+# include <nmmintrin.h>
+// end of funni
 
 # define CAM_SENS M_PI / 24
 # define CAM_LOCK 80 * TO_RADIAN
@@ -75,5 +85,8 @@ int				render_ray(t_ray ray);
 
 // error_handling
 void			perror_and_exit(char *str, int exit_code);
+
+// utils
+void			swap_floats(float *A, float *B);
 
 #endif
