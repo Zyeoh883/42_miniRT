@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:49 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/25 15:40:23 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/26 18:29:27 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,9 +69,8 @@ void			qua_test(void);
 // rays
 t_ray			create_ray(t_camera camera, float i, float j, float width,
 					float height);
-void			intersect_ray_sphere(t_camera camera, t_sphere sphere,
-					t_ray ray, float t[2]);
-int				render_ray(t_camera camera, t_ray ray);
+void			intersect_ray_sphere(t_sphere sphere, t_ray ray, float t[2]);
+int				render_ray(t_ray ray);
 
 // error_handling
 void			perror_and_exit(char *str, int exit_code);

@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 16:33:56 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/25 19:32:28 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/26 18:27:32 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,8 @@ t_ray	create_ray(t_camera camera, float i, float j, float width, float height)
 {
 	t_ray	ray;
 
-	ray.pos = (t_vector){camera.pos.i, camera.pos.j,
-		camera.pos.k};
+	ray.pos = &camera.pos;
+	// print_vector(*ray.pos);
 	ray.direction.i = (2 * i / width - 1) * camera.pixel_width;
 	ray.direction.j = (1 - 2 * j / height) * camera.pixel_height;
 	ray.direction.k = 1;
@@ -30,41 +30,16 @@ t_ray	create_ray(t_camera camera, float i, float j, float width, float height)
 	return (ray);
 }
 
-void	intersect_ray_sphere(t_camera camera, t_sphere sphere, t_ray ray,
-		float t[2])
+int	render_ray(t_ray ray)
 {
-	t_vector	sphere_to_camera;
-	float		a;
-	float		b;
-	float		c;
-	float		discriminant;
-
-	sphere_to_camera = vector_subtraction(camera.pos, sphere.pos);
-	a = vector_dot_product(ray.direction, ray.direction);
-	b = 2 * vector_dot_product(sphere_to_camera, ray.direction);
-	c = vector_dot_product(sphere_to_camera, sphere_to_camera) - (sphere.radius
-			* sphere.radius);
-	// calculate num of intersects
-	discriminant = b * b - 4 * a * c;
-	if (discriminant < 0)
-	{
-		t[0] = INFINITY;
-		t[1] = INFINITY;
-		return ;
-	}
-	discriminant = sqrt(discriminant);
-	t[0] = (-b + discriminant) / (2 * a);
-	t[1] = (-b - discriminant) / (2 * a);
-}
-
-int	render_ray(t_camera camera, t_ray ray)
-{
-	t_sphere	sphere[7];
+	t_sphere	sphere[8];
 	float		t[2];
 	t_sphere	*closest_sphere;
 	float		closest_t;
 	int			n;
 
+	printf("1. ");
+	print_vector(*ray.pos);
 	// rot
 	sphere[0].quat = (t_quat){1, 0, 0, 0};
 	sphere[0].pos = (t_vector){0, 0, 3};
@@ -104,9 +79,11 @@ int	render_ray(t_camera camera, t_ray ray)
 	closest_sphere = NULL;
 	closest_t = INFINITY;
 	n = -1;
+	printf("2. ");
+	print_vector(*ray.pos);
 	while (++n < 7)
 	{
-		intersect_ray_sphere(camera, sphere[n], ray, t);
+		intersect_ray_sphere(sphere[n], ray, t);
 		if (t[0] < closest_t && t[0] > 0)
 		{
 			closest_t = t[0];
@@ -122,3 +99,11 @@ int	render_ray(t_camera camera, t_ray ray)
 		return (0);
 	return (closest_sphere->color);
 }
+
+
+	// sphere[0] = (t_sphere){
+	// 	.quat = (t_quat){1, 0, 0, 0},
+	// 	.pos = (t_vector){0, 0, 3},
+	// 	.radius = 1,
+	// 	.color = 0xFFFFFF,
+	// };

@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/13 19:16:07 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/25 19:30:56 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/26 18:04:36 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ typedef struct s_camera
 
 typedef struct s_ray
 {
-	t_vector			pos;
+	t_vector			*pos; // TODO change to pointer, is always objects position
 	t_vector			direction;
 }						t_ray;
 

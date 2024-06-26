@@ -25,6 +25,7 @@ SRCS_FIL = \
 		mlx_handlers/input_translate.c \
 		create/scene_objects.c \
 		error_handling/memory_error.c \
+		intersects/object_intercept.c \
 		test.c \
 		ray.c \
 
