@@ -6,30 +6,33 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/14 11:31:47 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/27 16:24:24 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/27 21:18:22 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minirt.h"
 
-inline t_vector	vector_cross_product(const t_vector v1, const t_vector v2)
+inline __m128	vector_cross_product(const __m128 v1, const __m128 v2)
 {
-	__m128 a;
-    __m128 b;
-    __m128 c;
-    __m128 d;
+	__m128	a;
+	__m128	b;
+	__m128	c;
+	__m128	d;
+	__m128	result;
 
-	a = _mm_shuffle_ps(v1, v1, _MM_SHUFFLE( 0, 2, 1, 3));
-	b = _mm_shuffle_ps(v2, v2, _MM_SHUFFLE( 1, 0, 2, 3));
-	c = _mm_shuffle_ps(v1, v1, _MM_SHUFFLE( 1, 0, 2, 3));
-	d = _mm_shuffle_ps(v2, v2, _MM_SHUFFLE( 0, 2, 1, 3));
+	a = _mm_shuffle_ps(v1, v1, _MM_SHUFFLE(0, 2, 1, 3));
+	b = _mm_shuffle_ps(v2, v2, _MM_SHUFFLE(1, 0, 2, 3));
+	c = _mm_shuffle_ps(v1, v1, _MM_SHUFFLE(1, 0, 2, 3));
+	d = _mm_shuffle_ps(v2, v2, _MM_SHUFFLE(0, 2, 1, 3));
 
-    return(_mm_sub_ps(_mm_mul_ps(a, b), _mm_mul_ps(c,d)));
+	result = _mm_sub_ps(_mm_mul_ps(a, b), _mm_mul_ps(c, d));
+	
+	return (_mm_blend_ps(result, _mm_setzero_ps(), 1));
 }
 
 inline float	vector_dot_product(const t_vector v1, const t_vector v2)
 {
-	return _mm_cvtss_f32(_mm_dp_ps(v1, v2, 0XFF));
+	return (_mm_cvtss_f32(_mm_dp_ps(v1, v2, 0XFF)));
 }
 
 inline t_vector	vector_scalar_product(const t_vector v, const float scale)

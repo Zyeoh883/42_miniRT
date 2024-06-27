@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/27 13:56:18 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/27 23:03:09 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,7 @@ void	render_frame(t_data data)
 	y = -1;
 	// printf("camera pos is:");
 	// print_vector(data.camera.pos);
-	// double time_start = (double)clock() / CLOCKS_PER_SEC;
+	double time_start = (double)clock() / CLOCKS_PER_SEC;
 	while (++y < data.win_height)
 	{
 		x = -1;
@@ -92,7 +92,7 @@ void	render_frame(t_data data)
 				my_mlx_put_pixels(&data, x, y, color);
 		}
 	}
-	// printf("time taken is %f\n", (double)clock() / CLOCKS_PER_SEC - time_start);
+	printf("%f\n", (double)clock() / CLOCKS_PER_SEC - time_start);
 	mlx_put_image_to_window(&data, data.win_ptr, data.img, 0, 0);
 }
 	// fflush(stdout);
@@ -100,21 +100,21 @@ void	render_frame(t_data data)
 
 int	main(void)
 {
-	// t_data	data;
+	t_data	data;
 
 	// create_objects_array(create_ll_objects());
-	vector_test();
-	// data.mlx_ptr = mlx_init();
-	// if (!initialize(&data))
-	// 	return (1);
-	// // render_frame(data);
-	// mlx_mouse_hide();
-	// mlx_hook(data.win_ptr, 2, 0, deal_key_press, &data);
-	// mlx_hook(data.win_ptr, 3, 1, deal_key_release, &data);
-	// mlx_loop_hook(data.mlx_ptr, deal_input, &data);
-	// mlx_hook(data.win_ptr, 6, 1L<<6, mouse_hook, &data);
-	// mlx_loop(data.mlx_ptr);
-	// mlx_put_image_to_window(&data, data.win_ptr, data.img, 0, 0);
+	// vector_test();
+	data.mlx_ptr = mlx_init();
+	if (!initialize(&data))
+		return (1);
+	// render_frame(data);
+	mlx_mouse_hide();
+	mlx_hook(data.win_ptr, 2, 0, deal_key_press, &data);
+	mlx_hook(data.win_ptr, 3, 1, deal_key_release, &data);
+	mlx_loop_hook(data.mlx_ptr, deal_input, &data);
+	mlx_hook(data.win_ptr, 6, 1L<<6, mouse_hook, &data);
+	mlx_loop(data.mlx_ptr);
+	mlx_put_image_to_window(&data, data.win_ptr, data.img, 0, 0);
 	return (0);
 }
 
