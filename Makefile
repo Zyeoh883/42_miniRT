@@ -1,5 +1,5 @@
 # Compiler and flags
-CC = gcc -o3 -march=native -flto -fno-strict-aliasing -ffast-math -funroll-loops
+CC = gcc -o3 -march=native -flto -fno-strict-aliasing -ffast-math -funroll-loops -msse4
 CFLAGS = -Wall -Wextra -Werror $(INCLUDES) -fsanitize=address -g #-std=c99 
 INCLUDES = -Iinc -I$(LIBFT_DIR) -I$(MLX_DIR)
 MLX = -lmlx -framework OpenGL -framework AppKit

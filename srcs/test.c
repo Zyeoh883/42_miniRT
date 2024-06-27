@@ -1,36 +1,34 @@
-// /* ************************************************************************** */
-// /*                                                                            */
-// /*                                                        :::      ::::::::   */
-// /*   test.c                                             :+:      :+:    :+:   */
-// /*                                                    +:+ +:+         +:+     */
-// /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
-// /*                                                +#+#+#+#+#+   +#+           */
-// /*   Created: 2024/06/14 11:54:40 by zyeoh             #+#    #+#             */
-// /*   Updated: 2024/06/24 11:18:30 by zyeoh            ###   ########.fr       */
-// /*                                                                            */
-// /* ************************************************************************** */
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   test.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/06/14 11:54:40 by zyeoh             #+#    #+#             */
+/*   Updated: 2024/06/27 13:56:34 by zyeoh            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-// #include "minirt.h"
+#include "minirt.h"
 
-// void	vector_test(void)
-// {
-// 	t_vector	v1;
-// 	t_vector	v2;
-// 	t_vector	result;
+void	vector_test(void)
+{
+    float arr[4];
+	t_vector	v1;
+	t_vector	v2;
+	t_vector	result;
 
-// 	v1.i = 1;
-// 	v1.j = 2;
-// 	v1.k = 3;
-// 	// v2.i = 1 / sqrt(3);
-// 	// v2.j = 1 / sqrt(3);
-// 	// v2.k = 1 / sqrt(3);
-// 	v2.i = 1;
-// 	v2.j = 5;
-// 	v2.k = 7;
-// 	result = vector_cross_product(v1, v2);
-// 	printf("Cross-Product: %f %f %f\n", result.i, result.j, result.k);
-// 	printf("Dot-Product: %f\n", vector_dot_product(v1, v2));
-// }
+    v1 = _mm_set_ps(3, 2, 1, 0);
+	// v2.i = 1 / sqrt(3);
+	// v2.j = 1 / sqrt(3);
+	// v2.k = 1 / sqrt(3);
+    v2 = _mm_set_ps(7, 5, 1, 0);
+	result = vector_cross_product(v1, v2);
+    _mm_store_ps(arr, result);
+	printf("Cross-Product: %f %f %f\n", arr[1], arr[2], arr[3]);
+	printf("Dot-Product: %f\n", vector_dot_product(v1, v2));
+}
 
 // void	qua_test(void)
 // {

@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/13 19:16:07 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/27 10:46:27 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/27 13:56:01 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,12 @@
 
 # define SPHERE "S"
 
+// #define t_vector __m128
+// #define t_quat __m128
 
 // * reverse order for __m128
-typedef __m128 t_vector;	// {k, j, i, NULL}
-typedef __m128 t_quat;		// {k, j, i, w}
+typedef __attribute__((aligned(16))) __m128 t_vector;	// {k, j, i, NULL}
+typedef __attribute__((aligned(16))) __m128 t_quat;		// {k, j, i, w}
 
 // typedef struct s_vector
 // {

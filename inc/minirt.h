@@ -6,12 +6,23 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:49 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/27 06:58:20 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/27 13:56:12 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MINIRT_H
 # define MINIRT_H
+
+// funni stuff
+// # include <altivec.h>
+# include <xmmintrin.h>
+# include <emmintrin.h>
+# include <pmmintrin.h>
+# include <tmmintrin.h>
+# include <smmintrin.h>
+# include <nmmintrin.h>
+# include <immintrin.h>
+// end of funni
 
 # include "data_struct.h"
 # include "libft.h"
@@ -28,17 +39,6 @@
 # elif defined(__linux__)
 #  define PTR_NULL "(nil)"
 # endif
-
-// funni stuff
-// # include <altivec.h>
-# include <xmmintrin.h>
-# include <emmintrin.h>
-# include <pmmintrin.h>
-# include <tmmintrin.h>
-# include <smmintrin.h>
-# include <nmmintrin.h>
-# include <immintrin.h>
-// end of funni
 
 # define CAM_SENS M_PI / 24
 # define CAM_LOCK 80 * TO_RADIAN

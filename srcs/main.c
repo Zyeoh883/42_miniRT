@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/27 07:48:08 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/27 13:56:18 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,20 +100,21 @@ void	render_frame(t_data data)
 
 int	main(void)
 {
-	t_data	data;
+	// t_data	data;
 
 	// create_objects_array(create_ll_objects());
-	data.mlx_ptr = mlx_init();
-	if (!initialize(&data))
-		return (1);
-	// render_frame(data);
-	mlx_mouse_hide();
-	mlx_hook(data.win_ptr, 2, 0, deal_key_press, &data);
-	mlx_hook(data.win_ptr, 3, 1, deal_key_release, &data);
-	mlx_loop_hook(data.mlx_ptr, deal_input, &data);
-	mlx_hook(data.win_ptr, 6, 1L<<6, mouse_hook, &data);
-	mlx_loop(data.mlx_ptr);
-	mlx_put_image_to_window(&data, data.win_ptr, data.img, 0, 0);
+	vector_test();
+	// data.mlx_ptr = mlx_init();
+	// if (!initialize(&data))
+	// 	return (1);
+	// // render_frame(data);
+	// mlx_mouse_hide();
+	// mlx_hook(data.win_ptr, 2, 0, deal_key_press, &data);
+	// mlx_hook(data.win_ptr, 3, 1, deal_key_release, &data);
+	// mlx_loop_hook(data.mlx_ptr, deal_input, &data);
+	// mlx_hook(data.win_ptr, 6, 1L<<6, mouse_hook, &data);
+	// mlx_loop(data.mlx_ptr);
+	// mlx_put_image_to_window(&data, data.win_ptr, data.img, 0, 0);
 	return (0);
 }
 
