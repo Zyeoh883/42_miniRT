@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 16:33:56 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/26 18:50:26 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/27 07:55:24 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,16 @@ t_ray	create_ray(t_camera *camera, float i, float j, float width, float height)
 	t_ray	ray;
 
 	ray.pos = &camera->pos;
+	ray.direction = _mm_set_ps(
+	1,
+	(1 - 2 * j / height) * camera->pixel_height,
+	(2 * i / width - 1) * camera->pixel_width,
+	0)
 	// print_vector(*ray.pos);
-	ray.direction.i = (2 * i / width - 1) * camera->pixel_width;
-	ray.direction.j = (1 - 2 * j / height) * camera->pixel_height;
-	ray.direction.k = 1;
-	ray.direction = quat_rotate(camera->quat, ray.direction);
+	// ray.direction.i = (2 * i / width - 1) * camera->pixel_width;
+	// ray.direction.j = (1 - 2 * j / height) * camera->pixel_height;
+	// ray.direction.k = 1;
+	// ray.direction = quat_rotate(camera->quat, ray.direction);
 	vector_normalize(&ray.direction);
 	// ray.direction = vector_normalize(ray.direction);
 	return (ray);
@@ -41,38 +46,38 @@ int	render_ray(t_ray ray)
 	// printf("1. ");
 	// print_vector(*ray.pos);
 	// rot
-	sphere[0].quat = (t_quat){1, 0, 0, 0};
-	sphere[0].pos = (t_vector){0, 0, 3};
+	sphere[0].quat = _mm_set_ps(0, 0, 0, 1);
+	sphere[0].pos = _mm_set_ps(3, 0, 0, 0);
 	sphere[0].radius = 1;
 	sphere[0].color = 0xFFFFFF;
 	// data,
-	sphere[1].quat = (t_quat){1, 0, 0, 0};
-	sphere[1].pos = (t_vector){0, -10, 3};
+	sphere[1].quat = _mm_set_ps(0, 0, 0, 1);
+	sphere[1].pos = _mm_set_ps(3, -10, 0, 0);
 	sphere[1].radius = 1;
 	sphere[1].color = 0xFF0000;
 	// 3rd
-	sphere[2].quat = (t_quat){1, 0, 0, 0};
-	sphere[2].pos = (t_vector){0, 0, 10};
+	sphere[2].quat = _mm_set_ps(0, 0, 0, 1);
+	sphere[2].pos = _mm_set_ps(10, 0, 0, 0);
 	sphere[2].radius = 1;
 	sphere[2].color = 0x00FF00;
 	// 4th
-	sphere[3].quat = (t_quat){1, 0, 0, 0};
-	sphere[3].pos = (t_vector){0, 10, 3};
+	sphere[3].quat = _mm_set_ps(0, 0, 0, 1);
+	sphere[3].pos = _mm_set_ps(3, 10, 0, 0);
 	sphere[3].radius = 1;
 	sphere[3].color = 0x0000FF;
 	// 5th
-	sphere[4].quat = (t_quat){1, 0, 0, 0};
-	sphere[4].pos = (t_vector){0, 0, -10};
+	sphere[4].quat = _mm_set_ps(0, 0, 0, 1);
+	sphere[4].pos = _mm_set_ps(-10, 0, 0, 0);
 	sphere[4].radius = 1;
 	sphere[4].color = 0xFF00FF;
 	// 6th
-	sphere[5].quat = (t_quat){1, 0, 0, 0};
-	sphere[5].pos = (t_vector){10, 0, 3};
+	sphere[5].quat = _mm_set_ps(0, 0, 0, 1);
+	sphere[5].pos = _mm_set_ps(3, 0, 10, 0);
 	sphere[5].radius = 1;
 	sphere[5].color = 0xFFFF00;
 	// 7th
-	sphere[6].quat = (t_quat){1, 0, 0, 0};
-	sphere[6].pos = (t_vector){-10, 0, 3};
+	sphere[6].quat = _mm_set_ps(0, 0, 0, 1);
+	sphere[6].pos = _mm_set_ps(3, 0, -10, 0);;
 	sphere[6].radius = 1;
 	sphere[6].color = 0x00FFFF;
 	// looing through spheres

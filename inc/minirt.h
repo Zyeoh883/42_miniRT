@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:49 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/26 23:18:20 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/27 06:58:20 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,13 +30,14 @@
 # endif
 
 // funni stuff
-# include <altivec.h>
+// # include <altivec.h>
 # include <xmmintrin.h>
 # include <emmintrin.h>
 # include <pmmintrin.h>
 # include <tmmintrin.h>
 # include <smmintrin.h>
 # include <nmmintrin.h>
+# include <immintrin.h>
 // end of funni
 
 # define CAM_SENS M_PI / 24

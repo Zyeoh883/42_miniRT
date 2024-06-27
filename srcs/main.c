@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/26 19:03:33 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/27 07:48:08 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,14 +17,16 @@ t_camera	init_camera(t_data data)
 	t_camera	camera;
 
 	// pos
-	camera.pos.i = 0;
-	camera.pos.j = 0;
-	camera.pos.k = 0;
+	camera.pos = _mm_set_ps(0, 0, 0, 0);
+	// camera.pos.i = 0;
+	// camera.pos.j = 0;
+	// camera.pos.k = 0;
 	// direction
-	camera.quat.w = 1;
-	camera.quat.i = 0;
-	camera.quat.j = 0;
-	camera.quat.k = 0;
+	camera.quat = _mm_set_ps(0, 0, 0, 1);
+	// camera.quat.w = 1;
+	// camera.quat.i = 0;
+	// camera.quat.j = 0;
+	// camera.quat.k = 0;
 	// camera.quat = angle_to_quat((t_vector){0, 1, 0}, M_PI / 4);
 	// fov
 	camera.fov = 60 * TO_RADIAN;

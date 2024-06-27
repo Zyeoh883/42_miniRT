@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/13 19:16:07 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/26 22:41:53 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/27 10:46:27 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,25 +15,30 @@
 
 # define SPHERE "S"
 
-typedef struct s_vector
-{
-	float				i;
-	float				j;
-	float				k;
-}						t_vector;
 
-typedef struct s_quat // TODO set w to fourth value for speed (small improvement)
-{
-	float				w;
-	float				i;
-	float				j;
-	float				k;
-}						t_quat;
+// * reverse order for __m128
+typedef __m128 t_vector;	// {k, j, i, NULL}
+typedef __m128 t_quat;		// {k, j, i, w}
+
+// typedef struct s_vector
+// {
+// 	float				i;
+// 	float				j;
+// 	float				k;
+// }						t_vector;
+
+// typedef struct s_quat // TODO set w to fourth value for speed (small improvement)
+// {
+// 	float				w;
+// 	float				i;
+// 	float				j;
+// 	float				k;
+// }						t_quat;
 
 typedef struct s_camera
 {
-	t_vector			pos;
-	t_quat				quat;
+	__m128				pos;
+	__m128				quat;
 	float				fov;
 	float				aspect_ratio;
 	float				pixel_width;
@@ -43,24 +48,24 @@ typedef struct s_camera
 
 typedef struct s_ray
 {
-	t_vector 			*pos;
-	t_vector			direction;
+	__m128 			*pos;
+	__m128			direction;
 }						t_ray;
 
 typedef struct s_sphere
 {
-	t_vector			pos;
-	t_quat				quat;
+	__m128			pos;
+	__m128				quat;
 	float				radius;
 	int					color;
 }						t_sphere;
 
 typedef struct s_OBB
 {
-	t_vector			max;
-	t_vector			min;
-	t_quat				quat;
-	t_vector			half_len;
+	__m128			max;
+	__m128			min;
+	__m128				quat;
+	__m128			half_len;
 }						t_OBB;
 
 typedef struct s_object // ! type == 0 means NULL terminated

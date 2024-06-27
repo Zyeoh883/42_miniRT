@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 15:13:56 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/26 23:18:13 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/27 06:52:09 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,13 +40,12 @@ int	intersect_aabb(t_ray ray, t_vector max, t_vector min)
 	return (t[1] > 0 || temp[1] > 0);
 }
 
-int	intersect_obb(t_ray ray, float t[2])
-{
-	t_vector local_origin;
-	t_vector local_direction;
+// int	intersect_obb(t_ray ray, float t[2])
+// {
+// 	t_vector local_origin;
+// 	t_vector local_direction;
 
-	local_origin 
-}
+// }
 
 void	intersect_ray_sphere(t_sphere sphere, t_ray ray, float t[2])
 {
