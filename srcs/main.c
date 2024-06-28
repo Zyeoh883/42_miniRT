@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/28 16:29:47 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/28 17:27:01 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ t_camera	init_camera(t_data *data)
 	float		fov;
 
 	camera.data = data;
+	camera.objects = NULL;
 	// pos
 	camera.pos = _mm_set_ps(0, 0, 0, 0);
 	camera.quat = _mm_set_ps(0, 0, 0, 1);
@@ -52,11 +53,11 @@ int	initialize(t_data *data, t_camera *camera)
 			data->win_height, "miniRT");
 	ft_bzero(&data->inputs, sizeof(t_inputs));
 	data->inputs.key = -1;
-	data->inputs.mouse_x = data->win_width / 2;
-	data->inputs.mouse_y = data->win_height / 2;
+	data->inputs.mouse_x = data->win_width * 0.5f;
+	data->inputs.mouse_y = data->win_height * 0.5f;
 	*camera = init_camera(data);
 	data->camera = camera;
-	mlx_mouse_move(data->win_ptr, data->win_width / 2, data->win_height / 2);
+	mlx_mouse_move(data->win_ptr, data->win_width * 0.5f, data->win_height * 0.5f);
 	render_frame(data);
 	return (1);
 }
@@ -83,11 +84,11 @@ void	render_frame(t_data *data)
 			ray = create_ray(data->camera, x, y, data->win_width,
 					data->win_height);
 			// printf("0-> ");
-			// if (x == 0 && y == 0)
-			// {
-			// 	print_vector(ray.direction);
-			// 	print_m128(data->camera->quat);
-			// }
+			if (x == 0 && y == 0)
+			{
+				print_vector(ray.direction);
+				// print_m128(data->camera->quat);
+			}
 			color = render_ray(ray);
 			// printf("%d\n", color);
 			if (color)
