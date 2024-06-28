@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/13 19:16:07 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/27 13:56:01 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/28 13:54:17 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,8 @@
 // #define t_quat __m128
 
 // * reverse order for __m128
-typedef __attribute__((aligned(16))) __m128 t_vector;	// {k, j, i, NULL}
-typedef __attribute__((aligned(16))) __m128 t_quat;		// {k, j, i, w}
+typedef	__attribute__((aligned(16))) __m128 t_vector; // {k, j, i, NULL}
+typedef	__attribute__((aligned(16))) __m128 t_quat;   // {k, j, i, w}
 
 // typedef struct s_vector
 // {
@@ -29,7 +29,8 @@ typedef __attribute__((aligned(16))) __m128 t_quat;		// {k, j, i, w}
 // 	float				k;
 // }						t_vector;
 
-// typedef struct s_quat // TODO set w to fourth value for speed (small improvement)
+// typedef struct s_quat
+// TODO set w to fourth value for speed (small improvement)
 // {
 // 	float				w;
 // 	float				i;
@@ -37,26 +38,15 @@ typedef __attribute__((aligned(16))) __m128 t_quat;		// {k, j, i, w}
 // 	float				k;
 // }						t_quat;
 
-typedef struct s_camera
-{
-	__m128				pos;
-	__m128				quat;
-	float				fov;
-	float				aspect_ratio;
-	float				pixel_width;
-	float				pixel_height;
-	float				pitch_angle;
-}						t_camera;
-
 typedef struct s_ray
 {
-	__m128 			*pos;
-	__m128			direction;
+	__m128				*pos;
+	__m128				direction;
 }						t_ray;
 
 typedef struct s_sphere
 {
-	__m128			pos;
+	__m128				pos;
 	__m128				quat;
 	float				radius;
 	int					color;
@@ -64,10 +54,10 @@ typedef struct s_sphere
 
 typedef struct s_OBB
 {
-	__m128			max;
-	__m128			min;
+	__m128				max;
+	__m128				min;
 	__m128				quat;
-	__m128			half_len;
+	__m128				half_len;
 }						t_OBB;
 
 typedef struct s_object // ! type == 0 means NULL terminated

@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/21 17:31:34 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/25 14:52:15 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/28 16:23:43 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,8 +48,7 @@ int	deal_input(t_data *data)
 	if (data->inputs.key == -1)
 		return (0);
 	// ft_printf("input is %d\n", data->inputs.key);
-	if (input_translate(data))
-		;
+	input_translate(data->camera, data->inputs.key);
 	// ! add slerp to reset key
 	// else if (data->inputs.key == B_KEY && !data->inputs.key_held)
 	// {
@@ -64,30 +63,35 @@ int	deal_input(t_data *data)
 	// 	}
 	// }
 	data->inputs.key_held = true;
-	render_frame(*data);
+	render_frame(data);
 	return (0);
 }
 
-int	mouse_hook(int x, int y, t_data *data)
+int	mouse_hook(int x, int y, t_camera *camera)
 {
-	input_translate(data);
-	quat_normalize(&data->camera.quat);
-	if (y - data->inputs.mouse_y > 0 && data->camera.pitch_angle < CAM_LOCK)
+	// printf("mouse xy: %d %d\n", x, y);
+	input_translate(camera, camera->data->inputs.key);
+	quat_normalize(&camera->quat);
+	if (y - camera->data->inputs.mouse_y > 0 && camera->pitch_angle < CAM_LOCK)
 	{
-		data->camera.pitch_angle += CAM_SENS;
-		data->camera.quat = quat_product(data->camera.quat, angle_to_quat((t_vector){1, 0, 0}, CAM_SENS));
+		// printf("Lookin up\n");
+		camera->pitch_angle += CAM_SENS;
+		// print_m128(camera->quat);
+		camera->quat = quat_product(camera->quat, angle_to_quat(_mm_set_ps(0, 0, 1, 0), CAM_SENS));
+		// print_m128(camera->quat);
 	}
-	else if (y - data->inputs.mouse_y < 0 && data->camera.pitch_angle > -CAM_LOCK)
+	else if (y - camera->data->inputs.mouse_y < 0 && camera->pitch_angle > -CAM_LOCK)
 	{
-		data->camera.pitch_angle -= CAM_SENS;
-		data->camera.quat = quat_product(data->camera.quat, angle_to_quat((t_vector){-1, 0, 0}, CAM_SENS));
+		// printf("Lookin down\n");
+		camera->pitch_angle -= CAM_SENS;
+		camera->quat = quat_product(camera->quat, angle_to_quat(_mm_set_ps(0, 0, -1, 0), CAM_SENS));
 	}
-	if (x - data->inputs.mouse_x > 0)
-		data->camera.quat = quat_product(angle_to_quat((t_vector){0, 1, 0}, CAM_SENS), data->camera.quat);
-	else if (x - data->inputs.mouse_x < 0)
-		data->camera.quat = quat_product(angle_to_quat((t_vector){0, -1, 0}, CAM_SENS), data->camera.quat);
-	mlx_mouse_move(data->win_ptr, data->win_width / 2, data->win_height / 2);
-	render_frame(*data);	
+	if (x - camera->data->inputs.mouse_x > 0)
+		camera->quat = quat_product(angle_to_quat(_mm_set_ps(0, 1, 0, 0), CAM_SENS), camera->quat);
+	else if (x - camera->data->inputs.mouse_x < 0)
+		camera->quat = quat_product(angle_to_quat(_mm_set_ps(0, -1, 0, 0), CAM_SENS), camera->quat);
+	mlx_mouse_move(camera->data->win_ptr, camera->data->win_width * 0.5, camera->data->win_height * 0.5); // ! might not work with int
+	render_frame(camera->data);	// TODO fix to camera
 	return (0);
 }
 	
