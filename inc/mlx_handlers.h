@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 10:43:27 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/28 14:37:16 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/29 22:11:37 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ int						deal_input(t_data *data);
 int						mouse_hook(int x, int y, t_camera *camera);
 
 // inputs
-int						input_translate(t_camera *camera, int key);
+void						input_translate(t_camera *camera, int key);
 // int						input_rotation(t_data *data);
 
 #endif

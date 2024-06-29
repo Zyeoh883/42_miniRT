@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/13 19:16:07 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/28 13:54:17 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/29 22:44:01 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ typedef struct s_sphere
 	int					color;
 }						t_sphere;
 
-typedef struct s_OBB
+typedef struct s_OBB // ! confirm OBB params
 {
 	__m128				max;
 	__m128				min;

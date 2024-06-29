@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/14 12:08:41 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/29 21:21:17 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/29 21:46:17 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,9 @@ inline __m128	quat_rotate(t_quat q, const __m128 v) // rotate point
 	t_quat rotated;
 
 	// print_m128(v);
-	quat_normalize(&q);
+	// quat_normalize(&q);
 	rotated = quat_product(quat_product(q, v), quat_conjugate(q));
-	// quat_normalize(&rotated); // ? Normialize or not?
+	// quat_normalize(&rotated);
 	return (_mm_blend_ps(rotated, _mm_setzero_ps(), 1));
 }
 

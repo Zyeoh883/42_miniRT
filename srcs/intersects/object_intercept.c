@@ -6,13 +6,34 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 15:13:56 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/27 23:00:09 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/29 22:42:08 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minirt.h"
 
-// TODO start doing aabb afetr SIMB SSE
+// TODO validate aabb SIMB SSE
+int	intersect_aabb(t_ray ray, t_vector max, t_vector min)
+{
+
+	__m128 t0;
+    __m128 t1;
+	__m128 tmin;
+    __m128 tmax;
+	__m128 mask;
+
+	t0 = _mm_div_ps(_mm_sub_ps(min, *ray.pos), ray.direction);
+    t1 = _mm_div_ps(_mm_sub_ps(max, *ray.pos), ray.direction);
+
+	tmin = _mm_min_ps(t0, t1);
+   	tmax = _mm_max_ps(t0, t1);
+
+	mask = _mm_cmpgt_ps(tmax, _mm_setzero_ps());
+    mask = _mm_or_ps(mask, _mm_cmpgt_ps(tmin, _mm_setzero_ps()));
+
+	return (_mm_movemask_ps(mask) != 0);
+}
+
 // int	intersect_aabb(t_ray ray, t_vector max, t_vector min)
 // {
 // 	float	t[2];

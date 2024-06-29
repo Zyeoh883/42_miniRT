@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/29 21:18:06 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/29 22:17:38 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ void	render_frame(t_data *data)
 	y = -1;
 	// printf("camera pos is:");
 	// print_vector(data->camera->pos);
-	double time_start = (double)clock() / CLOCKS_PER_SEC;
+	// double time_start = (double)clock() / CLOCKS_PER_SEC;
 	while (++y < data->win_height)
 	{
 		x = -1;
@@ -96,7 +96,7 @@ void	render_frame(t_data *data)
 		}
 	}
 	// printf("\n\n\n\n");
-	printf("%f\n", (double)clock() / CLOCKS_PER_SEC - time_start);
+	// printf("%f\n", (double)clock() / CLOCKS_PER_SEC - time_start);
 	mlx_put_image_to_window(data, data->win_ptr, data->img, 0, 0);
 }
 // fflush(stdout);
