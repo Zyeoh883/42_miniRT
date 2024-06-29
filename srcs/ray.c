@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 16:33:56 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/28 15:06:44 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/29 20:45:57 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ int	render_ray(t_ray ray)
 	sphere[1].color = 0xFF0000;
 	// 3rd
 	sphere[2].quat = _mm_set_ps(0, 0, 0, 1);
-	sphere[2].pos = _mm_set_ps(10, 0, 0, 0);
+	sphere[2].pos = _mm_set_ps(13, 0, 0, 0);
 	sphere[2].radius = 1;
 	sphere[2].color = 0x00FF00;
 	// 4th
@@ -63,7 +63,7 @@ int	render_ray(t_ray ray)
 	sphere[3].color = 0x0000FF;
 	// 5th
 	sphere[4].quat = _mm_set_ps(0, 0, 0, 1);
-	sphere[4].pos = _mm_set_ps(-10, 0, 0, 0);
+	sphere[4].pos = _mm_set_ps(-7, 0, 0, 0);
 	sphere[4].radius = 1;
 	sphere[4].color = 0xFF00FF;
 	// 6th

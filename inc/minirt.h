@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:49 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/28 14:53:42 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/29 20:29:38 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@
 #  define PTR_NULL "(nil)"
 # endif
 
-# define CAM_SENS M_PI / 24
+# define CAM_SENS M_PI * 0.001
 # define CAM_LOCK 80 * TO_RADIAN
 
 typedef struct s_camera	t_camera;

@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/28 17:27:01 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/29 21:18:06 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ t_camera	init_camera(t_data *data)
 	// pos
 	camera.pos = _mm_set_ps(0, 0, 0, 0);
 	camera.quat = _mm_set_ps(0, 0, 0, 1);
-	// camera.quat = angle_to_quat((t_vector){0, 1, 0}, M_PI / 4);
+	// camera.quat = angle_to_quat(_mm_set_ps(0, 0, 1, 0), M_PI * 2);
 	// fov
 	fov = 60 * TO_RADIAN;
 	// printf("win width: %d\n", data.win_width);
@@ -75,7 +75,7 @@ void	render_frame(t_data *data)
 	y = -1;
 	// printf("camera pos is:");
 	// print_vector(data->camera->pos);
-	// double time_start = (double)clock() / CLOCKS_PER_SEC;
+	double time_start = (double)clock() / CLOCKS_PER_SEC;
 	while (++y < data->win_height)
 	{
 		x = -1;
@@ -84,19 +84,19 @@ void	render_frame(t_data *data)
 			ray = create_ray(data->camera, x, y, data->win_width,
 					data->win_height);
 			// printf("0-> ");
-			if (x == 0 && y == 0)
-			{
-				print_vector(ray.direction);
-				// print_m128(data->camera->quat);
-			}
+			// if (x == 0 && y == 0)
+			// {
+			// 	print_vector(ray.direction);
+			// 	// print_m128(data->camera->quat);
+			// }
 			color = render_ray(ray);
 			// printf("%d\n", color);
 			if (color)
 				my_mlx_put_pixels(data, x, y, color);
 		}
 	}
-	printf("\n\n\n\n");
-	// printf("%f\n", (double)clock() / CLOCKS_PER_SEC - time_start);
+	// printf("\n\n\n\n");
+	printf("%f\n", (double)clock() / CLOCKS_PER_SEC - time_start);
 	mlx_put_image_to_window(data, data->win_ptr, data->img, 0, 0);
 }
 // fflush(stdout);

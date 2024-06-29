@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/14 11:31:47 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/27 21:18:22 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/29 20:08:24 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,10 @@ inline __m128	vector_cross_product(const __m128 v1, const __m128 v2)
 	__m128	d;
 	__m128	result;
 
-	a = _mm_shuffle_ps(v1, v1, _MM_SHUFFLE(0, 2, 1, 3));
-	b = _mm_shuffle_ps(v2, v2, _MM_SHUFFLE(1, 0, 2, 3));
-	c = _mm_shuffle_ps(v1, v1, _MM_SHUFFLE(1, 0, 2, 3));
-	d = _mm_shuffle_ps(v2, v2, _MM_SHUFFLE(0, 2, 1, 3));
+	a = _mm_shuffle_ps(v1, v1, _MM_SHUFFLE(1, 3, 2, 0));
+	b = _mm_shuffle_ps(v2, v2, _MM_SHUFFLE(2, 1, 3, 0));
+	c = _mm_shuffle_ps(v1, v1, _MM_SHUFFLE(2, 1, 3, 0));
+	d = _mm_shuffle_ps(v2, v2, _MM_SHUFFLE(1, 3, 2, 0));
 
 	result = _mm_sub_ps(_mm_mul_ps(a, b), _mm_mul_ps(c, d));
 	
