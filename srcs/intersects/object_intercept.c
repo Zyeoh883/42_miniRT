@@ -6,24 +6,25 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 15:13:56 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/29 22:42:08 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/30 21:41:06 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minirt.h"
 
 // TODO validate aabb SIMB SSE
-int	intersect_aabb(t_ray ray, t_vector max, t_vector min)
+int	intersect_aabb(t_ray *ray, t_vector max, t_vector min)
 {
-
 	__m128 t0;
     __m128 t1;
 	__m128 tmin;
     __m128 tmax;
 	__m128 mask;
 
-	t0 = _mm_div_ps(_mm_sub_ps(min, *ray.pos), ray.direction);
-    t1 = _mm_div_ps(_mm_sub_ps(max, *ray.pos), ray.direction);
+	// mask = _mm_max_ps(ray->direction, _mm_set1_ps(1e-8f));
+
+	t0 = _mm_div_ps(min, ray->direction);
+    t1 = _mm_div_ps(max, ray->direction);
 
 	tmin = _mm_min_ps(t0, t1);
    	tmax = _mm_max_ps(t0, t1);
@@ -31,8 +32,53 @@ int	intersect_aabb(t_ray ray, t_vector max, t_vector min)
 	mask = _mm_cmpgt_ps(tmax, _mm_setzero_ps());
     mask = _mm_or_ps(mask, _mm_cmpgt_ps(tmin, _mm_setzero_ps()));
 
-	return (_mm_movemask_ps(mask) != 0);
+	return (_mm_movemask_ps(mask) == 0);
 }
+
+// int intersect_aabb(t_ray *ray, __m128 max, __m128 min) {
+//     __m128 t0, t1, tmin, tmax;
+//     __m128 inv_dir, mask;
+//     const __m128 epsilon = _mm_set1_ps(1e-8f);
+
+//     // Avoid division by zero by replacing zeros with epsilon
+//     inv_dir = _mm_div_ps(_mm_set1_ps(1.0f), _mm_add_ps(ray->direction, _mm_and_ps(_mm_cmpeq_ps(ray->direction, _mm_setzero_ps()), epsilon)));
+
+//     t0 = _mm_mul_ps(_mm_sub_ps(min, *ray->pos), inv_dir);
+//     t1 = _mm_mul_ps(_mm_sub_ps(max, *ray->pos), inv_dir);
+
+//     tmin = _mm_min_ps(t0, t1);
+//     tmax = _mm_max_ps(t0, t1);
+
+//     // Find the largest tmin and the smallest tmax
+//     __m128 max_of_tmin = _mm_max_ps(_mm_shuffle_ps(tmin, tmin, _MM_SHUFFLE(1, 0, 2, 3)), tmin);
+//     max_of_tmin = _mm_max_ps(_mm_shuffle_ps(max_of_tmin, max_of_tmin, _MM_SHUFFLE(2, 1, 3, 0)), max_of_tmin);
+
+//     __m128 min_of_tmax = _mm_min_ps(_mm_shuffle_ps(tmax, tmax, _MM_SHUFFLE(1, 0, 2, 3)), tmax);
+//     min_of_tmax = _mm_min_ps(_mm_shuffle_ps(min_of_tmax, min_of_tmax, _MM_SHUFFLE(2, 1, 3, 0)), min_of_tmax);
+
+//     // Check for intersection
+//     mask = _mm_cmpge_ps(min_of_tmax, max_of_tmin);
+//     return _mm_movemask_ps(mask) == 0xF; // 0xF means all components are true
+// }
+
+int	intersect_obb(t_ray *ray, t_OBB obb)
+{
+	__m128 max;
+	__m128 min;
+
+	// max = quat_rotate(obb.quat, _mm_add_ps(obb.pos, obb.half_len));
+	// min = quat_rotate(obb.quat, _mm_sub_ps(obb.pos, obb.half_len));
+	// vector_normalize(&ray->direction);
+
+	min = _mm_sub_ps(obb.pos, obb.half_len);
+	max = _mm_add_ps(obb.pos, obb.half_len);
+
+	// print_m128(max);
+	// print_m128(min);
+
+	return (intersect_aabb(ray, max, min));
+}
+
 
 // int	intersect_aabb(t_ray ray, t_vector max, t_vector min)
 // {

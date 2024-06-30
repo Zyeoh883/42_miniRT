@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:49 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/29 20:29:38 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/30 19:24:19 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,7 @@ t_camera				init_camera(t_data *data);
 int						initialize(t_data *data, t_camera *camera);
 t_list					*create_ll_objects(void);
 t_object				*create_objects_array(t_list *root_node);
+t_OBB					assign_sphere_obb(t_sphere sphere);
 
 void					render_frame(t_data *data);
 
@@ -97,7 +98,9 @@ t_ray					create_ray(t_camera *camera, float i, float j,
 							float width, float height);
 void					intersect_ray_sphere(t_sphere sphere, t_ray ray,
 							float t[2]);
-int						render_ray(t_ray ray);
+int						render_ray(t_ray ray, t_object *objects);
+int						intersect_aabb(t_ray *ray, t_vector max, t_vector min);
+int						intersect_obb(t_ray *ray, t_OBB obb);
 
 // error_handling
 void					perror_and_exit(char *str, int exit_code);

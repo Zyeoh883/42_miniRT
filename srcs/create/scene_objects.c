@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/25 14:31:11 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/25 19:31:43 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/30 19:45:10 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ t_sphere	assign_sphere(t_vector pos, float radius, int color)
 	t_sphere	sphere;
 
 	sphere.pos = pos;
-	sphere.quat = (t_quat){1, 0, 0, 0};
+	sphere.quat = _mm_set_ps(0, 0, 0, 1);
 	sphere.radius = radius;
 	sphere.color = color;
 	return (sphere);
@@ -45,38 +45,38 @@ t_list	*create_ll_objects(void) // !parsing to execution starts here
 	int color[7];
 
 	// 1st
-	q[0] = (t_quat){1, 0, 0, 0};
-	pos[0] = (t_vector){0, 0, 3};
+	q[0] = _mm_set_ps(0, 0, 0, 1);
+	pos[0] = _mm_set_ps(3, 0, 0, 0);
 	radius[0] = 1;
 	color[0] = 0xFFFFFF;
 	// 2nd,
-	q[1] = (t_quat){1, 0, 0, 0};
-	pos[1] = (t_vector){0, -10, 3};
+	q[1] = _mm_set_ps(0, 0, 0, 1);
+	pos[1] = _mm_set_ps(3, -10, 0, 0);
 	radius[1] = 1;
 	color[1] = 0xFF0000;
 	// 3rd
-	q[2] = (t_quat){1, 0, 0, 0};
-	pos[2] = (t_vector){0, 0, 10};
+	q[2] = _mm_set_ps(0, 0, 0, 1);
+	pos[2] = _mm_set_ps(13, 0, 0, 0);
 	radius[2] = 1;
 	color[2] = 0x00FF00;
 	// 4th
-	q[3] = (t_quat){1, 0, 0, 0};
-	pos[3] = (t_vector){0, 10, 3};
+	q[3] = _mm_set_ps(0, 0, 0, 1);
+	pos[3] = _mm_set_ps(3, 10, 0, 0);
 	radius[3] = 1;
 	color[3] = 0x0000FF;
 	// 5th
-	q[4] = (t_quat){1, 0, 0, 0};
-	pos[4] = (t_vector){0, 0, -10};
+	q[4] = _mm_set_ps(0, 0, 0, 1);
+	pos[4] = _mm_set_ps(-7, 0, 0, 0);
 	radius[4] = 1;
 	color[4] = 0xFF00FF;
 	// 6th
-	q[5] = (t_quat){1, 0, 0, 0};
-	pos[5] = (t_vector){10, 0, 3};
+	q[5] = _mm_set_ps(0, 0, 0, 1);
+	pos[5] = _mm_set_ps(3, 0, 10, 0);
 	radius[5] = 1;
 	color[5] = 0xFFFF00;
 	// 7th
-	q[6] = (t_quat){1, 0, 0, 0};
-	pos[6] = (t_vector){-10, 0, 3};
+	q[6] = _mm_set_ps(0, 0, 0, 1);
+	pos[6] = _mm_set_ps(3, 0, -10, 0);
 	radius[6] = 1;
 	color[6] = 0x00FFFF;
 
@@ -93,7 +93,6 @@ t_list	*create_ll_objects(void) // !parsing to execution starts here
 	n = 0;
 	while (++n < 7)
 	{
-		node = ft_calloc(1, sizeof(t_list));
 		object = ft_calloc(1, sizeof(t_object));
 		if (!object)
 			perror_and_exit("malloc", EXIT_FAILURE);
@@ -124,6 +123,7 @@ t_object	*create_objects_array(t_list *root_node)
 	{
 		// printf("%d\n", n);
 		ft_memcpy(arr_objects + n, head->content, sizeof(t_object));
+		arr_objects[n].obb = assign_sphere_obb(arr_objects[n].sphere);
 		head = head->next;
 	}
 	ft_lstclear(&root_node, free);

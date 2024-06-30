@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 16:33:56 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/29 21:46:15 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/30 19:37:17 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,73 +31,41 @@ t_ray	create_ray(t_camera *camera, float i, float j, float width, float height)
 	return (ray);
 }
 
-int	render_ray(t_ray ray)
+int	render_ray(t_ray ray, t_object *objects)
 {
-	t_sphere	sphere[8];
-	float		t[2];
+	// float		t[2];
 	t_sphere	*closest_sphere;
 	float		closest_t;
-	int			n;
+	int n;
 
-	// printf("1. ");
-	// print_vector(*ray.pos);
-	// rot
-	sphere[0].quat = _mm_set_ps(0, 0, 0, 1);
-	sphere[0].pos = _mm_set_ps(3, 0, 0, 0);
-	sphere[0].radius = 1;
-	sphere[0].color = 0xFFFFFF;
-	// data,
-	sphere[1].quat = _mm_set_ps(0, 0, 0, 1);
-	sphere[1].pos = _mm_set_ps(3, -10, 0, 0);
-	sphere[1].radius = 1;
-	sphere[1].color = 0xFF0000;
-	// 3rd
-	sphere[2].quat = _mm_set_ps(0, 0, 0, 1);
-	sphere[2].pos = _mm_set_ps(13, 0, 0, 0);
-	sphere[2].radius = 1;
-	sphere[2].color = 0x00FF00;
-	// 4th
-	sphere[3].quat = _mm_set_ps(0, 0, 0, 1);
-	sphere[3].pos = _mm_set_ps(3, 10, 0, 0);
-	sphere[3].radius = 1;
-	sphere[3].color = 0x0000FF;
-	// 5th
-	sphere[4].quat = _mm_set_ps(0, 0, 0, 1);
-	sphere[4].pos = _mm_set_ps(-7, 0, 0, 0);
-	sphere[4].radius = 1;
-	sphere[4].color = 0xFF00FF;
-	// 6th
-	sphere[5].quat = _mm_set_ps(0, 0, 0, 1);
-	sphere[5].pos = _mm_set_ps(3, 0, 10, 0);
-	sphere[5].radius = 1;
-	sphere[5].color = 0xFFFF00;
-	// 7th
-	sphere[6].quat = _mm_set_ps(0, 0, 0, 1);
-	sphere[6].pos = _mm_set_ps(3, 0, -10, 0);;
-	sphere[6].radius = 1;
-	sphere[6].color = 0x00FFFF;
-	// looing through spheres
 	closest_sphere = NULL;
 	closest_t = INFINITY;
-	n = -1;
 	// printf("2. ");
 	// print_vector(*ray.pos);
-	while (++n < 7)
+	n = 0;
+	while (objects->type != 0)
 	{
-		intersect_ray_sphere(sphere[n], ray, t);
-		if (t[0] < closest_t && t[0] > 0)
-		{
-			closest_t = t[0];
-			closest_sphere = &sphere[n];
-		}
-		if (t[1] < closest_t && t[1] > 0)
-		{
-			closest_t = t[1];
-			closest_sphere = &sphere[n];
-		}
+		if (intersect_obb(&ray, objects->obb))
+			n = 1;
+		// intersect_ray_sphere(objects->sphere, ray, t);
+		// if (t[0] < closest_t && t[0] > 0)
+		// {
+		// 	closest_t = t[0];
+		// 	closest_sphere = &objects->sphere;
+		// }
+		// if (t[1] < closest_t && t[1] > 0)
+		// {
+		// 	closest_t = t[1];
+		// 	closest_sphere = &objects->sphere;
+		// }
+		objects++;
 	}
-	if (closest_sphere == NULL)
+	if (n == 1)
+		return (0xFFFFFF);
+	else
 		return (0);
+	if (closest_sphere == NULL)
+		return (1);
 	return (closest_sphere->color);
 }
 
@@ -108,3 +76,40 @@ int	render_ray(t_ray ray)
 	// 	.radius = 1,
 	// 	.color = 0xFFFFFF,
 	// };
+
+	// t_sphere	sphere[8];
+
+	// sphere[0].quat = _mm_set_ps(0, 0, 0, 1);
+	// sphere[0].pos = _mm_set_ps(3, 0, 0, 0);
+	// sphere[0].radius = 1;
+	// sphere[0].color = 0xFFFFFF;
+	// // data,
+	// sphere[1].quat = _mm_set_ps(0, 0, 0, 1);
+	// sphere[1].pos = _mm_set_ps(3, -10, 0, 0);
+	// sphere[1].radius = 1;
+	// sphere[1].color = 0xFF0000;
+	// // 3rd
+	// sphere[2].quat = _mm_set_ps(0, 0, 0, 1);
+	// sphere[2].pos = _mm_set_ps(13, 0, 0, 0);
+	// sphere[2].radius = 1;
+	// sphere[2].color = 0x00FF00;
+	// // 4th
+	// sphere[3].quat = _mm_set_ps(0, 0, 0, 1);
+	// sphere[3].pos = _mm_set_ps(3, 10, 0, 0);
+	// sphere[3].radius = 1;
+	// sphere[3].color = 0x0000FF;
+	// // 5th
+	// sphere[4].quat = _mm_set_ps(0, 0, 0, 1);
+	// sphere[4].pos = _mm_set_ps(-7, 0, 0, 0);
+	// sphere[4].radius = 1;
+	// sphere[4].color = 0xFF00FF;
+	// // 6th
+	// sphere[5].quat = _mm_set_ps(0, 0, 0, 1);
+	// sphere[5].pos = _mm_set_ps(3, 0, 10, 0);
+	// sphere[5].radius = 1;
+	// sphere[5].color = 0xFFFF00;
+	// // 7th
+	// sphere[6].quat = _mm_set_ps(0, 0, 0, 1);
+	// sphere[6].pos = _mm_set_ps(3, 0, -10, 0);
+	// sphere[6].radius = 1;
+	// sphere[6].color = 0x00FFFF;

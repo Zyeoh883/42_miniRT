@@ -24,6 +24,7 @@ SRCS_FIL = \
 		mlx_handlers/mlx.c \
 		mlx_handlers/input_translate.c \
 		create/scene_objects.c \
+		create/oriented_bounding_box.c \
 		error_handling/memory_error.c \
 		intersects/object_intercept.c \
 		utils/utils.c \

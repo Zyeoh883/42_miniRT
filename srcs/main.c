@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/29 22:17:38 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/30 20:55:32 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ t_camera	init_camera(t_data *data)
 	camera.pitch_angle = 0;
 	camera.pixel_width = 2 * tan(fov * 0.5f);
 	camera.pixel_height = camera.pixel_width / camera.data->aspect_ratio;
+	camera.objects = create_objects_array(create_ll_objects());
 	// printf("width: %f\n", camera.pixel_width);
 	// printf("height: %f\n\n", camera.pixel_height);
 	return (camera);
@@ -89,7 +90,7 @@ void	render_frame(t_data *data)
 			// 	print_vector(ray.direction);
 			// 	// print_m128(data->camera->quat);
 			// }
-			color = render_ray(ray);
+			color = render_ray(ray, data->camera->objects);
 			// printf("%d\n", color);
 			if (color)
 				my_mlx_put_pixels(data, x, y, color);

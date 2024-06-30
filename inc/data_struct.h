@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/13 19:16:07 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/29 22:44:01 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/06/30 19:03:28 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,8 +54,7 @@ typedef struct s_sphere
 
 typedef struct s_OBB // ! confirm OBB params
 {
-	__m128				max;
-	__m128				min;
+	__m128				pos;
 	__m128				quat;
 	__m128				half_len;
 }						t_OBB;
