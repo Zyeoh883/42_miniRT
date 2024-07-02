@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 16:33:56 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/30 19:37:17 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/02 15:12:00 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ t_ray	create_ray(t_camera *camera, float i, float j, float width, float height)
 
 int	render_ray(t_ray ray, t_object *objects)
 {
-	// float		t[2];
+	float		t[2];
 	t_sphere	*closest_sphere;
 	float		closest_t;
 	int n;
@@ -46,24 +46,25 @@ int	render_ray(t_ray ray, t_object *objects)
 	while (objects->type != 0)
 	{
 		if (intersect_obb(&ray, objects->obb))
-			n = 1;
-		// intersect_ray_sphere(objects->sphere, ray, t);
-		// if (t[0] < closest_t && t[0] > 0)
-		// {
-		// 	closest_t = t[0];
-		// 	closest_sphere = &objects->sphere;
-		// }
-		// if (t[1] < closest_t && t[1] > 0)
-		// {
-		// 	closest_t = t[1];
-		// 	closest_sphere = &objects->sphere;
-		// }
+		{
+			intersect_ray_sphere(objects->sphere, ray, t);
+			if (t[0] < closest_t && t[0] > 0)
+			{
+				closest_t = t[0];
+				closest_sphere = &objects->sphere;
+			}
+			if (t[1] < closest_t && t[1] > 0)
+			{
+				closest_t = t[1];
+				closest_sphere = &objects->sphere;
+			}
+		}
 		objects++;
 	}
-	if (n == 1)
-		return (0xFFFFFF);
-	else
-		return (0);
+	// if (n == 1)
+	// 	return (0xFFFFFF);
+	// else
+	// 	return (0);
 	if (closest_sphere == NULL)
 		return (1);
 	return (closest_sphere->color);

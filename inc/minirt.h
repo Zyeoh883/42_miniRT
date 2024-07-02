@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:49 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/30 19:24:19 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/02 12:36:53 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@
 # include "math_utils.h"
 # include "mlx.h"
 # include "mlx_handlers.h"
+# include <float.h>
 # include <math.h>
 # include <stdbool.h>
 # include <stdio.h>
