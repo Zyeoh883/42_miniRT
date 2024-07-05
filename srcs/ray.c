@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 16:33:56 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/02 15:12:00 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/05 13:56:19 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,19 +45,16 @@ int	render_ray(t_ray ray, t_object *objects)
 	n = 0;
 	while (objects->type != 0)
 	{
-		if (intersect_obb(&ray, objects->obb))
+		intersect_ray_sphere(objects->sphere, ray, t);
+		if (t[0] < closest_t && t[0] > 0)
 		{
-			intersect_ray_sphere(objects->sphere, ray, t);
-			if (t[0] < closest_t && t[0] > 0)
-			{
-				closest_t = t[0];
-				closest_sphere = &objects->sphere;
-			}
-			if (t[1] < closest_t && t[1] > 0)
-			{
-				closest_t = t[1];
-				closest_sphere = &objects->sphere;
-			}
+			closest_t = t[0];
+			closest_sphere = &objects->sphere;
+		}
+		if (t[1] < closest_t && t[1] > 0)
+		{
+			closest_t = t[1];
+			closest_sphere = &objects->sphere;
 		}
 		objects++;
 	}

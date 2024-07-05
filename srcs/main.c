@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/02 15:17:28 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/05 14:05:12 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,8 @@ int	initialize(t_data *data, t_camera *camera)
 	data->inputs.mouse_y = data->win_height * 0.5f;
 	*camera = init_camera(data);
 	data->camera = camera;
-	mlx_mouse_move(data->win_ptr, data->win_width * 0.5f, data->win_height * 0.5f);
+	mlx_mouse_move(data->win_ptr, data->win_width * 0.5f, data->win_height
+		* 0.5f);
 	render_frame(data);
 	return (1);
 }
@@ -67,32 +68,33 @@ int	initialize(t_data *data, t_camera *camera)
 
 void	render_frame(t_data *data)
 {
-	t_ray	ray;
 	int		color;
 	int		x;
 	int		y;
+	double	time_start;
 
+	// t_ray	ray;
 	ft_bzero(data->addr, data->win_height * data->line_length);
 	y = -1;
 	// printf("camera pos is:");
 	// print_vector(data->camera->pos);
-	double time_start = (double)clock() / CLOCKS_PER_SEC;
+	time_start = (double)clock() / CLOCKS_PER_SEC;
 	while (++y < data->win_height)
 	{
 		x = -1;
 		while (++x < data->win_width)
 		{
-			ray = create_ray(data->camera, x, y, data->win_width,
-					data->win_height);
+			// ray = create_ray(data->camera, x, y, data->win_width,
+			// 		data->win_height);
 			// printf("0-> ");
 			// if (x == 0 && y == 0)
 			// {
 			// 	print_vector(ray.direction);
 			// 	// print_m128(data->camera->quat);
 			// }
-			color = render_ray(ray, data->camera->objects);
-			// printf("%d\n", color);
-			if (color)
+			color = render_ray(create_ray(data->camera, x, y, data->win_width,
+						data->win_height), data->camera->objects);
+			if (color) // branch fallback is cheaper
 				my_mlx_put_pixels(data, x, y, color);
 		}
 	}
