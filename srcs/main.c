@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/05 14:05:12 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/09 21:30:35 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,22 +19,66 @@ t_camera	init_camera(t_data *data)
 
 	camera.data = data;
 	camera.objects = NULL;
-	// pos
 	camera.pos = _mm_set_ps(0, 0, 0, 0);
 	camera.quat = _mm_set_ps(0, 0, 0, 1);
 	// camera.quat = angle_to_quat(_mm_set_ps(0, 0, 1, 0), M_PI * 2);
-	// fov
 	fov = 60 * TO_RADIAN;
-	// printf("win width: %d\n", data.win_width);
-	// printf("win height: %d\n", data.win_height);
-	// printf("AP: %f\n", camera.aspect_ratio);
 	camera.pitch_angle = 0;
 	camera.pixel_width = 2 * tan(fov * 0.5f);
 	camera.pixel_height = camera.pixel_width / camera.data->aspect_ratio;
 	camera.objects = create_objects_array(create_ll_objects());
-	// printf("width: %f\n", camera.pixel_width);
-	// printf("height: %f\n\n", camera.pixel_height);
 	return (camera);
+}
+
+t_opencl	init_opencl(t_data *data)
+{
+	char		*c_files[1];
+	size_t		*c_size[1];
+	t_opencl	opencl;
+	cl_uint ret_num_devices; // ? replace to NULL in code?
+    cl_uint ret_num_platforms; // ? replace to NULL in code?
+    cl_int ret;
+
+	c_files[0] = read_cfile("test.c");
+	c_size[0] = sizeof(c_files[0] - 1);
+
+
+	ret = clGetPlatformIDs(1, &opencl.platform, &ret_num_platforms);
+    ret = clGetDeviceIDs(&opencl.platform, CL_DEVICE_TYPE_GPU, 1, &opencl.device, &ret_num_devices);
+
+    // char device_name[128];
+    // clGetDeviceInfo(opencl.device, CL_DEVICE_NAME, sizeof(device_name), device_name, NULL);
+    // printf("Using device: %s\n", device_name);
+
+    // cl_device_type device_type;
+    // clGetDeviceInfo(opencl.device, CL_DEVICE_TYPE, sizeof(device_type), &device_type, NULL);
+    // if (device_type & CL_DEVICE_TYPE_GPU) {
+    //     printf("Device is a GPU\n");
+    // } else {
+    //     printf("Warning: Device is not a GPU\n");
+    // }
+
+    // Create an OpenCL context
+    opencl.context = clCreateContext(NULL, 1, &opencl.device, NULL, NULL, &ret);
+
+    // Create a command queue
+    opencl.queue = clCreateCommandQueue(opencl.context, opencl.device, 0, &ret);
+
+    // Create memory buffers on the device for the result
+    opencl.image_buffer = clCreateBuffer(opencl.context, CL_MEM_WRITE_ONLY, sizeof(int), NULL, &ret);
+
+    // Create a program from the kernel source
+    opencl.program = clCreateProgramWithSource(opencl.context, 1, c_files, c_size, &ret);
+
+    // Build the program
+    ret = clBuildProgram(opencl.program, 1, &opencl.device, NULL, NULL, NULL);
+
+    // Create the OpenCL kernel
+    opencl.kernel = clCreateKernel(opencl.program, "findprime", &ret);
+
+	// Set the arguments of the kernel
+    ret = clSetKernelArg(opencl.kernel, 0, sizeof(cl_mem), (void *)&opencl.image_buffer);
+    ret = clSetKernelArg(opencl.kernel, 1, sizeof(int), (void *)arguments_here);	
 }
 
 int	initialize(t_data *data, t_camera *camera)
@@ -106,6 +150,7 @@ void	render_frame(t_data *data)
 
 int	main(void)
 {
+	t_opencl	opencl;
 	t_camera	camera;
 	t_data		data;
 

@@ -34,7 +34,6 @@ int main(int argc, char* argv[]) {
     cl_int ret = clGetPlatformIDs(1, &platform_id, &ret_num_platforms);
     ret = clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_GPU, 1, &device_id, &ret_num_devices);
 
-
     char device_name[128];
     clGetDeviceInfo(device_id, CL_DEVICE_NAME, sizeof(device_name), device_name, NULL);
     printf("Using device: %s\n", device_name);
