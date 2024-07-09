@@ -3,6 +3,9 @@
         "nmmintrin.h": "c",
         "immintrin.h": "c",
         "minirt.h": "c",
-        "__locale": "c"
+        "__locale": "c",
+        "math_utils.h": "c",
+        "opencl.h": "c",
+        "mlx_handlers.h": "c"
     }
 }

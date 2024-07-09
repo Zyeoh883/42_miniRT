@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:49 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/02 12:36:53 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/09 13:46:16 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 # include <xmmintrin.h>
 // end of funni
 
+# include "opencl_handlers.h"
 # include "data_struct.h"
 # include "libft.h"
 # include "math_utils.h"
