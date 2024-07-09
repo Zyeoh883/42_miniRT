@@ -6,16 +6,15 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 14:44:15 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/09 14:50:56 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/09 16:30:53 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <OpenCL/opencl.h>
 
-#define __GLOBAL __global
+#define G
 
-__kernel void	function1(__GLOBAL __global int *input,
-	__GLOBAL __global int *output, int n)
+__kernel void	function1(G __global int *input, G __global int *output, int n)
 {
 	int	gid;
 
@@ -40,8 +39,8 @@ int	is_prime(int num)
 	return (1);
 }
 
-__kernel void	find_primes(__GLOBAL __global int *numbers,
-	__GLOBAL __global int *results, int count)
+__kernel void	find_primes(G __global int *numbers, G __global int *results,
+	int count)
 {
 	int	gid;
 
@@ -50,8 +49,8 @@ __kernel void	find_primes(__GLOBAL __global int *numbers,
 		results[gid] = is_prime(numbers[gid]);
 }
 
-__kernel void	vector_add(__GLOBAL __global const float *a,
-	__GLOBAL __global const float *b, __GLOBAL __global float *result, int num)
+__kernel void	vector_add(G __global const float *a, G __global const float *b,
+	G __global float *result, int num)
 {
 	int	gid;
 

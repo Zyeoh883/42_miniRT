@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -std=c99 -Wall -I/opt/intel/opencl-sdk/include
+CFLAGS = -std=c99 -Wall # -I/opt/intel/opencl-sdk/include
 LDFLAGS = -framework OpenCL
 
 TARGET = prime_finder
