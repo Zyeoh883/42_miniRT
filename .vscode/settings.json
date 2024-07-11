@@ -8,6 +8,16 @@
         "opencl.h": "c",
         "mlx_handlers.h": "c",
         "float.h": "c",
-        "opencl_handlers.h": "c"
+        "opencl_handlers.h": "c",
+        "__split_buffer": "c",
+        "functional": "c",
+        "locale": "c",
+        "vector": "c",
+        "__functional_base": "c",
+        "array": "c",
+        "istream": "c",
+        "memory": "c",
+        "tuple": "c",
+        "utility": "c"
     }
 }

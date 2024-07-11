@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/13 19:16:07 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/10 20:37:28 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/11 15:16:24 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,13 +39,13 @@
 // 	float				k;
 // }						t_quat;
 
-typedef struct __attribute__ ((packed)) s_ray
+typedef struct __attribute__ ((aligned(16))) s_ray
 {
 	cl_float4	pos; // ! changed from pointer to value
 	cl_float4	direction;
 }						t_ray;
 
-typedef struct __attribute__ ((packed)) s_sphere
+typedef struct __attribute__ ((aligned(16))) s_sphere
 {
 	cl_float4	pos;
 	cl_float4	quat;
@@ -53,24 +53,24 @@ typedef struct __attribute__ ((packed)) s_sphere
 	cl_int			color;
 }						t_sphere;
 
-typedef struct __attribute__ ((packed)) s_OBB // ! confirm OBB params
+typedef struct __attribute__ ((aligned(16))) s_OBB // ! confirm OBB params
 {
 	cl_float4	pos;
 	cl_float4	quat;
 	cl_float4	half_len;
 }						t_OBB;
 
-typedef struct __attribute__ ((packed)) s_object // ! type == 0 means NULL terminated
-{
 	// struct s_OBB obb;
+typedef struct __attribute__ ((aligned(16))) s_object // ! type == 0 means NULL terminated
+{
 	cl_uchar				type;
 	union
 	{
-		struct s_sphere	sphere;
+		struct __attribute__ ((aligned(16))) s_sphere	sphere;
 	};
 }						t_object;
 
-typedef struct __attribute__ ((packed)) s_BHVnode
+typedef struct __attribute__ ((aligned(16))) s_BHVnode
 {
 	struct s_OBB		obb;
 	struct s_BHVnode	*left;
@@ -80,6 +80,6 @@ typedef struct __attribute__ ((packed)) s_BHVnode
 }						t_BHVnode;
 
 // __attribute__((packed,aligned(4))
-// __attribute__ ((packed))
+// __attribute__ ((aligned(16)))
 
 #endif

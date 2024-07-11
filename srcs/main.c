@@ -6,11 +6,26 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/11 11:31:29 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/11 22:41:08 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minirt.h"
+
+void print_cl_error(cl_int error) {
+    switch (error) {
+        case CL_INVALID_KERNEL: printf("Error: CL_INVALID_KERNEL\n"); break;
+        case CL_INVALID_WORK_DIMENSION: printf("Error: CL_INVALID_WORK_DIMENSION\n"); break;
+        case CL_INVALID_WORK_GROUP_SIZE: printf("Error: CL_INVALID_WORK_GROUP_SIZE\n"); break;
+        case CL_INVALID_WORK_ITEM_SIZE: printf("Error: CL_INVALID_WORK_ITEM_SIZE\n"); break;
+        case CL_INVALID_GLOBAL_OFFSET: printf("Error: CL_INVALID_GLOBAL_OFFSET\n"); break;
+        case CL_OUT_OF_RESOURCES: printf("Error: CL_OUT_OF_RESOURCES\n"); break;
+        case CL_MEM_OBJECT_ALLOCATION_FAILURE: printf("Error: CL_MEM_OBJECT_ALLOCATION_FAILURE\n"); break;
+        case CL_INVALID_EVENT_WAIT_LIST: printf("Error: CL_INVALID_EVENT_WAIT_LIST\n"); break;
+        case CL_OUT_OF_HOST_MEMORY: printf("Error: CL_OUT_OF_HOST_MEMORY\n"); break;
+        default: printf("Unknown OpenCL error: %d\n", error);
+    }
+}
 
 t_camera	*init_camera(t_data *data, int win_height, int win_width)
 {
@@ -53,12 +68,18 @@ t_opencl	*init_opencl(t_data *data)
 
 	c_files = ft_calloc(1, sizeof(char *));
 	// c_files = ft_calloc(1, sizeof(char *));
-	c_files[0] = read_cfile("placeholder.c"); // * load GPU source files
+	c_files[0] = read_cfile("srcs/opencl_srcs/ray.c"); // * load GPU source files
+	// printf("%s\n", c_files[0]);
 	c_size[0] = ft_strlen(c_files[0]);
 
 
 	ret = clGetPlatformIDs(1, &opencl->platform, NULL);
     ret = clGetDeviceIDs(opencl->platform, CL_DEVICE_TYPE_GPU, 1, &opencl->device, NULL);
+
+
+	size_t maxWorkGroupSize;
+	clGetDeviceInfo(opencl->device, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(size_t), &maxWorkGroupSize, NULL);
+	printf("Maximum Workgroup Size: %zu\n", maxWorkGroupSize);
 
     // Create an OpenCL context
     opencl->context = clCreateContext(NULL, 1, &opencl->device, NULL, NULL, &ret);
@@ -72,23 +93,37 @@ t_opencl	*init_opencl(t_data *data)
 	opencl->objects = clCreateBuffer(opencl->context, CL_MEM_WRITE_ONLY, sizeof(t_object) * 7, NULL, &ret); // ! hard coded amount
 	opencl->camera = clCreateBuffer(opencl->context, CL_MEM_WRITE_ONLY, sizeof(t_camera), NULL, &ret);
 
-	printf("opencl_camera: %p\n", opencl->camera);
-	
     // Create a program from the kernel source
     opencl->program = clCreateProgramWithSource(opencl->context, 1, (const char **)c_files, c_size, &ret);
 
     // Build the program
     ret = clBuildProgram(opencl->program, 1, &opencl->device, NULL, NULL, NULL);
+	if (ret != CL_SUCCESS)
+	{
+		printf("clBuildProgram error: %d\n", ret);
+		print_cl_error(ret);
+		
+		// Get the build log
+		size_t log_size;
+		clGetProgramBuildInfo(opencl->program, opencl->device, CL_PROGRAM_BUILD_LOG, 0, NULL, &log_size);
+		char *log = (char *)malloc(log_size);
+		clGetProgramBuildInfo(opencl->program, opencl->device, CL_PROGRAM_BUILD_LOG, log_size, log, NULL);
+		printf("Build log:\n%s\n", log);
+		free(log);
+		
+		exit(EXIT_FAILURE);
+	}
 
     // Create the OpenCL kernel
     opencl->kernel = clCreateKernel(opencl->program, "render_scene", &ret);
 
 	// Set the arguments of the kernel
-    ret = clSetKernelArg(opencl->kernel, 0, sizeof(cl_mem), (void *)opencl->addr);
-	ret = clSetKernelArg(opencl->kernel, 1, sizeof(cl_mem), (void *)&data->camera);
-	ret = clSetKernelArg(opencl->kernel, 2, sizeof(cl_mem), (void *)data->objects);
+    ret = clSetKernelArg(opencl->kernel, 0, sizeof(cl_mem), (void *)&opencl->addr);
+	ret = clSetKernelArg(opencl->kernel, 1, sizeof(cl_mem), (void *)&opencl->camera);
+	ret = clSetKernelArg(opencl->kernel, 2, sizeof(cl_mem), (void *)&opencl->objects);
     // ret = clSetKernelArg(opencl.kernel, 1, sizeof(int), (void *)arguments_here);
 	data->opencl = opencl;
+	// exit(1);
 	return (opencl);
 }
 
@@ -101,7 +136,7 @@ int	initialize(t_data *data, t_camera *camera)
 	if (!data->mlx_ptr)
 		return (0);
 	win_width = 1920;
-	win_height = 1080;
+	win_height = 1200;
 	// win_width = 600;
 	// win_height = 600;
 	data->img = mlx_new_image(data->mlx_ptr, win_width, win_height);
@@ -130,27 +165,44 @@ void	render_frame(t_data *data, t_opencl *opencl)
 	cl_int ret;
 	size_t global_size[2];
 	size_t local_size[2];
-	double	time_start;
+	// double	time_start;
 
 	// ft_bzero(data->addr, data->win_height * data->line_length);
 	
 	//execution
 	(void)opencl;
-	global_size[0] = (size_t) {data->win_width};
-	global_size[1] = (size_t) {data->win_height};
-    local_size[0] = (size_t) {32};
-	local_size[1] = (size_t) {32};
-	time_start = (double)clock() / CLOCKS_PER_SEC;
-	printf("%p %p\n", data->camera, &data->opencl);
-	printf("%p %p\n", opencl->queue, opencl->camera);
-	printf("\nHERE\n");
+	global_size[0] = (size_t)data->win_width;
+	global_size[1] = (size_t)data->win_height;
+    local_size[0] = 32;
+	local_size[1] = 32;
+	// time_start = (double)clock() / CLOCKS_PER_SEC;
+	
     ret = clEnqueueWriteBuffer(opencl->queue, opencl->camera, CL_TRUE, 0, sizeof(t_camera), data->camera, 0, NULL, NULL);
-	printf("\nHERE\n");
-	// ret = clEnqueueWriteBuffer(opencl->queue, opencl->objects, CL_TRUE, 0, sizeof(t_object) * 7, data->objects, 0, NULL, NULL); // ! hard coded
-    // ret = clEnqueueNDRangeKernel(opencl->queue, opencl->kernel, 2, NULL, (size_t *)&global_size, (size_t *)&local_size, 0, NULL, NULL);
-	// ret = clEnqueueReadBuffer(opencl->queue, opencl->addr, CL_TRUE, 0, sizeof(data->addr), data->addr, 0, NULL, NULL);
+	if (ret != CL_SUCCESS)
+	{
+		printf("ret 1 error: %d\n", ret);
+		print_cl_error(ret);
+	}
+	ret = clEnqueueWriteBuffer(opencl->queue, opencl->objects, CL_TRUE, 0, sizeof(t_object) * 7, data->objects, 0, NULL, NULL); // ! hard coded
+	if (ret != CL_SUCCESS)
+	{
+		printf("ret 2 error: %d\n", ret);
+		print_cl_error(ret);
+	}
+    ret = clEnqueueNDRangeKernel(opencl->queue, opencl->kernel, 2, NULL, global_size, local_size, 0, NULL, NULL);
+	if (ret != CL_SUCCESS)
+	{
+		printf("ret 3 error: %d\n", ret);
+		print_cl_error(ret);
+	}
+	ret = clEnqueueReadBuffer(opencl->queue, opencl->addr, CL_TRUE, 0, data->line_length * data->win_height, data->addr, 0, NULL, NULL);
+	if (ret != CL_SUCCESS)
+	{
+		printf("ret 4 error: %d\n", ret);
+		print_cl_error(ret);
+	}
 
-	printf("%f\n", (double)clock() / CLOCKS_PER_SEC - time_start);
+	// printf("%f\n", (double)clock() / CLOCKS_PER_SEC - time_start);
 	mlx_put_image_to_window(data, data->win_ptr, data->img, 0, 0);
 }
 // fflush(stdout);

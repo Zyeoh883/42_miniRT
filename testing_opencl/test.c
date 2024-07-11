@@ -9,7 +9,7 @@
 
 const int WIDTH = 1024;
 const int HEIGHT = 1024;
-const int MAX_ITERATIONS = 500;
+const int MAX_ITERATIONS = 2000000000;
 
 // CPU implementation
 void mandelbrot_cpu(unsigned char* output) {
@@ -57,7 +57,7 @@ int main() {
 
     // CPU Mandelbrot
     clock_t start_cpu = clock();
-    mandelbrot_cpu(output_cpu);
+    // mandelbrot_cpu(output_cpu);
     clock_t end_cpu = clock();
     double cpu_time = ((double)(end_cpu - start_cpu)) / CLOCKS_PER_SEC;
     printf("CPU Time: %f seconds\n", cpu_time);

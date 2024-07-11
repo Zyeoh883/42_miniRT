@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:49 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/11 11:26:20 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/11 14:39:35 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@
 
 //__attribute__((packed))
 
-typedef struct s_camera
+typedef struct __attribute__ ((aligned(16))) s_camera
 {
 	cl_float4	pos;
 	cl_float4	quat;
@@ -56,7 +56,7 @@ typedef struct s_camera
 	// t_data *data;
 	// t_object *objects;
 
-typedef struct s_inputs
+typedef struct __attribute__ ((aligned(16))) s_inputs
 {
 	int key;
 	int key_held;
@@ -65,7 +65,7 @@ typedef struct s_inputs
 	float pitch_angle; // * Moved pitch angle to inputs
 }						t_inputs;
 
-typedef struct s_data
+typedef struct __attribute__ ((aligned(16))) s_data
 {
 	t_camera *camera;
 	t_opencl *opencl;
