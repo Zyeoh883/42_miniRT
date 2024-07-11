@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/14 11:30:35 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/28 17:29:24 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/11 09:54:20 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,26 +31,26 @@
 // void	quat_slerp(float dest[4], float src[4], float steps[2],
 // 			float q_result[4]);
 // float	quat_abs(float quat[4]);
-__m128	vector_cross_product(const __m128 v1, const __m128 v2);
-float		vector_dot_product(const __m128 v1, __m128 v2);
-__m128	vector_scalar_product(const __m128 v, float scale);
-__m128	vector_sum(const __m128 v1, const __m128 v2);
-__m128	vector_addition(const __m128 v1, const __m128 v2);
-__m128	vector_subtraction(const __m128 v1, const __m128 v2 );
-void		vector_normalize(__m128 *v);
-// __m128	vector_normalize(__m128 v);
+cl_float4	vector_cross_product(const cl_float4 v1, const cl_float4 v2);
+float		vector_dot_product(const cl_float4 v1, cl_float4 v2);
+cl_float4	vector_scalar_product(const cl_float4 v, float scale);
+cl_float4	vector_sum(const cl_float4 v1, const cl_float4 v2);
+cl_float4	vector_addition(const cl_float4 v1, const cl_float4 v2);
+cl_float4	vector_subtraction(const cl_float4 v1, const cl_float4 v2 );
+void		vector_normalize(cl_float4 *v);
+// cl_float4	vector_normalize(cl_float4 v);
 
-__m128	quat_rotate(t_quat q, const __m128 v);
-t_quat		quat_product(const t_quat q1, const t_quat q2);
-t_quat		quat_conjugate(const t_quat q);
-t_quat		angle_to_quat(const __m128 rot, const float radian);
-t_quat		quat_sum(const t_quat q1, const t_quat q2);
-t_quat		quat_scalar_product(const t_quat q, const float scale);
-t_quat		quat_slerp(const t_quat dest, const t_quat src, const float angle, const float t);
-float		quat_abs(const t_quat q);
-void		quat_normalize(t_quat *q);
+cl_float4	quat_rotate(cl_float4 q, const cl_float4 v);
+cl_float4		quat_product(const cl_float4 q1, const cl_float4 q2);
+cl_float4		quat_conjugate(const cl_float4 q);
+cl_float4		angle_to_quat(const cl_float4 rot, const float radian);
+cl_float4		quat_sum(const cl_float4 q1, const cl_float4 q2);
+cl_float4		quat_scalar_product(const cl_float4 q, const float scale);
+cl_float4		quat_slerp(const cl_float4 dest, const cl_float4 src, const float angle, const float t);
+float		quat_abs(const cl_float4 q);
+void		quat_normalize(cl_float4 *q);
 
-void		print_vector(__m128 v);
-void		print_quat(t_quat q);
+void		print_vector(cl_float4 v);
+void		printcl_float4(cl_float4 q);
 
 #endif

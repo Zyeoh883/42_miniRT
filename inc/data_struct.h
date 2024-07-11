@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/13 19:16:07 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/30 19:03:28 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/10 20:37:28 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,10 @@
 // #define t_vector __m128
 // #define t_quat __m128
 
+// TODO change all t_ vector and quat to __m128
 // * reverse order for __m128
-typedef	__attribute__((aligned(16))) __m128 t_vector; // {k, j, i, NULL}
-typedef	__attribute__((aligned(16))) __m128 t_quat;   // {k, j, i, w}
+// typedef __attribute__((aligned(16))) __m128	t_vector; // {k, j, i, NULL}
+// typedef __attribute__((aligned(16))) __m128	t_quat; // {k, j, i, w}
 
 // typedef struct s_vector
 // {
@@ -38,38 +39,38 @@ typedef	__attribute__((aligned(16))) __m128 t_quat;   // {k, j, i, w}
 // 	float				k;
 // }						t_quat;
 
-typedef struct s_ray
+typedef struct __attribute__ ((packed)) s_ray
 {
-	__m128				*pos;
-	__m128				direction;
+	cl_float4	pos; // ! changed from pointer to value
+	cl_float4	direction;
 }						t_ray;
 
-typedef struct s_sphere
+typedef struct __attribute__ ((packed)) s_sphere
 {
-	__m128				pos;
-	__m128				quat;
-	float				radius;
-	int					color;
+	cl_float4	pos;
+	cl_float4	quat;
+	cl_float		radius;
+	cl_int			color;
 }						t_sphere;
 
-typedef struct s_OBB // ! confirm OBB params
+typedef struct __attribute__ ((packed)) s_OBB // ! confirm OBB params
 {
-	__m128				pos;
-	__m128				quat;
-	__m128				half_len;
+	cl_float4	pos;
+	cl_float4	quat;
+	cl_float4	half_len;
 }						t_OBB;
 
-typedef struct s_object // ! type == 0 means NULL terminated
+typedef struct __attribute__ ((packed)) s_object // ! type == 0 means NULL terminated
 {
-	struct s_OBB obb;
-	char type;
+	// struct s_OBB obb;
+	cl_uchar				type;
 	union
 	{
 		struct s_sphere	sphere;
 	};
 }						t_object;
 
-typedef struct s_BHVnode
+typedef struct __attribute__ ((packed)) s_BHVnode
 {
 	struct s_OBB		obb;
 	struct s_BHVnode	*left;
@@ -79,6 +80,6 @@ typedef struct s_BHVnode
 }						t_BHVnode;
 
 // __attribute__((packed,aligned(4))
-// __attribute__((packed))
+// __attribute__ ((packed))
 
 #endif

@@ -2,7 +2,7 @@
 CC = gcc -o3 -march=native -flto -fno-strict-aliasing -ffast-math -funroll-loops -msse4
 CFLAGS = -Wall -Wextra -Werror $(INCLUDES) -fsanitize=address -g #-std=c99 
 INCLUDES = -Iinc -I$(LIBFT_DIR) -I$(MLX_DIR)
-MLX = -lmlx -framework OpenGL -framework AppKit
+MLX = -lmlx -framework OpenGL -framework OpenCL -framework AppKit
 
 # Output executable
 NAME = miniRT
@@ -16,20 +16,19 @@ ORANGE = \033[0;38;5;166m
 # Source files
 SRCDIR = srcs/
 
+# math_utils/vector.c
+# math_utils/quaternion.c
+# math_utils/print_math.c
+# mlx_handlers/input_translate.c
+# create/oriented_bounding_box.c
+# intersects/object_intercept.c
 SRCS_FIL = \
 		main.c\
-		math_utils/vector.c \
-		math_utils/quaternion.c \
-		math_utils/print_math.c \
 		mlx_handlers/mlx.c \
-		mlx_handlers/input_translate.c \
 		create/scene_objects.c \
-		create/oriented_bounding_box.c \
 		error_handling/memory_error.c \
-		intersects/object_intercept.c \
 		utils/utils.c \
-		test.c \
-		ray.c \
+		# opencl_srcs/ray.c \
 
 SRCS = $(addprefix $(SRCDIR), $(SRCS_FIL))
 

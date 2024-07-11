@@ -6,6 +6,8 @@
         "__locale": "c",
         "math_utils.h": "c",
         "opencl.h": "c",
-        "mlx_handlers.h": "c"
+        "mlx_handlers.h": "c",
+        "float.h": "c",
+        "opencl_handlers.h": "c"
     }
 }
