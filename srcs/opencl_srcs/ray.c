@@ -6,10 +6,11 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 16:33:56 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/11 22:40:54 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/12 11:34:20 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#define u
 
 typedef struct __attribute__ ((aligned(16))) s_camera {
     float4 pos;
@@ -59,17 +60,39 @@ t_ray create_ray(__global t_camera *camera, int i, int j) {
 }
 
 __kernel void render_scene(__global uchar *addr, __global t_camera *camera, __global t_object *objects) {
-    int x = get_global_id(0);
-    int y = get_global_id(1);
+    __global uchar *dst;
+    // int color;
+    int x;
+    int y;
+
+    x = get_global_id(0);
+    y = get_global_id(1);
     
-	__global uchar *dst = addr + (y * camera->line_length + x * (camera->bytes_per_pixel));
-	t_ray ray = create_ray(camera, x, y);
-	
-	// Here you would typically do your ray tracing logic
-	// For now, we're just setting a white color
+	dst = addr + (y * camera->line_length + x * (camera->bytes_per_pixel));
+	// t_ray ray = create_ray(camera, x, y);
+    // color = render_ray(create_ray(camera, x, y), objects);
+
 	*(__global unsigned int *)dst = 0xFFFFFF;
 }
 
+// __kernel void	render_scene(u __global uchar *addr, u __global t_camera *camera,
+// 	u __global t_object *objects)
+// {
+// 	// t_ray	ray;
+// 	uchar	*dst;
+// 	// int color;
+// 	int	x;
+// 	int	y;
+
+// 	x = get_global_id(0);
+// 	y = get_global_id(1);
+// 	// ray = create_ray(camera, i, j);
+// 	// color = render_ray(create_ray(camera, i, j), objects);
+// 	// if (color)
+// 		// put color in image
+// 	dst = (uchar *)addr + (y * camera->line_length + x * (camera->bytes_per_pixel));
+// 	*(unsigned int *)dst = 0xFFFFFF;
+// }
 
 
 
