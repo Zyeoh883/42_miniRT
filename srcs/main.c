@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/12 11:28:42 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/12 14:01:25 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ t_camera	*init_camera(t_data *data, int win_height, int win_width)
 t_opencl	*init_opencl(t_data *data)
 {
 	char		**c_files;
-	size_t		c_size[1];
+	size_t		c_size[2];
 	t_opencl	*opencl;
     cl_int ret;
 
@@ -66,11 +66,13 @@ t_opencl	*init_opencl(t_data *data)
 	if (!opencl)
 		exit(EXIT_FAILURE);
 
-	c_files = ft_calloc(1, sizeof(char *));
+	c_files = ft_calloc(2, sizeof(char *));
 	// c_files = ft_calloc(1, sizeof(char *));
 	c_files[0] = read_cfile("srcs/opencl_srcs/ray.c"); // * load GPU source files
+	c_files[1] = read_cfile("srcs/opencl_srcs/opencl_vector.c"); // * load GPU source files
 	// printf("%s\n", c_files[0]);
 	c_size[0] = ft_strlen(c_files[0]);
+	c_size[1] = ft_strlen(c_files[1]);
 
 
 	ret = clGetPlatformIDs(1, &opencl->platform, NULL);
@@ -81,9 +83,9 @@ t_opencl	*init_opencl(t_data *data)
 		print_cl_error(ret);
 
 
-	size_t maxWorkGroupSize;
-	clGetDeviceInfo(opencl->device, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(size_t), &maxWorkGroupSize, NULL);
-	printf("Maximum Workgroup Size: %zu\n", maxWorkGroupSize);
+	// size_t maxWorkGroupSize;
+	// clGetDeviceInfo(opencl->device, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(size_t), &maxWorkGroupSize, NULL);
+	// printf("Maximum Workgroup Size: %zu\n", maxWorkGroupSize);
 
     // Create an OpenCL context
     opencl->context = clCreateContext(NULL, 1, &opencl->device, NULL, NULL, &ret);
@@ -138,7 +140,7 @@ int	initialize(t_data *data, t_camera *camera)
 	if (!data->mlx_ptr)
 		return (0);
 	data->win_width = 1920;
-	data->win_height = 1200;
+	data->win_height = 1080;
 	// data->win_width = 600;
 	// data->win_height = 600;
 	data->img = mlx_new_image(data->mlx_ptr, data->win_width, data->win_height);
@@ -175,8 +177,8 @@ void	render_frame(t_data *data, t_opencl *opencl)
 	(void)opencl;
 	global_size[0] = data->win_width;
 	global_size[1] = data->win_height;
-    local_size[0] = 32;
-	local_size[1] = 32;
+    local_size[0] = 16;
+	local_size[1] = 16;
 	time_start = (double)clock() / CLOCKS_PER_SEC;
 	
     ret = clEnqueueWriteBuffer(opencl->queue, opencl->camera, CL_TRUE, 0, sizeof(t_camera), data->camera, 0, NULL, NULL);
@@ -225,8 +227,8 @@ int	main(void)
 	mlx_mouse_hide();
 	mlx_hook(data.win_ptr, 2, 0, deal_key_press, &data);
 	mlx_hook(data.win_ptr, 3, 1, deal_key_release, &data);
-	mlx_loop_hook(data.mlx_ptr, deal_input, &data);
-	mlx_hook(data.win_ptr, 6, 1L << 6, mouse_hook, &camera);
+	// mlx_loop_hook(data.mlx_ptr, deal_input, &data);
+	// mlx_hook(data.win_ptr, 6, 1L << 6, mouse_hook, &camera);
 	mlx_loop(data.mlx_ptr);
 	mlx_put_image_to_window(&data, data.win_ptr, data.img, 0, 0);
 	return (0);

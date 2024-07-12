@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 19:25:24 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/11 14:28:57 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/12 12:05:59 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,6 @@ char	*read_cfile(char *name)
 
 	result = ft_strdup("");
 	fd = open(name, O_RDONLY);
-	printf("fd is %d\n", fd);
 	if (!result || fd == -1)
 		exit(1);
 	size = 13;
