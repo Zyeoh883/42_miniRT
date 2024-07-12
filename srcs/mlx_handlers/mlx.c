@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/21 17:31:34 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/11 11:04:30 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/12 15:47:23 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ int	deal_input(t_data *data)
 {
 	if (data->inputs.key == -1)
 		return (0);
-	// input_translate(&data->camera, data->inputs.key);
+	input_translate(data->camera, data->inputs.key);
 	// ! add slerp to reset key
 	// else if (data->inputs.key == B_KEY && !data->inputs.key_held)
 	// {

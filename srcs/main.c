@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/12 14:01:25 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/12 15:35:20 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ t_camera	*init_camera(t_data *data, int win_height, int win_width)
 t_opencl	*init_opencl(t_data *data)
 {
 	char		**c_files;
-	size_t		c_size[2];
+	size_t		c_size[3];
 	t_opencl	*opencl;
     cl_int ret;
 
@@ -66,13 +66,15 @@ t_opencl	*init_opencl(t_data *data)
 	if (!opencl)
 		exit(EXIT_FAILURE);
 
-	c_files = ft_calloc(2, sizeof(char *));
+	c_files = ft_calloc(3, sizeof(char *));
 	// c_files = ft_calloc(1, sizeof(char *));
 	c_files[0] = read_cfile("srcs/opencl_srcs/ray.c"); // * load GPU source files
-	c_files[1] = read_cfile("srcs/opencl_srcs/opencl_vector.c"); // * load GPU source files
+	c_files[1] = read_cfile("srcs/opencl_srcs/opencl_vector.c");
+	c_files[2] = read_cfile("srcs/opencl_srcs/opencl_object_intercept.c");
 	// printf("%s\n", c_files[0]);
 	c_size[0] = ft_strlen(c_files[0]);
 	c_size[1] = ft_strlen(c_files[1]);
+	c_size[2] = ft_strlen(c_files[2]);
 
 
 	ret = clGetPlatformIDs(1, &opencl->platform, NULL);
@@ -112,14 +114,29 @@ t_opencl	*init_opencl(t_data *data)
 		print_cl_error(ret);
 
     // Create a program from the kernel source
-    opencl->program = clCreateProgramWithSource(opencl->context, 1, (const char **)c_files, c_size, &ret);
+    opencl->program = clCreateProgramWithSource(opencl->context, 3, (const char **)c_files, c_size, &ret);
 	if (ret != CL_SUCCESS)
+	{
 		print_cl_error(ret);
+	}
 
     // Build the program
     ret = clBuildProgram(opencl->program, 1, &opencl->device, NULL, NULL, NULL);
 	if (ret != CL_SUCCESS)
+	{
+		printf("clBuildProgram error: %d\n", ret);
 		print_cl_error(ret);
+		
+		// Get the build log
+		size_t log_size;
+		clGetProgramBuildInfo(opencl->program, opencl->device, CL_PROGRAM_BUILD_LOG, 0, NULL, &log_size);
+		char *log = (char *)malloc(log_size);
+		clGetProgramBuildInfo(opencl->program, opencl->device, CL_PROGRAM_BUILD_LOG, log_size, log, NULL);
+		printf("Build log:\n%s\n", log);
+		free(log);
+		
+		exit(EXIT_FAILURE);
+	}
 
     // Create the OpenCL kernel
     opencl->kernel = clCreateKernel(opencl->program, "render_scene", &ret);

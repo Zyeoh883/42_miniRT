@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 16:33:56 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/12 14:19:44 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/12 15:46:23 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,13 @@ typedef struct __attribute__ ((aligned(16))) s_object {
 } t_object;
 
 // Function prototype
+float4	vector_normalize(float4 v);
+
 t_ray create_ray(__global t_camera *camera, int i, int j);
+int	render_ray(t_ray ray, __global t_object *objects);
+float4	vector_scalar_product(const float4 v, const float scalar);
+float2	intersect_ray_sphere(t_sphere sphere, t_ray ray);
+float2	intersect_ray_sphere(t_sphere sphere, t_ray ray);
 
 // Function definition
 t_ray create_ray(__global t_camera *camera, int i, int j) {
@@ -59,11 +65,10 @@ t_ray create_ray(__global t_camera *camera, int i, int j) {
     return ray;
 }
 
-
-int	render_ray(t_ray ray, t_object *objects)
+int	render_ray(t_ray ray, __global t_object *objects)
 {
 	float2		t;
-	t_sphere	*closest_sphere;
+	__global t_sphere	*closest_sphere;
 	float		closest_t;
 	int			n;
 
@@ -72,7 +77,7 @@ int	render_ray(t_ray ray, t_object *objects)
 	n = 0;
 	while (objects->type != 0)
 	{
-		intersect_ray_sphere(objects->sphere, ray, t);
+		t = intersect_ray_sphere(objects->sphere, ray);
 		if (t[0] < closest_t && t[0] > 0)
 		{
 			closest_t = t[0];
@@ -103,12 +108,17 @@ __kernel void render_scene(__global uchar *addr, __global t_camera *camera, __gl
 
     x = get_global_id(0);
     y = get_global_id(1);
+
+    float4 v = (float4){2, 2, 2, 2};
+
+    v = vector_scalar_product(v, 2);
+
     
 	dst = addr + (y * camera->line_length + x * (camera->bytes_per_pixel));
 	// t_ray ray = create_ray(camera, x, y);
-    // color = render_ray(create_ray(camera, x, y), objects);
-    color = x * 0xFF / camera->win_width;
-    color += (y * 0xFF / camera->win_height) << 8;
+    color = render_ray(create_ray(camera, x, y), objects);
+    // color = x * 0xFF / camera->win_width;
+    // color += (y * 0xFF / camera->win_height) << 8;
     // color += y;
 
 	*(__global unsigned int *)dst = color;

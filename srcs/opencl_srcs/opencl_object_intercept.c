@@ -6,11 +6,9 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 15:13:56 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/12 11:40:14 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/12 15:36:15 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-#include "minirt.h"
 
 // int intersect_aabb(t_ray *ray, __m128 max, __m128 min) {
 //     // Compute t0 and t1 using FMA if available
@@ -124,15 +122,18 @@
 // }
 
 
-void	intersect_ray_sphere(t_sphere sphere, t_ray ray, float t[2])
+float4	vector_subtraction(const float4 v1, const float4 v2);
+float	vector_dot_product(const float4 v1, const float4 v2);
+
+float2	intersect_ray_sphere(t_sphere sphere, t_ray ray)
 {
-	float4	sphere_to_camera;
+	float4		sphere_to_camera;
 	float		a;
 	float		b;
 	float		c;
 	float		discriminant;
 
-	sphere_to_camera = vector_subtraction(*ray.pos, sphere.pos);
+	sphere_to_camera = vector_subtraction(ray.pos, sphere.pos);
 	// printf("3. ");
 	// print_vector(*ray.pos);
 	a = vector_dot_product(ray.direction, ray.direction);
@@ -141,12 +142,7 @@ void	intersect_ray_sphere(t_sphere sphere, t_ray ray, float t[2])
 			* sphere.radius);
 	discriminant = b * b - 4 * a * c;
 	if (discriminant < 0)
-	{
-		t[0] = INFINITY;
-		t[1] = INFINITY;
-		return ;
-	}
+		return ((float2){INFINITY, INFINITY});
 	discriminant = sqrt(discriminant);
-	t[0] = (-b + discriminant) / (2 * a);
-	t[1] = (-b - discriminant) / (2 * a);
+	return ((float2){(-b + discriminant) / (2 * a), (-b - discriminant) / (2 * a)});
 }

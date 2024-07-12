@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 10:33:06 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/29 22:16:05 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/12 16:14:07 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,21 +14,22 @@
 
 void	input_translate(t_camera *camera, int key)
 {
-	t_vector	v;
+	cl_float4	v;
 
 	if (key == SPACE_KEY)
-		v = _mm_set_ps(0, 1, 0, 0);
+		v = (cl_float4){{0, 1, 0, 0}};
 	else if (key == CTRL_KEY)
-		v = _mm_set_ps(0, -1, 0, 0);
+		v = (cl_float4){{0, -1, 0, 0}};
 	else if (key == D_KEY)
-		v = quat_rotate(camera->quat, _mm_set_ps(0, 0, 1, 0));
+		v = quat_rotate(camera->quat, (cl_float4){{0, 0, 1, 0}});
 	else if (key == A_KEY)
-		v = quat_rotate(camera->quat, _mm_set_ps(0, 0, -1, 0));
+		v = quat_rotate(camera->quat, (cl_float4){{0, 0, -1, 0}});
 	else if (key == W_KEY || key == S_KEY)
 	{
-		v = _mm_set_ps((key == W_KEY ? 1 : -1), 0, 0, 0);
-		v = _mm_blend_ps(quat_rotate(camera->quat, v), _mm_setzero_ps(), 4);
-		vector_normalize(&v);
+		v = (cl_float4){{key == W_KEY ? 1 : -1, 0, 0, 0}};
+		v = quat_rotate(camera->quat, v);
+		v.s[3] = 0;
+		v = vector_normalize(v);
 	}
 	else
 		return ;
