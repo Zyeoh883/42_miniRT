@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/14 15:01:05 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/14 16:00:34 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ t_camera	*init_camera(t_data *data, int win_height, int win_width)
 t_opencl	*init_opencl(t_data *data)
 {
 	char		**c_files;
-	size_t		c_size[4];
+	size_t		c_size[5];
 	t_opencl	*opencl;
     cl_int ret;
 
@@ -65,17 +65,19 @@ t_opencl	*init_opencl(t_data *data)
 	if (!opencl)
 		exit(EXIT_FAILURE);
 
-	c_files = ft_calloc(4, sizeof(char *));
+	c_files = ft_calloc(5, sizeof(char *));
 	// c_files = ft_calloc(1, sizeof(char *));
-	c_files[0] = read_cfile("srcs/opencl_srcs/ray.c"); // * load GPU source files
-	c_files[1] = read_cfile("srcs/opencl_srcs/opencl_vector.c");
-	c_files[2] = read_cfile("srcs/opencl_srcs/opencl_quaternion.c");
-	c_files[3] = read_cfile("srcs/opencl_srcs/opencl_object_intercept.c");
+	c_files[0] = read_cfile("srcs/opencl_srcs/opencl.h");
+	c_files[1] = read_cfile("srcs/opencl_srcs/ray.c"); // * load GPU source files
+	c_files[2] = read_cfile("srcs/opencl_srcs/opencl_vector.c");
+	c_files[3] = read_cfile("srcs/opencl_srcs/opencl_quaternion.c");
+	c_files[4] = read_cfile("srcs/opencl_srcs/opencl_object_intercept.c");
 	// printf("%s\n", c_files[0]);
 	c_size[0] = ft_strlen(c_files[0]);
 	c_size[1] = ft_strlen(c_files[1]);
 	c_size[2] = ft_strlen(c_files[2]);
 	c_size[3] = ft_strlen(c_files[3]);
+	c_size[4] = ft_strlen(c_files[4]);
 
 
 	ret = clGetPlatformIDs(1, &opencl->platform, NULL);
@@ -115,7 +117,7 @@ t_opencl	*init_opencl(t_data *data)
 		print_cl_error(ret);
 
     // Create a program from the kernel source
-    opencl->program = clCreateProgramWithSource(opencl->context, 4, (const char **)c_files, c_size, &ret);
+    opencl->program = clCreateProgramWithSource(opencl->context, 5, (const char **)c_files, c_size, &ret);
 	if (ret != CL_SUCCESS)
 	{
 		print_cl_error(ret);
@@ -192,6 +194,7 @@ void	render_frame(t_data *data, t_opencl *opencl)
 	ft_bzero(data->addr, data->win_height * data->line_length);
 	
 	//execution
+	// printf("%f %f %F %F\n", data->camera->pos.s[0], data->camera->pos.s[1], data->camera->pos.s[2], data->camera->pos.s[3]);
 	(void)opencl;
 	global_size[0] = data->win_width;
 	global_size[1] = data->win_height;

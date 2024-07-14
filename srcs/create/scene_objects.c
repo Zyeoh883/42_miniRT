@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/25 14:31:11 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/11 10:30:53 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/14 15:59:12 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,37 +47,37 @@ t_list	*create_ll_objects(void) // !parsing to execution starts here
 
 	// 1st
 	q[0] = (cl_float4){{0, 0, 0, 1}};
-	pos[0] = (cl_float4){{3, 0, 0, 0}};
+	pos[0] = (cl_float4){{0, 0, 3, 0}};
 	radius[0] = 1;
 	color[0] = 0xFFFFFF;
 	// 2nd,
 	q[1] = (cl_float4){{0, 0, 0, 1}};
-	pos[1] = (cl_float4){{3, -10, 0, 0}};
+	pos[1] = (cl_float4){{0, -10, 3, 0}};
 	radius[1] = 1;
 	color[1] = 0xFF0000;
 	// 3rd
 	q[2] = (cl_float4){{0, 0, 0, 1}};
-	pos[2] = (cl_float4){{13, 0, 0, 0}};
+	pos[2] = (cl_float4){{0, 0, 13, 0}};
 	radius[2] = 1;
 	color[2] = 0x00FF00;
 	// 4th
 	q[3] = (cl_float4){{0, 0, 0, 1}};
-	pos[3] = (cl_float4){{3, 10, 0, 0}};
+	pos[3] = (cl_float4){{0, 10, 3, 0}};
 	radius[3] = 1;
 	color[3] = 0x0000FF;
 	// 5th
 	q[4] = (cl_float4){{0, 0, 0, 1}};
-	pos[4] = (cl_float4){{-7, 0, 0, 0}};
+	pos[4] = (cl_float4){{0, 0, -7, 0}};
 	radius[4] = 1;
 	color[4] = 0xFF00FF;
 	// 6th
 	q[5] = (cl_float4){{0, 0, 0, 1}};
-	pos[5] = (cl_float4){{3, 0, 10, 0}};
+	pos[5] = (cl_float4){{10, 0, 3, 0}};
 	radius[5] = 1;
 	color[5] = 0xFFFF00;
 	// 7th
 	q[6] = (cl_float4){{0, 0, 0, 1}};
-	pos[6] = (cl_float4){{3, 0, -10, 0}};
+	pos[6] = (cl_float4){{-10, 0, 3, 0}};
 	radius[6] = 1;
 	color[6] = 0x00FFFF;
 
