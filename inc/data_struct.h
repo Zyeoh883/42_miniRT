@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/13 19:16:07 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/11 15:16:24 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/14 16:21:38 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,58 +15,41 @@
 
 # define SPHERE "S"
 
-// #define t_vector __m128
-// #define t_quat __m128
-
-// TODO change all t_ vector and quat to __m128
-// * reverse order for __m128
-// typedef __attribute__((aligned(16))) __m128	t_vector; // {k, j, i, NULL}
-// typedef __attribute__((aligned(16))) __m128	t_quat; // {k, j, i, w}
-
-// typedef struct s_vector
-// {
-// 	float				i;
-// 	float				j;
-// 	float				k;
-// }						t_vector;
-
-// typedef struct s_quat
-// TODO set w to fourth value for speed (small improvement)
-// {
-// 	float				w;
-// 	float				i;
-// 	float				j;
-// 	float				k;
-// }						t_quat;
-
 typedef struct __attribute__ ((aligned(16))) s_ray
 {
-	cl_float4	pos; // ! changed from pointer to value
-	cl_float4	direction;
+	cl_float4		pos; // ! changed from pointer to value
+	cl_float4		direction;
 }						t_ray;
 
 typedef struct __attribute__ ((aligned(16))) s_sphere
 {
-	cl_float4	pos;
-	cl_float4	quat;
+	cl_float4		pos;
+	cl_float4		quat;
 	cl_float		radius;
 	cl_int			color;
 }						t_sphere;
 
-typedef struct __attribute__ ((aligned(16))) s_OBB // ! confirm OBB params
+typedef struct __attribute__ ((aligned(16))) s_plane
 {
-	cl_float4	pos;
-	cl_float4	quat;
-	cl_float4	half_len;
+	cl_float4		pos;
+	cl_float4		quat;
+	cl_int			color;
+}						t_plane;
+
+typedef struct __attribute__ ((aligned(16))) s_OBB
+{
+	cl_float4		pos;
+	cl_float4		quat;
+	cl_float4		half_len;
 }						t_OBB;
 
 	// struct s_OBB obb;
-typedef struct __attribute__ ((aligned(16))) s_object // ! type == 0 means NULL terminated
+typedef struct __attribute__ ((aligned(16))) s_object
 {
-	cl_uchar				type;
+	cl_uchar		type;
 	union
 	{
-		struct __attribute__ ((aligned(16))) s_sphere	sphere;
+		struct s_sphere	sphere;
 	};
 }						t_object;
 
