@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 10:33:06 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/14 15:10:44 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/14 15:24:10 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,12 +21,12 @@ void	input_translate(t_camera *camera, int key)
 	else if (key == CTRL_KEY)
 		v = (cl_float4){{0, -1, 0, 0}};
 	else if (key == D_KEY)
-		v = quat_rotate(camera->quat, (cl_float4){{0, 0, 1, 0}});
+		v = quat_rotate(camera->quat, (cl_float4){{1, 0, 0, 0}});
 	else if (key == A_KEY)
-		v = quat_rotate(camera->quat, (cl_float4){{0, 0, -1, 0}});
+		v = quat_rotate(camera->quat, (cl_float4){{-1, 0, 0, 0}});
 	else if (key == W_KEY || key == S_KEY)
 	{
-		v = (cl_float4){{key == W_KEY ? 1 : -1, 0, 0, 0}};
+		v = (cl_float4){{0, 0, key == W_KEY ? 1 : -1, 0}};
 		v = quat_rotate(camera->quat, v);
 		v.s[1] = 0;
 		v = vector_normalize(v);

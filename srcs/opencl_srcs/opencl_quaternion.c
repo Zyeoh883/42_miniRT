@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/14 12:08:41 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/14 15:03:57 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/14 15:21:36 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@ float4	quat_rotate(float4 q, const float4 v) // rotate point
 {
 	float4 q_v;
 	float4 rotated;
-	float4 conjugate;
 
 	q_v = v;
 	q_v[3] = 0;

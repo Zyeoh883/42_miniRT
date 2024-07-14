@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 16:33:56 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/14 14:59:17 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/14 15:23:39 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,9 +56,9 @@ t_ray create_ray(__global t_camera *camera, int i, int j) {
     t_ray ray;
     ray.pos = camera->pos;
     ray.direction = (float4)(
-        1,
-        (1 - 2 * j / (float)camera->win_height) * camera->pixel_height,
         (2 * i / (float)camera->win_width - 1) * camera->pixel_width,
+        (1 - 2 * j / (float)camera->win_height) * camera->pixel_height,
+        1,
         0
     );
     ray.direction = quat_rotate(camera->quat, ray.direction);
