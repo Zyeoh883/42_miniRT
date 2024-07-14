@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 10:33:06 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/12 16:14:07 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/14 15:10:44 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,14 +28,12 @@ void	input_translate(t_camera *camera, int key)
 	{
 		v = (cl_float4){{key == W_KEY ? 1 : -1, 0, 0, 0}};
 		v = quat_rotate(camera->quat, v);
-		v.s[3] = 0;
+		v.s[1] = 0;
 		v = vector_normalize(v);
 	}
 	else
 		return ;
 	camera->pos = vector_addition(camera->pos, v);
-	// print_m128(camera->pos);
-	// printf("%d\n", key);
 }
 
 // int	input_rotation(t_data *data) // back up rotation

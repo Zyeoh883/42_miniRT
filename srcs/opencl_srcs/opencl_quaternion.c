@@ -1,82 +1,95 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   quaternion.c                                       :+:      :+:    :+:   */
+/*   opencl_quaternion.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/14 12:08:41 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/29 21:46:17 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/14 15:03:57 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minirt.h"
+float4	quat_normalize(float4 q);
+float4	quat_product(const float4 q1, const float4 q2);
+float4	quat_conjugate(const float4 q);
 
-inline __m128	quat_rotate(t_quat q, const __m128 v) // rotate point
+float4	quat_rotate(float4 q, const float4 v) // rotate point
 {
-	t_quat rotated;
+	float4 q_v;
+	float4 rotated;
+	float4 conjugate;
 
-	// print_m128(v);
-	// quat_normalize(&q);
-	rotated = quat_product(quat_product(q, v), quat_conjugate(q));
-	// quat_normalize(&rotated);
-	return (_mm_blend_ps(rotated, _mm_setzero_ps(), 1));
+	q_v = v;
+	q_v[3] = 0;
+	q = quat_normalize(q);
+	rotated = quat_product(quat_product(q, q_v), quat_conjugate(q));
+	rotated[3] = 0;
+	return (rotated);
 }
 
-// (w0 * w1 - v0 . v1) + (w0 * v1 + w1 * v0 + v0 x v1)
-inline __m128	quat_product( __m128 q1,  __m128 q2)
+float4	quat_product(const float4 q1, const float4 q2)
 {
-    __m128 real;
-    __m128 w1;
-    __m128 w2;
-    __m128 wv;
-    __m128 vv;
-
-	w1 = _mm_shuffle_ps(q1, q1, _MM_SHUFFLE( 0, 0, 0, 0));
-	w2 = _mm_shuffle_ps(q2, q2, _MM_SHUFFLE( 0, 0, 0, 0));
-    q1 = _mm_blend_ps(q1, _mm_setzero_ps(), 1);
-    q2 = _mm_blend_ps(q2, _mm_setzero_ps(), 1);
-
-    real = _mm_sub_ps(_mm_mul_ps(w1, w2), _mm_dp_ps(q1, q2, 0xFF));
-    real = _mm_blend_ps(real, _mm_setzero_ps(), 14);
-
-    wv = _mm_add_ps(_mm_mul_ps(w1, q2), _mm_mul_ps(w2, q1));
-    vv = vector_cross_product(q1, q2);
-
-    return (_mm_add_ps(real, _mm_add_ps(wv, vv)));
+	// return (cross(q1, q2));
+	return ((float4)(
+		q1[3] * q2[0] + q1[0] * q2[3] + q1[1] * q2[2] - q1[2] * q2[1],
+		q1[3] * q2[1] - q1[0] * q2[2] + q1[1] * q2[3] + q1[2] * q2[0],
+		q1[3] * q2[2] + q1[0] * q2[1] - q1[1] * q2[0] + q1[2] * q2[3],
+		q1[3] * q2[3] - q1[0] * q2[0] - q1[1] * q2[1] - q1[2] * q2[2]
+	));
 }
 
-inline t_quat	quat_conjugate(const t_quat q)
+float4	quat_conjugate(const float4 q)
 {
-	return (_mm_xor_ps(q, _mm_set_ps(-0.0f, -0.0f, -0.0f, 0.0f)));
+	float4 q_result;
+
+	q_result = -q;
+	q_result[3] = q[3];
+	return (q_result);
 }
 
-inline t_quat	angle_to_quat(const t_vector rot, const float radian)
+float4	angle_to_quat(const float4 rot, const float radian)
 {
-	__m128 sine;
-	__m128 cos;
-
-	sine = _mm_set1_ps(sinf(radian * 0.5f));
-	cos = _mm_set1_ps(cosf(radian * 0.5f));
-	return (_mm_blend_ps(_mm_mul_ps(rot, sine), cos, 0x1));
+	float4 q_result;
+	
+	q_result = rot * sin(radian * 0.5f);
+	q_result[3] = cos(radian * 0.5f);
+	return (q_result);
 }
 
-inline t_quat	quat_sum(const t_quat q1, const t_quat q2)
+float4	quat_sum(const float4 q1, const float4 q2)
 {
-	return (_mm_add_ps(q1, q2));
+	return (q1 + q2);
 }
 
-inline t_quat	quat_scalar_product(const t_quat q, const float scale)
+float4	quat_scalar_product(const float4 q, const float scalar)
 {
-	return (_mm_mul_ps(q, _mm_set1_ps(scale)));
+	return (q * scalar);
 }
 
-inline void	quat_normalize(t_quat *q)
+float4	quat_slerp(const float4 dest, const float4 src, const float angle, const float t)
 {
-	*q = _mm_mul_ps(*q, _mm_rsqrt_ps(_mm_dp_ps(*q, *q, 0xFF)));
+	float	sine;
+	float4	q1;
+	float4	q2;
+
+	sine = sin(angle);
+	q1 = quat_scalar_product(dest, sin((1 - t) * angle) / sine);
+	q2 = quat_scalar_product(src, sin(t * angle) / sine);
+	return (q1 + q2);
 }
 
-// inline t_quat	quat_slerp(const t_quat dest, const t_quat src, const float angle, const float t)
+// float	quat_abs(const float4 q);
+// {
+// 	return (sqrt(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]));
+// }
+
+float4	quat_normalize(float4 q)
+{
+	return (fast_normalize(q));
+}
+
+// t_quat	quat_slerp(const t_quat dest, const t_quat src, const float angle, const float t)
 // {
 // 	float	sine;
 // 	t_quat	q1;

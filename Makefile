@@ -16,7 +16,6 @@ ORANGE = \033[0;38;5;166m
 # Source files
 SRCDIR = srcs/
 
-# math_utils/quaternion.c
 # math_utils/print_math.c
 # create/oriented_bounding_box.c
 # intersects/object_intercept.c
@@ -27,6 +26,7 @@ SRCS_FIL = \
 		error_handling/memory_error.c \
 		utils/utils.c \
 		math_utils/vector.c \
+		math_utils/quaternion.c \
 		mlx_handlers/input_translate.c \
 
 SRCS = $(addprefix $(SRCDIR), $(SRCS_FIL))

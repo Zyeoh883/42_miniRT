@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/21 17:31:34 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/12 15:47:23 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/14 15:04:34 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,16 +73,16 @@ int	mouse_hook(int x, int y, t_data *data)
 	
 	dy = y - data->inputs.mouse_y;
 	dx = x - data->inputs.mouse_x;
-	// input_translate(&data->camera, data->inputs.key);
-	// quat_normalize(&data->camera.quat);
-	// if ((dy > 0 && data->inputs.pitch_angle < CAM_LOCK) || (dy < 0 && data->inputs.->pitch_angle > -CAM_LOCK))
-	// {
-	// 	data->inputs.pitch_angle += CAM_SENS * dy;
-	// 	camera->quat = quat_product(&data->camera->quat, angle_to_quat(_mm_set_ps(0, 0, 1, 0), CAM_SENS * dy));
-	// }
-	// if (dx != 0)
-	// 	camera->quat = quat_product(angle_to_quat(_mm_set_ps(0, 1, 0, 0), CAM_SENS * dx), camera->quat);
-	// mlx_mouse_move(data->win_ptr, data->win_width * 0.5, data->win_height * 0.5); // ! might not work with int
+	input_translate(data->camera, data->inputs.key);
+	data->camera->quat = quat_normalize(data->camera->quat);
+	if ((dy > 0 && data->inputs.pitch_angle < CAM_LOCK) || (dy < 0 && data->inputs.pitch_angle > -CAM_LOCK))
+	{
+		data->inputs.pitch_angle += CAM_SENS * dy;
+		data->camera->quat = quat_product(data->camera->quat, angle_to_quat((cl_float4){{0, 0, -1, 0}}, CAM_SENS * dy));
+	}
+	if (dx != 0)
+		data->camera->quat = quat_product(angle_to_quat((cl_float4){{0, -1, 0, 0}}, CAM_SENS * dx), data->camera->quat);
+	mlx_mouse_move(data->win_ptr, data->win_width * 0.5, data->win_height * 0.5); // ! might not work with int
 	render_frame(data, data->opencl);
 	return (0);
 }

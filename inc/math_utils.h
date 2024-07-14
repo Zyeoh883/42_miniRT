@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/14 11:30:35 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/12 16:13:13 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/14 13:26:51 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,19 +36,20 @@ float		vector_dot_product(const cl_float4 v1, cl_float4 v2);
 cl_float4	vector_scalar_product(const cl_float4 v, float scale);
 cl_float4	vector_sum(const cl_float4 v1, const cl_float4 v2);
 cl_float4	vector_addition(const cl_float4 v1, const cl_float4 v2);
-cl_float4	vector_subtraction(const cl_float4 v1, const cl_float4 v2 );
+cl_float4	vector_subtraction(const cl_float4 v1, const cl_float4 v2);
 cl_float4	vector_normalize(cl_float4 v);
 // cl_float4	vector_normalize(cl_float4 v);
 
 cl_float4	quat_rotate(cl_float4 q, const cl_float4 v);
-cl_float4		quat_product(const cl_float4 q1, const cl_float4 q2);
-cl_float4		quat_conjugate(const cl_float4 q);
-cl_float4		angle_to_quat(const cl_float4 rot, const float radian);
-cl_float4		quat_sum(const cl_float4 q1, const cl_float4 q2);
-cl_float4		quat_scalar_product(const cl_float4 q, const float scale);
-cl_float4		quat_slerp(const cl_float4 dest, const cl_float4 src, const float angle, const float t);
+cl_float4	quat_product(const cl_float4 q1, const cl_float4 q2);
+cl_float4	quat_conjugate(const cl_float4 q);
+cl_float4	angle_to_quat(const cl_float4 rot, const float radian);
+cl_float4	quat_sum(const cl_float4 q1, const cl_float4 q2);
+cl_float4	quat_scalar_product(const cl_float4 q, const float scale);
+cl_float4	quat_slerp(const cl_float4 dest, const cl_float4 src,
+				const float angle, const float t);
 float		quat_abs(const cl_float4 q);
-void		quat_normalize(cl_float4 *q);
+cl_float4	quat_normalize(cl_float4 q);
 
 void		print_vector(cl_float4 v);
 void		printcl_float4(cl_float4 q);

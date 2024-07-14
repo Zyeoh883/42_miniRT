@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/12 15:35:20 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/14 15:01:05 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ t_camera	*init_camera(t_data *data, int win_height, int win_width)
 	// camera.objects = NULL;
 	camera->pos = (cl_float4) {{0, 0, 0, 0}};
 	camera->quat = (cl_float4) {{0, 0, 0, 1}};
-	// camera->quat = angle_to_quat(_mm_set_ps(0, 0, 1, 0), M_PI * 2);
 	fov = 60 * TO_RADIAN;
 	aspect_ratio = (cl_float)win_width / win_height;
 	camera->pixel_width = 2 * tan(fov * 0.5f);
@@ -58,7 +57,7 @@ t_camera	*init_camera(t_data *data, int win_height, int win_width)
 t_opencl	*init_opencl(t_data *data)
 {
 	char		**c_files;
-	size_t		c_size[3];
+	size_t		c_size[4];
 	t_opencl	*opencl;
     cl_int ret;
 
@@ -66,15 +65,17 @@ t_opencl	*init_opencl(t_data *data)
 	if (!opencl)
 		exit(EXIT_FAILURE);
 
-	c_files = ft_calloc(3, sizeof(char *));
+	c_files = ft_calloc(4, sizeof(char *));
 	// c_files = ft_calloc(1, sizeof(char *));
 	c_files[0] = read_cfile("srcs/opencl_srcs/ray.c"); // * load GPU source files
 	c_files[1] = read_cfile("srcs/opencl_srcs/opencl_vector.c");
-	c_files[2] = read_cfile("srcs/opencl_srcs/opencl_object_intercept.c");
+	c_files[2] = read_cfile("srcs/opencl_srcs/opencl_quaternion.c");
+	c_files[3] = read_cfile("srcs/opencl_srcs/opencl_object_intercept.c");
 	// printf("%s\n", c_files[0]);
 	c_size[0] = ft_strlen(c_files[0]);
 	c_size[1] = ft_strlen(c_files[1]);
 	c_size[2] = ft_strlen(c_files[2]);
+	c_size[3] = ft_strlen(c_files[3]);
 
 
 	ret = clGetPlatformIDs(1, &opencl->platform, NULL);
@@ -114,7 +115,7 @@ t_opencl	*init_opencl(t_data *data)
 		print_cl_error(ret);
 
     // Create a program from the kernel source
-    opencl->program = clCreateProgramWithSource(opencl->context, 3, (const char **)c_files, c_size, &ret);
+    opencl->program = clCreateProgramWithSource(opencl->context, 4, (const char **)c_files, c_size, &ret);
 	if (ret != CL_SUCCESS)
 	{
 		print_cl_error(ret);
@@ -244,8 +245,8 @@ int	main(void)
 	mlx_mouse_hide();
 	mlx_hook(data.win_ptr, 2, 0, deal_key_press, &data);
 	mlx_hook(data.win_ptr, 3, 1, deal_key_release, &data);
-	// mlx_loop_hook(data.mlx_ptr, deal_input, &data);
-	// mlx_hook(data.win_ptr, 6, 1L << 6, mouse_hook, &camera);
+	mlx_loop_hook(data.mlx_ptr, deal_input, &data);
+	mlx_hook(data.win_ptr, 6, 1L << 6, mouse_hook, &data);
 	mlx_loop(data.mlx_ptr);
 	mlx_put_image_to_window(&data, data.win_ptr, data.img, 0, 0);
 	return (0);
