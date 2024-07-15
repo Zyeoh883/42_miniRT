@@ -6,30 +6,28 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/25 14:31:11 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/14 15:59:12 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/15 15:23:54 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minirt.h"
 
-t_object	assign_object(t_OBB obb, char type)
+t_object	assign_object(char type, cl_float4 pos, cl_float4 quat, int color)
 {
 	t_object	object;
 
-	(void)obb;
-	// object.obb = obb;
 	object.type = type;
+	object.pos = pos;
+	object.quat = quat;
+	object.color = color;
 	return (object);
 }
 
-t_sphere	assign_sphere(cl_float4 pos, float radius, int color)
+t_sphere	assign_sphere(float radius)
 {
 	t_sphere	sphere;
 
-	sphere.pos = pos;
-	sphere.quat = (cl_float4){{0, 0, 0, 1}};
 	sphere.radius = radius;
-	sphere.color = color;
 	return (sphere);
 }
 
@@ -40,65 +38,86 @@ t_list	*create_ll_objects(void) // !parsing to execution starts here
 	t_object *object;
 	int n;
 
-	cl_float4 q[7];
-	cl_float4 pos[7];
-	int radius[7];
-	int color[7];
+	cl_float4 q[9];
+	cl_float4 pos[9];
+	cl_char type[9];
+	int radius[9];
+	int color[9];
 
 	// 1st
+	type[0] = SPHERE;
 	q[0] = (cl_float4){{0, 0, 0, 1}};
 	pos[0] = (cl_float4){{0, 0, 3, 0}};
 	radius[0] = 1;
 	color[0] = 0xFFFFFF;
 	// 2nd,
+	type[1] = SPHERE;
 	q[1] = (cl_float4){{0, 0, 0, 1}};
 	pos[1] = (cl_float4){{0, -10, 3, 0}};
 	radius[1] = 1;
 	color[1] = 0xFF0000;
 	// 3rd
+	type[2] = SPHERE;
 	q[2] = (cl_float4){{0, 0, 0, 1}};
 	pos[2] = (cl_float4){{0, 0, 13, 0}};
 	radius[2] = 1;
 	color[2] = 0x00FF00;
 	// 4th
+	type[3] = SPHERE;
 	q[3] = (cl_float4){{0, 0, 0, 1}};
 	pos[3] = (cl_float4){{0, 10, 3, 0}};
 	radius[3] = 1;
 	color[3] = 0x0000FF;
 	// 5th
+	type[4] = SPHERE;
 	q[4] = (cl_float4){{0, 0, 0, 1}};
 	pos[4] = (cl_float4){{0, 0, -7, 0}};
 	radius[4] = 1;
 	color[4] = 0xFF00FF;
 	// 6th
+	type[5] = SPHERE;
 	q[5] = (cl_float4){{0, 0, 0, 1}};
 	pos[5] = (cl_float4){{10, 0, 3, 0}};
 	radius[5] = 1;
 	color[5] = 0xFFFF00;
 	// 7th
+	type[6] = SPHERE;
 	q[6] = (cl_float4){{0, 0, 0, 1}};
 	pos[6] = (cl_float4){{-10, 0, 3, 0}};
 	radius[6] = 1;
 	color[6] = 0x00FFFF;
+	// 8th
+	type[7] = PLANE;
+	q[7] = (cl_float4){{0, 1, 0, 0}};
+	pos[7] = (cl_float4){{0, -15, 0, 0}};
+	// radius[7] = 1;
+	color[7] = 0x885588;
+	// 9th
+	type[8] = PLANE;
+	q[8] = (cl_float4){{0, 0, 1, 0}};
+	pos[8] = (cl_float4){{0, 0, 20, 0}};
+	// radius[8] = 1;
+	color[8] = 0x5555FF;
 
 	// Add to linked list
 	object = ft_calloc(1, sizeof(t_object));
 	if (!object)
 		perror_and_exit("malloc", EXIT_FAILURE);
-	object->sphere = assign_sphere(pos[0], radius[0], color[0]);
-	object->type = 'S';
+	*object = assign_object(type[0], pos[0], q[0], color[0]);
+	object->sphere = assign_sphere(radius[0]);
 	root_node = ft_lstnew(object);
 	if (!root_node)
 		perror_and_exit("malloc", EXIT_FAILURE);
 
 	n = 0;
-	while (++n < 7)
+	while (++n < 9)
 	{
 		object = ft_calloc(1, sizeof(t_object));
 		if (!object)
 			perror_and_exit("malloc", EXIT_FAILURE);
-		object->sphere = assign_sphere(pos[n], radius[n], color[n]);
-		object->type = 'S';
+		*object = assign_object(type[n], pos[n], q[n], color[n]);
+		if (type[n] == SPHERE)
+			object->sphere = assign_sphere(radius[n]);
 		node = ft_lstnew(object);
 		if (!node)
 			perror_and_exit("malloc", EXIT_FAILURE);
@@ -115,7 +134,7 @@ t_object	*create_objects_array(t_list *root_node)
 	int			n;
 
 	len = ft_lstsize(root_node);
-	arr_objects = ft_calloc(len, sizeof(t_object));
+	arr_objects = ft_calloc(len + 1, sizeof(t_object));
 	if (!arr_objects)
 		perror_and_exit("malloc", EXIT_FAILURE);
 	head = root_node;
@@ -129,11 +148,11 @@ t_object	*create_objects_array(t_list *root_node)
 	}
 	ft_lstclear(&root_node, free);
 	
-	// n = -1;
-	// while (arr_objects[++n].type)
-	// {
-	// 	print_vector(arr_objects[n].sphere.pos);
-	// }
+	n = -1;
+	while (++n < len)
+	{
+		print_vector(arr_objects[n].pos);
+	}
 
 	return (arr_objects);
 }

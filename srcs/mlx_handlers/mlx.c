@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/21 17:31:34 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/14 16:08:10 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/15 07:05:40 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ int	deal_key_release(int key, t_data *data)
 		data->inputs.key = -1;
 		data->inputs.key_held = false;
 	}
+	if (key == SHIFT_KEY)
+		data->inputs.shift = false;
 	return (0);
 }
 
@@ -39,6 +41,11 @@ int	deal_key_press(int key, t_data *data) // ! does not free
 		mlx_destroy_window(data->mlx_ptr, data->win_ptr);
 		exit(0);
 	}
+	if (key == SHIFT_KEY)
+	{
+		data->inputs.shift = true;
+		return (0);
+	}
 	data->inputs.key = key;
 	return (0);
 }
@@ -47,7 +54,7 @@ int	deal_input(t_data *data)
 {
 	if (data->inputs.key == -1)
 		return (0);
-	input_translate(data->camera, data->inputs.key);
+	input_translate(data, data->inputs.key);
 	// ! add slerp to reset key
 	// else if (data->inputs.key == B_KEY && !data->inputs.key_held)
 	// {
@@ -73,7 +80,8 @@ int	mouse_hook(int x, int y, t_data *data)
 	
 	dy = y - data->inputs.mouse_y;
 	dx = x - data->inputs.mouse_x;
-	input_translate(data->camera, data->inputs.key);
+	input_translate(data, data->inputs.key);
+	// deal_input(data);
 	data->camera->quat = quat_normalize(data->camera->quat);
 	if ((dy > 0 && data->inputs.pitch_angle < CAM_LOCK) || (dy < 0 && data->inputs.pitch_angle > -CAM_LOCK))
 	{
@@ -86,27 +94,3 @@ int	mouse_hook(int x, int y, t_data *data)
 	render_frame(data, data->opencl);
 	return (0);
 }
-	
-		// if (data->inputs.key == I_KEY || data->inputs.key == K_KEY)
-		// 	&data->camera.quat = quat_product(&data->camera.quat, angle_to_quat(v,
-		// 				M_PI / 16));
-
-	// if (dy > 0 && camera->pitch_angle < CAM_LOCK)
-	// {
-	// 	// printf("Lookin up\n");
-	// 	camera->pitch_angle += CAM_SENS;
-	// 	camera->quat = quat_product(camera->quat, angle_to_quat(_mm_set_ps(0, 0, 1, 0), CAM_SENS * dy));
-	// 	// print_m128(camera->quat);
-	// }
-	// else if (dy < 0 && camera->pitch_angle > -CAM_LOCK)
-	// {
-	// 	// printf("Lookin down\n");
-	// 	camera->pitch_angle -= CAM_SENS;
-	// 	camera->quat = quat_product(camera->quat, angle_to_quat(_mm_set_ps(0, 0, -1, 0), CAM_SENS * -dy));
-	// }
-
-	// if (dy > 0 && camera->pitch_angle < CAM_LOCK || dy < 0 && camera->pitch_angle > -CAM_LOCK)
-	// {
-	// 	camera->pitch_angle = CAM_SENS * -(dy < 0);
-	// 	camera->quat = quat_product(camera->quat, angle_to_quat(_mm_set_ps(0, 0, 1, 0), CAM_SENS * dy));
-	// }

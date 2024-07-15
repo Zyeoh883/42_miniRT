@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:49 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/11 14:39:35 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/15 06:46:50 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,7 @@ typedef struct __attribute__ ((aligned(16))) s_inputs
 	int key_held;
 	int mouse_x;
 	int mouse_y;
+	int	shift;
 	float pitch_angle; // * Moved pitch angle to inputs
 }						t_inputs;
 

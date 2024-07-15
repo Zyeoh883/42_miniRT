@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/14 12:08:41 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/14 15:52:12 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/15 11:37:38 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,11 @@ float4	quat_product(const float4 q1, const float4 q2)
 		* q2[0], q1[3] * q2[2] + q1[0] * q2[1] - q1[1] * q2[0] + q1[2]
 		* q2[3], q1[3] * q2[3] - q1[0] * q2[0] - q1[1] * q2[1] - q1[2]
 		* q2[2]));
+}
+
+float	quat_dot(const float4 q1, const float4 q2)
+{
+	return (dot(q1, q2));
 }
 
 float4	quat_conjugate(const float4 q)

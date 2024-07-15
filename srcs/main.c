@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/14 16:07:16 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/15 15:20:52 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@ t_camera	*init_camera(t_data *data, int win_height, int win_width)
 	camera->num_objects = 7; // ! hard coded
 	camera->bytes_per_pixel = data->bits_per_pixel * 0.125f;
 	camera->line_length = data->line_length;
+	camera->num_objects = 7;
 	data->camera = camera;
 	return (camera);
 }
@@ -109,7 +110,7 @@ t_opencl	*init_opencl(t_data *data)
 	opencl->camera = clCreateBuffer(opencl->context, CL_MEM_WRITE_ONLY, sizeof(t_camera), NULL, &ret);
 	if (ret != CL_SUCCESS)
 		print_cl_error(ret);
-	opencl->objects = clCreateBuffer(opencl->context, CL_MEM_WRITE_ONLY, sizeof(t_object) * 7, NULL, &ret); // ! hard coded amount
+	opencl->objects = clCreateBuffer(opencl->context, CL_MEM_WRITE_ONLY, sizeof(t_object) * 9, NULL, &ret); // ! hard coded amount
 	if (ret != CL_SUCCESS)
 		print_cl_error(ret);
 	opencl->camera = clCreateBuffer(opencl->context, CL_MEM_WRITE_ONLY, sizeof(t_camera), NULL, &ret);
@@ -208,7 +209,7 @@ void	render_frame(t_data *data, t_opencl *opencl)
 		printf("ret 1 error: %d\n", ret);
 		print_cl_error(ret);
 	}
-	ret = clEnqueueWriteBuffer(opencl->queue, opencl->objects, CL_TRUE, 0, sizeof(t_object) * 7, data->objects, 0, NULL, NULL); // ! hard coded
+	ret = clEnqueueWriteBuffer(opencl->queue, opencl->objects, CL_TRUE, 0, sizeof(t_object) * 9, data->objects, 0, NULL, NULL); // ! hard coded
 	if (ret != CL_SUCCESS)
 	{
 		printf("ret 2 error: %d\n", ret);
@@ -227,20 +228,19 @@ void	render_frame(t_data *data, t_opencl *opencl)
 		print_cl_error(ret);
 	}
 
-	mlx_put_image_to_window(data, data->win_ptr, data->img, 0, 0);
+	while ((double)clock() / CLOCKS_PER_SEC - time_start < 0.001f)
+		usleep(50);
 	printf("%f\n", (double)clock() / CLOCKS_PER_SEC - time_start);
+	mlx_put_image_to_window(data, data->win_ptr, data->img, 0, 0);
 }
 // fflush(stdout);
 // print_vector(ray.direction);
 
 int	main(void)
 {
-	// t_opencl	*opencl;
 	t_camera	camera;
 	t_data		data;
 
-	// create_objects_array(create_ll_objects());
-	// vector_test();
 	if (!initialize(&data, &camera))
 		return (1);
 	// opencl = init_opencl(&data);
@@ -254,12 +254,3 @@ int	main(void)
 	mlx_put_image_to_window(&data, data.win_ptr, data.img, 0, 0);
 	return (0);
 }
-
-// mlx_mouse_hook(data.win_ptr, mouse_hook, &data);
-// int	main(void)
-// {
-// 	// vector_test();
-// 	qua_test();
-// 	init_camera
-// 	return (0);
-// }

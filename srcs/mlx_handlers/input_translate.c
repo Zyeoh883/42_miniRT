@@ -6,13 +6,13 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 10:33:06 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/14 15:24:10 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/15 07:04:09 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minirt.h"
 
-void	input_translate(t_camera *camera, int key)
+void	input_translate(t_data *data, int key)
 {
 	cl_float4	v;
 
@@ -21,19 +21,22 @@ void	input_translate(t_camera *camera, int key)
 	else if (key == CTRL_KEY)
 		v = (cl_float4){{0, -1, 0, 0}};
 	else if (key == D_KEY)
-		v = quat_rotate(camera->quat, (cl_float4){{1, 0, 0, 0}});
+		v = quat_rotate(data->camera->quat, (cl_float4){{1, 0, 0, 0}});
 	else if (key == A_KEY)
-		v = quat_rotate(camera->quat, (cl_float4){{-1, 0, 0, 0}});
+		v = quat_rotate(data->camera->quat, (cl_float4){{-1, 0, 0, 0}});
 	else if (key == W_KEY || key == S_KEY)
 	{
-		v = (cl_float4){{0, 0, key == W_KEY ? 1 : -1, 0}};
-		v = quat_rotate(camera->quat, v);
+		v = (cl_float4){{0, 0, 1, 0}};
+		if (key == S_KEY)
+			v = (cl_float4){{0, 0, -1, 0}};
+		v = quat_rotate(data->camera->quat, v);
 		v.s[1] = 0;
 		v = vector_normalize(v);
 	}
 	else
 		return ;
-	camera->pos = vector_addition(camera->pos, v);
+	data->camera->pos = vector_addition(data->camera->pos,
+			vector_scalar_product(v, 1 + data->inputs.shift));
 }
 
 // int	input_rotation(t_data *data) // back up rotation

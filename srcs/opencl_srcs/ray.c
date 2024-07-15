@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 16:33:56 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/14 15:48:07 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/15 15:18:08 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,32 +22,32 @@ t_ray	create_ray(U __global t_camera *camera, int i, int j)
 	return (ray);
 }
 
-int	render_ray(t_ray ray, __global t_object *objects)
+int	render_ray(t_ray ray, U __global t_object *objects)
 {
-	__global t_sphere	*closest_sphere;
+	__global t_object	*closest_object;
 	float2				t;
 	float				closest_t;
 
-	closest_sphere = 0;
+	closest_object = 0;
 	closest_t = INFINITY;
 	while (objects->type != 0)
 	{
-		t = intersect_ray_sphere(objects->sphere, ray);
+		t = ray_intersection(objects, ray);
 		if (t[0] < closest_t && t[0] > 0)
 		{
 			closest_t = t[0];
-			closest_sphere = &objects->sphere;
+			closest_object = objects;
 		}
 		if (t[1] < closest_t && t[1] > 0)
 		{
 			closest_t = t[1];
-			closest_sphere = &objects->sphere;
+			closest_object = objects;
 		}
 		objects++;
 	}
-	if (closest_sphere == 0)
+	if (closest_object == 0)
 		return (1);
-	return (closest_sphere->color);
+	return (closest_object->color);
 }
 
 __kernel void	render_scene(U __global uchar *addr,
@@ -60,9 +60,10 @@ __kernel void	render_scene(U __global uchar *addr,
 
 	x = get_global_id(0);
 	y = get_global_id(1);
-	dst = addr + (y * camera->line_length + x * (camera->bytes_per_pixel));
 	color = render_ray(create_ray(camera, x, y), objects);
-	*(__global unsigned int *)dst = color;
+	dst = addr + (y * camera->line_length + x * (camera->bytes_per_pixel));
+	if (color)
+		*(__global unsigned int *)dst = color;
 }
 
 // __kernel void	render_scene(u __global uchar *addr,

@@ -6,14 +6,15 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/13 19:16:07 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/14 16:21:38 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/15 15:04:30 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef DATA_STRUCT_H
 # define DATA_STRUCT_H
 
-# define SPHERE "S"
+# define SPHERE 'S'
+# define PLANE 'P'
 
 typedef struct __attribute__ ((aligned(16))) s_ray
 {
@@ -23,18 +24,12 @@ typedef struct __attribute__ ((aligned(16))) s_ray
 
 typedef struct __attribute__ ((aligned(16))) s_sphere
 {
-	cl_float4		pos;
-	cl_float4		quat;
 	cl_float		radius;
-	cl_int			color;
 }						t_sphere;
 
-typedef struct __attribute__ ((aligned(16))) s_plane
-{
-	cl_float4		pos;
-	cl_float4		quat;
-	cl_int			color;
-}						t_plane;
+// typedef struct __attribute__ ((aligned(16))) s_plane
+// {
+// }						t_plane;
 
 typedef struct __attribute__ ((aligned(16))) s_OBB
 {
@@ -47,6 +42,9 @@ typedef struct __attribute__ ((aligned(16))) s_OBB
 typedef struct __attribute__ ((aligned(16))) s_object
 {
 	cl_uchar		type;
+	cl_int			color;
+	cl_float4		pos;
+	cl_float4		quat;
 	union
 	{
 		struct s_sphere	sphere;

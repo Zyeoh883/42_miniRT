@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/14 11:30:35 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/14 13:26:51 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/15 09:47:42 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,5 @@ float		quat_abs(const cl_float4 q);
 cl_float4	quat_normalize(cl_float4 q);
 
 void		print_vector(cl_float4 v);
-void		printcl_float4(cl_float4 q);
 
 #endif

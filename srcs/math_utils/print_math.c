@@ -6,23 +6,15 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 16:01:01 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/27 22:58:59 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/15 09:47:23 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minirt.h"
 
-void print_m128(__m128 m)
+void	print_vector(cl_float4 v)
 {
-    float arr[4];
-
-    _mm_store_ps(arr, m);
-    printf("\n%f %f %f %f\n", arr[0], arr[1], arr[2], arr[3]);
-}
-
-void	print_vector(t_vector v)
-{
-	print_m128(v);
+	printf("%f %f %f %f\n", v.s[0], v.s[1], v.s[2], v.s[3]);
 }
 
 // TODO fix this print
