@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/25 14:31:11 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/15 15:23:54 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/08/22 20:30:29 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,12 +23,21 @@ t_object	assign_object(char type, cl_float4 pos, cl_float4 quat, int color)
 	return (object);
 }
 
-t_sphere	assign_sphere(float radius)
+t_sphere	assign_sphere(cl_float radius)
 {
 	t_sphere	sphere;
 
 	sphere.radius = radius;
 	return (sphere);
+}
+
+t_cyclinder	assign_cyclinder(cl_float radius, cl_float height)
+{
+	t_cyclinder	cyclinder;
+
+	cyclinder.radius = radius;
+	cyclinder.height = height;
+	return (cyclinder);
 }
 
 t_list	*create_ll_objects(void) // !parsing to execution starts here
@@ -97,7 +106,7 @@ t_list	*create_ll_objects(void) // !parsing to execution starts here
 	q[8] = (cl_float4){{0, 0, 1, 0}};
 	pos[8] = (cl_float4){{0, 0, 20, 0}};
 	// radius[8] = 1;
-	color[8] = 0x5555FF;
+	color[8] = 0x98BFFC;
 
 	// Add to linked list
 	object = ft_calloc(1, sizeof(t_object));
@@ -147,12 +156,20 @@ t_object	*create_objects_array(t_list *root_node)
 		head = head->next;
 	}
 	ft_lstclear(&root_node, free);
-	
 	n = -1;
 	while (++n < len)
 	{
 		print_vector(arr_objects[n].pos);
 	}
-
 	return (arr_objects);
+}
+
+int	count_objects(t_object *arr_objects)
+{
+	int	count;
+
+	count = -1;
+	while (arr_objects[++count].type != 0)
+		;
+	return (count);
 }

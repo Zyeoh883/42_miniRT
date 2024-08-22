@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 15:13:56 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/15 15:18:16 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/08/22 20:54:09 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,24 @@ float2	intersect_ray_sphere(U __global t_object *object, t_ray ray)
 
 float2	intersect_ray_plane(U __global t_object *object, t_ray ray)
 {
+	float t;
+	float denom;
+
+	denom = quat_dot(object->quat, ray.direction);
+	t = quat_dot(object->pos - ray.pos, object->quat) / denom;
+	if (t >= 0)
+		return ((float2)(t, INFINITY));
+	return ((float2)(INFINITY, INFINITY));
+}
+
+// ! do this first
+float2	intersect_ray_cyclinder(U __global t_object *object, t_ray ray)
+{
+	float4	sphere_to_camera;
+	float	a;
+	float	b;
+	float	c;
+	float	discriminant;
 	float t;
 	float denom;
 

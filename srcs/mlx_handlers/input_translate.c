@@ -6,35 +6,36 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 10:33:06 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/15 07:04:09 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/08/22 20:11:14 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minirt.h"
 
-void	input_translate(t_data *data, int key)
+void	input_translate(t_data *data, t_inputs inputs)
 {
 	cl_float4	v;
 
-	if (key == SPACE_KEY)
-		v = (cl_float4){{0, 1, 0, 0}};
-	else if (key == CTRL_KEY)
-		v = (cl_float4){{0, -1, 0, 0}};
-	else if (key == D_KEY)
-		v = quat_rotate(data->camera->quat, (cl_float4){{1, 0, 0, 0}});
-	else if (key == A_KEY)
-		v = quat_rotate(data->camera->quat, (cl_float4){{-1, 0, 0, 0}});
-	else if (key == W_KEY || key == S_KEY)
+	v = (cl_float4){{0, 0, 0, 0}};
+	if (inputs.key_wasd[0] || inputs.key_wasd[2])
 	{
-		v = (cl_float4){{0, 0, 1, 0}};
-		if (key == S_KEY)
-			v = (cl_float4){{0, 0, -1, 0}};
+		v = (cl_float4){{0, 0, -1, 0}};
+		if (inputs.key_wasd[0])
+			v = (cl_float4){{0, 0, 1, 0}};
 		v = quat_rotate(data->camera->quat, v);
 		v.s[1] = 0;
 		v = vector_normalize(v);
 	}
-	else
-		return ;
+	if (inputs.key == SPACE_KEY)
+		v = vector_addition((cl_float4){{0, 1, 0, 0}}, v);
+	else if (inputs.key == CTRL_KEY)
+		v = vector_addition((cl_float4){{0, -1, 0, 0}}, v);
+	if (inputs.key_wasd[3])
+		v = vector_addition(quat_rotate(data->camera->quat, (cl_float4){{1, 0, 0, 0}}), v);
+	if (inputs.key_wasd[1])
+		v = vector_addition(quat_rotate(data->camera->quat, (cl_float4){{-1, 0, 0, 0}}), v);
+	if (v.s[0] + v.s[1] + v.s[2])
+		v = vector_normalize(v);
 	data->camera->pos = vector_addition(data->camera->pos,
 			vector_scalar_product(v, 1 + data->inputs.shift));
 }

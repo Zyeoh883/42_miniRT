@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/13 19:16:07 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/15 15:04:30 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/07/15 15:42:11 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # define SPHERE 'S'
 # define PLANE 'P'
+# define CYCLINDER 'C'
 
 typedef struct __attribute__ ((aligned(16))) s_ray
 {
@@ -27,9 +28,11 @@ typedef struct __attribute__ ((aligned(16))) s_sphere
 	cl_float		radius;
 }						t_sphere;
 
-// typedef struct __attribute__ ((aligned(16))) s_plane
-// {
-// }						t_plane;
+typedef struct __attribute__ ((aligned(16))) s_cyclinder
+{
+	cl_float		radius;
+	cl_float		height;
+}						t_cyclinder;
 
 typedef struct __attribute__ ((aligned(16))) s_OBB
 {

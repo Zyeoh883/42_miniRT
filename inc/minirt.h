@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:49 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/15 06:46:50 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/08/22 20:24:32 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,8 @@ typedef struct __attribute__ ((aligned(16))) s_camera
 
 typedef struct __attribute__ ((aligned(16))) s_inputs
 {
+	int key_wasd[4];
+	int key_wasd_held[4];
 	int key;
 	int key_held;
 	int mouse_x;
@@ -71,6 +73,7 @@ typedef struct __attribute__ ((aligned(16))) s_data
 	t_camera *camera;
 	t_opencl *opencl;
 	t_object *objects;
+	int	num_objects;
 	void *mlx_ptr;
 	void *win_ptr;
 	void *img;
@@ -84,7 +87,7 @@ typedef struct __attribute__ ((aligned(16))) s_data
 }						t_data;
 
 // init
-t_camera	*init_camera(t_data *data, int win_height, int win_width);
+t_camera				*init_camera(t_data *data, int win_height, int win_width);
 int						initialize(t_data *data, t_camera *camera);
 t_list					*create_ll_objects(void);
 t_object				*create_objects_array(t_list *root_node);
@@ -100,7 +103,7 @@ void					render_frame(t_data *data, t_opencl *opencl);
 t_ray					create_ray(t_camera *camera, cl_int i, cl_int j);
 void					intersect_ray_sphere(t_sphere sphere, t_ray ray,
 							float t[2]);
-int						render_ray(t_ray ray, t_object *objects);
+// int						render_ray(t_ray ray, t_object *objects);
 // int						intersect_aabb(t_ray *ray, t_vector max,
 // t_vector min);
 int						intersect_obb(t_ray *ray, t_OBB obb);
@@ -111,5 +114,6 @@ void					perror_and_exit(char *str, int exit_code);
 // utils
 void					print_m128(__m128 m);
 char					*read_cfile(char *name);
+int count_objects(t_object	*arr_objects);
 
 #endif
