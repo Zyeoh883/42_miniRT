@@ -3,15 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   mlx_handlers.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
+/*   By: Zyeoh <yeohzishen2002@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 10:43:27 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/11 10:27:02 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/10/16 20:00:03 by Zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MLX_HANLDERS_H
 # define MLX_HANLDERS_H
+
+# include "macos_defines.h"
 
 typedef struct s_data	t_data;
 typedef struct s_camera	t_camera;

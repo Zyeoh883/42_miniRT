@@ -3,18 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   minirt.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
+/*   By: Zyeoh <yeohzishen2002@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:49 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/11 14:39:35 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/10/16 20:31:25 by Zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MINIRT_H
 # define MINIRT_H
 
+
 // funni stuff
-# include <OpenCL/opencl.h>
+# if defined(__linux__)
+#	include <CL/cl.h>
+# elif defined(__APPLE__)
+#	include <OpenCL/opencl.h>
+# endif
 // end of funni
 
 # include "data_struct.h"
@@ -28,12 +33,6 @@
 # include <stdbool.h>
 # include <stdio.h>
 # include <time.h>
-
-# if defined(__APPLE__)
-#  include "macos_defines.h"
-# elif defined(__linux__)
-#  define PTR_NULL "(nil)"
-# endif
 
 # define CAM_SENS M_PI * 0.001
 # define CAM_LOCK 80 * TO_RADIAN

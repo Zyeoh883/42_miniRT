@@ -2,7 +2,9 @@
 CC = gcc -o3 -march=native -flto -fno-strict-aliasing -ffast-math -funroll-loops -msse4
 CFLAGS = -Wall -Wextra -Werror $(INCLUDES) -fsanitize=address -g #-std=c99 
 INCLUDES = -Iinc -I$(LIBFT_DIR) -I$(MLX_DIR)
-MLX = -lmlx -framework OpenGL -framework OpenCL -framework AppKit
+# MLX = -lmlx -lOpenGL -lOpenCL -lAppKit
+MLX = -Lminilibx_linux -lGL -lOpenCL -lX11 -lXext -lm
+
 
 # Output executable
 NAME = miniRT
@@ -40,7 +42,8 @@ OBJS = $(patsubst $(SRCDIR)%.c, $(OBJDIR)%.o, $(SRCS))
 LIBFT_DIR = libft/
 LIBFT_A = $(LIBFT_DIR)libft.a
 
-MLX_DIR = minilibx_opengl_20191021/
+# MLX_DIR = minilibx_opengl_20191021/
+MLX_DIR = minilibx_linux/
 MLX_A = $(MLX_DIR)libmlx.a
 
 # Build targets
@@ -54,7 +57,7 @@ $(OBJDIR):
 $(NAME): $(OBJS)
 	@make -C $(LIBFT_DIR)
 	@make -C $(MLX_DIR)
-	@$(CC) $(LIBFT_A) $(MLX_A) $(CFLAGS) $(MLX) $(OBJS) -o $(NAME) && echo "$(GREEN)$(NAME) was created$(RESET)"
+	@$(CC) $(OBJS) $(CFLAGS) $(LIBFT_A) $(MLX_A) $(MLX) -o $(NAME) && echo "$(GREEN)$(NAME) was created$(RESET)"
 
 $(OBJDIR)%.o: $(SRCDIR)%.c
 	@$(CC) $(CFLAGS) -c $< -o $@ && echo "$(GREEN)object files were created$(RESET)"

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
+/*   By: Zyeoh <yeohzishen2002@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/12 14:01:25 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/10/16 20:13:50 by Zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,7 @@ t_opencl	*init_opencl(t_data *data)
 		print_cl_error(ret);
 
     // Create a command queue
-    opencl->queue = clCreateCommandQueue(opencl->context, opencl->device, 0, &ret);
+    opencl->queue = clCreateCommandQueueWithProperties(opencl->context, opencl->device, 0, &ret);
 	if (ret != CL_SUCCESS)
 		print_cl_error(ret);
 
@@ -154,7 +154,8 @@ int	initialize(t_data *data, t_camera *camera)
 	data->inputs.mouse_y = data->win_height * 0.5f;
 	data->inputs.pitch_angle = 0;
 	camera = init_camera(data, data->win_height, data->win_width);
-	mlx_mouse_move(data->win_ptr, data->win_width * 0.5f, data->win_height
+	(void)camera;
+	mlx_mouse_move(data->mlx_ptr, data->win_ptr, data->win_width * 0.5f, data->win_height
 		* 0.5f);
 	data->objects = create_objects_array(create_ll_objects());
 	data->opencl = init_opencl(data);
@@ -168,7 +169,7 @@ void	render_frame(t_data *data, t_opencl *opencl)
 {
 	cl_int ret;
 	size_t global_size[2];
-	size_t local_size[2];
+	// size_t local_size[2];
 	double	time_start;
 
 	ft_bzero(data->addr, data->win_height * data->line_length);
@@ -177,8 +178,8 @@ void	render_frame(t_data *data, t_opencl *opencl)
 	(void)opencl;
 	global_size[0] = data->win_width;
 	global_size[1] = data->win_height;
-    local_size[0] = 16;
-	local_size[1] = 16;
+    // local_size[0] = 16;
+	// local_size[1] = 16;
 	time_start = (double)clock() / CLOCKS_PER_SEC;
 	
     ret = clEnqueueWriteBuffer(opencl->queue, opencl->camera, CL_TRUE, 0, sizeof(t_camera), data->camera, 0, NULL, NULL);
@@ -224,7 +225,7 @@ int	main(void)
 		return (1);
 	// opencl = init_opencl(&data);
 	// render_frame(data);
-	mlx_mouse_hide();
+	mlx_mouse_hide(data.mlx_ptr, data.win_ptr);
 	mlx_hook(data.win_ptr, 2, 0, deal_key_press, &data);
 	mlx_hook(data.win_ptr, 3, 1, deal_key_release, &data);
 	// mlx_loop_hook(data.mlx_ptr, deal_input, &data);

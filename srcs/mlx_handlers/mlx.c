@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   mlx.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
+/*   By: Zyeoh <yeohzishen2002@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/21 17:31:34 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/11 11:04:30 by zyeoh            ###   ########.fr       */
+/*   Updated: 2024/10/16 20:01:00 by Zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,9 @@ int	mouse_hook(int x, int y, t_data *data)
 	
 	dy = y - data->inputs.mouse_y;
 	dx = x - data->inputs.mouse_x;
+
+	(void)dx;
+	(void)dy;
 	// input_translate(&data->camera, data->inputs.key);
 	// quat_normalize(&data->camera.quat);
 	// if ((dy > 0 && data->inputs.pitch_angle < CAM_LOCK) || (dy < 0 && data->inputs.->pitch_angle > -CAM_LOCK))
