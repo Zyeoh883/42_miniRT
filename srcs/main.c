@@ -6,13 +6,16 @@
 /*   By: Zyeoh <yeohzishen2002@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/10/16 20:13:50 by Zyeoh            ###   ########.fr       */
+/*   Updated: 2024/11/21 23:46:43 by Zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minirt.h"
 
-void print_cl_error(cl_int error) {
+void print_cl_error(cl_int error, char *str) {
+
+	ft_printf(str);
+	
     switch (error) {
         case CL_INVALID_KERNEL: printf("Error: CL_INVALID_KERNEL\n"); break;
         case CL_INVALID_WORK_DIMENSION: printf("Error: CL_INVALID_WORK_DIMENSION\n"); break;
@@ -77,11 +80,10 @@ t_opencl	*init_opencl(t_data *data)
 
 	ret = clGetPlatformIDs(1, &opencl->platform, NULL);
 	if (ret != CL_SUCCESS)
-		print_cl_error(ret);
-    ret = clGetDeviceIDs(opencl->platform, CL_DEVICE_TYPE_GPU, 1, &opencl->device, NULL);
+		print_cl_error(ret, "Get Platform ID\n");
+    ret = clGetDeviceIDs(opencl->platform, CL_DEVICE_TYPE_GPU, 3, &opencl->device, NULL); // ! chnage back to GPU
 	if (ret != CL_SUCCESS)
-		print_cl_error(ret);
-
+		print_cl_error(ret, "Get Device ID\n");
 
 	// size_t maxWorkGroupSize;
 	// clGetDeviceInfo(opencl->device, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(size_t), &maxWorkGroupSize, NULL);
@@ -90,41 +92,49 @@ t_opencl	*init_opencl(t_data *data)
     // Create an OpenCL context
     opencl->context = clCreateContext(NULL, 1, &opencl->device, NULL, NULL, &ret);
 	if (ret != CL_SUCCESS)
-		print_cl_error(ret);
+		print_cl_error(ret, "Create Context\n");
 
     // Create a command queue
     opencl->queue = clCreateCommandQueueWithProperties(opencl->context, opencl->device, 0, &ret);
 	if (ret != CL_SUCCESS)
-		print_cl_error(ret);
+		print_cl_error(ret, "Create Command Queue\n");
 
     // Create memory buffers on the device for the result
     opencl->addr = clCreateBuffer(opencl->context, CL_MEM_WRITE_ONLY, sizeof(int) * 1920 * 1200, NULL, &ret);
 	if (ret != CL_SUCCESS)
-		print_cl_error(ret);
+		print_cl_error(ret, "Create mlx_image Buffer 0\n");
 	opencl->camera = clCreateBuffer(opencl->context, CL_MEM_WRITE_ONLY, sizeof(t_camera), NULL, &ret);
 	if (ret != CL_SUCCESS)
-		print_cl_error(ret);
+		print_cl_error(ret, "Create t_camera Buffer 1\n");
 	opencl->objects = clCreateBuffer(opencl->context, CL_MEM_WRITE_ONLY, sizeof(t_object) * 7, NULL, &ret); // ! hard coded amount
 	if (ret != CL_SUCCESS)
-		print_cl_error(ret);
-	opencl->camera = clCreateBuffer(opencl->context, CL_MEM_WRITE_ONLY, sizeof(t_camera), NULL, &ret);
-	if (ret != CL_SUCCESS)
-		print_cl_error(ret);
+		print_cl_error(ret, "Create t_object Buffer 2\n");
+	// opencl->camera = clCreateBuffer(opencl->context, CL_MEM_WRITE_ONLY, sizeof(t_camera), NULL, &ret);
+	// if (ret != CL_SUCCESS)
+	// 	print_cl_error(ret, "Create mlx_image Buffer 1\n");
 
     // Create a program from the kernel source
     opencl->program = clCreateProgramWithSource(opencl->context, 1, (const char **)c_files, c_size, &ret);
 	if (ret != CL_SUCCESS)
-		print_cl_error(ret);
+		print_cl_error(ret, "Create program with source\n");
 
     // Build the program
     ret = clBuildProgram(opencl->program, 1, &opencl->device, NULL, NULL, NULL);
 	if (ret != CL_SUCCESS)
-		print_cl_error(ret);
+		print_cl_error(ret, "Build Program\n");
 
+	// size_t log_size;
+
+	// clGetProgramBuildInfo(opencl->program, opencl->device, CL_PROGRAM_BUILD_LOG, 0, NULL, &log_size);
+	// if (ret != CL_SUCCESS) {
+	// 	printf("Failed to get build log size: %d\n", ret);
+	// 	exit(1);
+    // }
+	
     // Create the OpenCL kernel
     opencl->kernel = clCreateKernel(opencl->program, "render_scene", &ret);
 	if (ret != CL_SUCCESS)
-		print_cl_error(ret);
+		print_cl_error(ret, "Create Kernel\n");
 
 	// Set the arguments of the kernel
     ret = clSetKernelArg(opencl->kernel, 0, sizeof(cl_mem), (void *)&opencl->addr);
@@ -184,28 +194,16 @@ void	render_frame(t_data *data, t_opencl *opencl)
 	
     ret = clEnqueueWriteBuffer(opencl->queue, opencl->camera, CL_TRUE, 0, sizeof(t_camera), data->camera, 0, NULL, NULL);
 	if (ret != CL_SUCCESS)
-	{
-		printf("ret 1 error: %d\n", ret);
-		print_cl_error(ret);
-	}
+		print_cl_error(ret, "Enqueue t_camera\n");
 	ret = clEnqueueWriteBuffer(opencl->queue, opencl->objects, CL_TRUE, 0, sizeof(t_object) * 7, data->objects, 0, NULL, NULL); // ! hard coded
 	if (ret != CL_SUCCESS)
-	{
-		printf("ret 2 error: %d\n", ret);
-		print_cl_error(ret);
-	}
+		print_cl_error(ret, "Enqueue t_object\n");
     ret = clEnqueueNDRangeKernel(opencl->queue, opencl->kernel, 2, NULL, global_size, NULL, 0, NULL, NULL);
 	if (ret != CL_SUCCESS)
-	{
-		printf("ret 3 error: %d\n", ret);
-		print_cl_error(ret);
-	}
+		print_cl_error(ret, "Enqueue kernel\n");
 	ret = clEnqueueReadBuffer(opencl->queue, opencl->addr, CL_TRUE, 0, sizeof(int) * data->win_width * data->win_height, data->addr, 0, NULL, NULL);
 	if (ret != CL_SUCCESS)
-	{
-		printf("ret 4 error: %d\n", ret);
-		print_cl_error(ret);
-	}
+		print_cl_error(ret, "Enqueue mlx_image\n");
 
 	mlx_put_image_to_window(data, data->win_ptr, data->img, 0, 0);
 	printf("%f\n", (double)clock() / CLOCKS_PER_SEC - time_start);

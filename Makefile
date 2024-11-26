@@ -58,6 +58,7 @@ $(NAME): $(OBJS)
 	@make -C $(LIBFT_DIR)
 	@make -C $(MLX_DIR)
 	@$(CC) $(OBJS) $(CFLAGS) $(LIBFT_A) $(MLX_A) $(MLX) -o $(NAME) && echo "$(GREEN)$(NAME) was created$(RESET)"
+	export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}'):0.0
 
 $(OBJDIR)%.o: $(SRCDIR)%.c
 	@$(CC) $(CFLAGS) -c $< -o $@ && echo "$(GREEN)object files were created$(RESET)"
@@ -77,4 +78,11 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re bonus
+# include .env
+
+display: 
+	echo $(DISPLAY)
+	./display.sh 
+	echo $(DISPLAY)
+
+.PHONY: all clean fclean re bonus display
