@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minirt.h"
+// #include "minirt.h"
 
 // int intersect_aabb(t_ray *ray, __m128 max, __m128 min) {
 //     // Compute t0 and t1 using FMA if available

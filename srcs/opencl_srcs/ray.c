@@ -45,6 +45,7 @@ typedef struct __attribute__ ((aligned(16))) s_object {
 
 // Function prototype
 t_ray create_ray(__global t_camera *camera, int i, int j);
+// void intersect_ray_sphere(t_sphere sphere, t_ray ray, float t[2]);
 
 // Function definition
 t_ray create_ray(__global t_camera *camera, int i, int j) {
@@ -60,58 +61,58 @@ t_ray create_ray(__global t_camera *camera, int i, int j) {
 }
 
 
-int	render_ray(t_ray ray, t_object *objects)
-{
-	float2		t;
-	t_sphere	*closest_sphere;
-	float		closest_t;
-	int			n;
-
-	closest_sphere = 0;
-	closest_t = INFINITY;
-	n = 0;
-	while (objects->type != 0)
-	{
-		intersect_ray_sphere(objects->sphere, ray, t);
-		if (t[0] < closest_t && t[0] > 0)
-		{
-			closest_t = t[0];
-			closest_sphere = &objects->sphere;
-		}
-		if (t[1] < closest_t && t[1] > 0)
-		{
-			closest_t = t[1];
-			closest_sphere = &objects->sphere;
-		}
-		objects++;
-	}
-	// if (n == 1)
-	// 	return (0xFFFFFF);
-	// else
-	// 	return (0);
-	if (closest_sphere == 0)
-		return (1);
-	return (closest_sphere->color);
-}
+// int	render_ray(t_ray ray, t_object *objects)
+// {
+// 	float2		t;
+// 	t_sphere	*closest_sphere;
+// 	float		closest_t;
+// 	int			n;
+//
+// 	closest_sphere = 0;
+// 	closest_t = INFINITY;
+// 	n = 0;
+// 	while (objects->type != 0)
+// 	{
+// 		intersect_ray_sphere(objects->sphere, ray, t);
+// 		if (t[0] < closest_t && t[0] > 0)
+// 		{
+// 			closest_t = t[0];
+// 			closest_sphere = &objects->sphere;
+// 		}
+// 		if (t[1] < closest_t && t[1] > 0)
+// 		{
+// 			closest_t = t[1];
+// 			closest_sphere = &objects->sphere;
+// 		}
+// 		objects++;
+// 	}
+// 	// if (n == 1)
+// 	// 	return (0xFFFFFF);
+// 	// else
+// 	// 	return (0);
+// 	if (closest_sphere == 0)
+// 		return (1);
+// 	return (closest_sphere->color);
+// }
 
 
 __kernel void render_scene(__global uchar *addr, __global t_camera *camera, __global t_object *objects) {
-    __global uchar *dst;
-    int color;
-    int x;
-    int y;
+  __global uchar *dst;
+  int color;
+  int x;
+  int y;
 
-    x = get_global_id(0);
-    y = get_global_id(1);
+  x = get_global_id(0);
+  y = get_global_id(1);
     
 	dst = addr + (y * camera->line_length + x * (camera->bytes_per_pixel));
 	// t_ray ray = create_ray(camera, x, y);
-    // color = render_ray(create_ray(camera, x, y), objects);
-    color = x * 0xFF / camera->win_width;
-    color += (y * 0xFF / camera->win_height) << 8;
+  // color = render_ray(create_ray(camera, x, y), objects);
+  color = x * 0xFF / camera->win_width;
+  color += (y * 0xFF / camera->win_height) << 8;
     // color += y;
 
-	*(__global unsigned int *)dst = color;
+  *(__global unsigned int *)dst = color;
 }
 
 // __kernel void	render_scene(u __global uchar *addr, u __global t_camera *camera,

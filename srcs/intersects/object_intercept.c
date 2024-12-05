@@ -49,7 +49,7 @@ static __m128 get_max(__m128 tmax)
 // TODO validate aabb SIMB SSE
 
 int intersect_aabb(t_ray *ray, __m128 max, __m128 min) {
-    __m128 t0;
+  __m128 t0;
 	__m128 t1;
 	__m128 tmin;
 	__m128 tmax;

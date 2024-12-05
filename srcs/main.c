@@ -28,6 +28,7 @@ void print_cl_error(cl_int error, char *str) {
         case CL_OUT_OF_HOST_MEMORY: printf("Error: CL_OUT_OF_HOST_MEMORY\n"); break;
         default: printf("Unknown OpenCL error: %d\n", error);
     }
+  printf("\n");
 }
 
 t_camera	*init_camera(t_data *data, int win_height, int win_width)
@@ -113,31 +114,29 @@ t_opencl	*init_opencl(t_data *data)
 	// if (ret != CL_SUCCESS)
 	// 	print_cl_error(ret, "Create mlx_image Buffer 1\n");
 
-    // Create a program from the kernel source
-    opencl->program = clCreateProgramWithSource(opencl->context, 1, (const char **)c_files, c_size, &ret);
+  // Create a program from the kernel source
+  opencl->program = clCreateProgramWithSource(opencl->context, 2, (const char **)c_files, c_size, &ret);
 	if (ret != CL_SUCCESS)
 		print_cl_error(ret, "Create program with source\n");
 
     // Build the program
-    ret = clBuildProgram(opencl->program, 1, &opencl->device, NULL, NULL, NULL);
-	if (ret != CL_SUCCESS)
-		print_cl_error(ret, "Build Program\n");
-
-	// size_t log_size;
-
-	// clGetProgramBuildInfo(opencl->program, opencl->device, CL_PROGRAM_BUILD_LOG, 0, NULL, &log_size);
-	// if (ret != CL_SUCCESS) {
-	// 	printf("Failed to get build log size: %d\n", ret);
-	// 	exit(1);
-    // }
-	
+  ret = clBuildProgram(opencl->program, 1, &opencl->device, NULL, NULL, NULL);
+	if (ret != CL_SUCCESS) {
+    size_t log_size;
+    clGetProgramBuildInfo(opencl->program, opencl->device, CL_PROGRAM_BUILD_LOG, 0, NULL, &log_size);
+    char *log = (char *)malloc(log_size);
+    clGetProgramBuildInfo(opencl->program, opencl->device, CL_PROGRAM_BUILD_LOG, log_size, log, NULL);
+    fprintf(stderr, "Build Log:\n%s\n", log);
+    free(log);
+    exit(EXIT_FAILURE);
+  }
     // Create the OpenCL kernel
-    opencl->kernel = clCreateKernel(opencl->program, "render_scene", &ret);
+  opencl->kernel = clCreateKernel(opencl->program, "render_scene", &ret);
 	if (ret != CL_SUCCESS)
 		print_cl_error(ret, "Create Kernel\n");
 
 	// Set the arguments of the kernel
-    ret = clSetKernelArg(opencl->kernel, 0, sizeof(cl_mem), (void *)&opencl->addr);
+  ret = clSetKernelArg(opencl->kernel, 0, sizeof(cl_mem), (void *)&opencl->addr);
 	ret = clSetKernelArg(opencl->kernel, 1, sizeof(cl_mem), (void *)&opencl->camera);
 	ret = clSetKernelArg(opencl->kernel, 2, sizeof(cl_mem), (void *)&opencl->objects);
 	data->opencl = opencl;
@@ -240,4 +239,3 @@ int	main(void)
 // 	qua_test();
 // 	init_camera
 // 	return (0);
-// }
