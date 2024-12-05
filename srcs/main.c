@@ -81,10 +81,10 @@ t_opencl	*init_opencl(t_data *data)
 	c_size[4] = ft_strlen(c_files[4]);
 
 
-	ret = clGetPlatformIDs(1, &opencl->platform, NULL);
+	ret = clGetPlatformIDs(2, &opencl->platform, NULL);
 	if (ret != CL_SUCCESS)
 		print_cl_error(ret);
-    ret = clGetDeviceIDs(opencl->platform, CL_DEVICE_TYPE_GPU, 1, &opencl->device, NULL);
+    ret = clGetDeviceIDs(opencl->platform, CL_DEVICE_TYPE_GPU, 2, &opencl->device, NULL);
 	if (ret != CL_SUCCESS)
 		print_cl_error(ret);
 
@@ -99,12 +99,12 @@ t_opencl	*init_opencl(t_data *data)
 		print_cl_error(ret);
 
     // Create a command queue
-    opencl->queue = clCreateCommandQueue(opencl->context, opencl->device, 0, &ret);
+    opencl->queue = clCreateCommandQueueWithProperties(opencl->context, opencl->device, 0, &ret);
 	if (ret != CL_SUCCESS)
 		print_cl_error(ret);
 
     // Create memory buffers on the device for the result
-    opencl->addr = clCreateBuffer(opencl->context, CL_MEM_WRITE_ONLY, sizeof(int) * 1920 * 1200, NULL, &ret);
+    opencl->addr = clCreateBuffer(opencl->context, CL_MEM_WRITE_ONLY, sizeof(int) * data->win_width * data->win_height, NULL, &ret);
 	if (ret != CL_SUCCESS)
 		print_cl_error(ret);
 	opencl->camera = clCreateBuffer(opencl->context, CL_MEM_WRITE_ONLY, sizeof(t_camera), NULL, &ret);
@@ -155,13 +155,29 @@ t_opencl	*init_opencl(t_data *data)
 	return (opencl);
 }
 
+#include <X11/Xlib.h>
+
 int	initialize(t_data *data, t_camera *camera)
 {
+
+  // At start of initialize()
+Display *debug_display = XOpenDisplay(NULL);
+if (!debug_display) {
+    fprintf(stderr, "Error: Cannot connect to X server\n");
+    return 0;
+}
+XCloseDisplay(debug_display);
+
+
+
+
+
+
 	data->mlx_ptr = mlx_init();
 	if (!data->mlx_ptr)
 		return (0);
-	data->win_width = 1920;
-	data->win_height = 1080;
+	data->win_width = 1280;
+	data->win_height = 720;
 	// data->win_width = 600;
 	// data->win_height = 600;
 	data->img = mlx_new_image(data->mlx_ptr, data->win_width, data->win_height);
@@ -175,13 +191,14 @@ int	initialize(t_data *data, t_camera *camera)
 	data->inputs.mouse_y = data->win_height * 0.5f;
 	data->inputs.pitch_angle = 0;
 	camera = init_camera(data, data->win_height, data->win_width);
-	mlx_mouse_move(data->win_ptr, data->win_width * 0.5f, data->win_height
-		* 0.5f);
+  (void) camera;
+	mlx_mouse_move(data->mlx_ptr, data->win_ptr, data->win_width * 0.5f, data->win_height * 0.5f);
 	data->objects = create_objects_array(create_ll_objects());
 	data->num_objects = count_objects(data->objects);
 	// printf("num of objects: %d\n", data->num_objects);
 	data->opencl = init_opencl(data);
 	render_frame(data, data->opencl);
+  printf("HEREEEEEEEEE\n");
 	return (1);
 }
 
@@ -191,7 +208,7 @@ void	render_frame(t_data *data, t_opencl *opencl)
 {
 	cl_int ret;
 	size_t global_size[2];
-	size_t local_size[2];
+	// size_t local_size[2];
 	double	time_start;
 
 	ft_bzero(data->addr, data->win_height * data->line_length);
@@ -201,8 +218,8 @@ void	render_frame(t_data *data, t_opencl *opencl)
 	(void)opencl;
 	global_size[0] = data->win_width;
 	global_size[1] = data->win_height;
-    local_size[0] = 16;
-	local_size[1] = 16;
+	//  local_size[0] = 16;
+	// local_size[1] = 16;
 	time_start = (double)clock() / CLOCKS_PER_SEC;
 	
     ret = clEnqueueWriteBuffer(opencl->queue, opencl->camera, CL_TRUE, 0, sizeof(t_camera), data->camera, 0, NULL, NULL);
@@ -230,10 +247,10 @@ void	render_frame(t_data *data, t_opencl *opencl)
 		print_cl_error(ret);
 	}
 
-	while ((double)clock() / CLOCKS_PER_SEC - time_start < 0.0005f)
-		usleep(50);
+	// while ((double)clock() / CLOCKS_PER_SEC - time_start < 0.0005f)
+	// 	usleep(50);
 	printf("%f\n", (double)clock() / CLOCKS_PER_SEC - time_start);
-	mlx_put_image_to_window(data, data->win_ptr, data->img, 0, 0);
+	mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, data->img, 0, 0);
 }
 // fflush(stdout);
 // print_vector(ray.direction);
@@ -247,9 +264,9 @@ int	main(void)
 		return (1);
 	// opencl = init_opencl(&data);
 	// render_frame(data);
-	mlx_mouse_hide();
-	mlx_hook(data.win_ptr, 2, 0, deal_key_press, &data);
-	mlx_hook(data.win_ptr, 3, 1, deal_key_release, &data);
+	mlx_mouse_hide(data.mlx_ptr, data.win_ptr);
+	mlx_hook(data.win_ptr, 2, 1L << 0, deal_key_press, &data);
+	mlx_hook(data.win_ptr, 3, 1L << 1, deal_key_release, &data);
 	mlx_loop_hook(data.mlx_ptr, deal_input, &data);
 	mlx_hook(data.win_ptr, 6, 1L << 6, mouse_hook, &data);
 	mlx_loop(data.mlx_ptr);

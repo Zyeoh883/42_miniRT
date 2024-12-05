@@ -14,7 +14,7 @@
 # define MINIRT_H
 
 // funni stuff
-# include <OpenCL/opencl.h>
+# include <CL/opencl.h>
 // end of funni
 
 # include "data_struct.h"
@@ -32,6 +32,7 @@
 # if defined(__APPLE__)
 #  include "macos_defines.h"
 # elif defined(__linux__)
+#  include "linux_defines.h"
 #  define PTR_NULL "(nil)"
 # endif
 

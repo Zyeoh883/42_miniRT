@@ -22,6 +22,7 @@ inline void	my_mlx_put_pixels(t_data *data, int x, int y, int color)
 
 int	deal_key_release(int key, t_data *data)
 {
+  printf("MLX Key is %d\n", key);
 	if (data->inputs.key == key)
 	{
 		data->inputs.key = -1;
@@ -37,11 +38,13 @@ int	deal_key_release(int key, t_data *data)
 		data->inputs.key_wasd[2] = 0;
 	else if (key == D_KEY)
 		data->inputs.key_wasd[3] = 0;
+
 	return (0);
 }
 
 int	deal_key_press(int key, t_data *data) // ! does not free
 {
+  // printf("MLX Key is %d\n", key);
 	if (key == ESC_KEY)
 	{
 		// free_map(data->map);
@@ -97,6 +100,11 @@ int	mouse_hook(int x, int y, t_data *data)
 	
 	dy = y - data->inputs.mouse_y;
 	dx = x - data->inputs.mouse_x;
+  printf("%d %d\n", dy, dx);
+
+  if (!dy || !dx)
+    return 0;
+
 	input_translate(data, data->inputs);
 	// deal_input(data);
 	data->camera->quat = quat_normalize(data->camera->quat);
@@ -107,7 +115,7 @@ int	mouse_hook(int x, int y, t_data *data)
 	}
 	if (dx != 0)
 		data->camera->quat = quat_product(angle_to_quat((cl_float4){{0, 1, 0, 0}}, CAM_SENS * dx), data->camera->quat);
-	mlx_mouse_move(data->win_ptr, data->win_width * 0.5, data->win_height * 0.5); // ! might not work with int
+	mlx_mouse_move(data->mlx_ptr, data->win_ptr, data->win_width * 0.5, data->win_height * 0.5); // ! might not work with int
 	render_frame(data, data->opencl);
 	return (0);
 }

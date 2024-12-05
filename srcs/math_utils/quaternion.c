@@ -12,7 +12,7 @@
 
 #include "minirt.h"
 
-inline cl_float4	quat_rotate(cl_float4 q, const cl_float4 v) // rotate point
+cl_float4	quat_rotate(cl_float4 q, const cl_float4 v) // rotate point
 {
 	cl_float4 q_v;
 	cl_float4 rotated;
@@ -25,7 +25,7 @@ inline cl_float4	quat_rotate(cl_float4 q, const cl_float4 v) // rotate point
 	return (rotated);
 }
 
-inline cl_float4	quat_product(const cl_float4 q1, const cl_float4 q2)
+cl_float4	quat_product(const cl_float4 q1, const cl_float4 q2)
 // get result of quaternion after rotating
 {
 	return ((cl_float4){{
@@ -36,12 +36,12 @@ inline cl_float4	quat_product(const cl_float4 q1, const cl_float4 q2)
 	}});
 }
 
-inline cl_float4	quat_conjugate(const cl_float4 q)
+cl_float4	quat_conjugate(const cl_float4 q)
 {
 	return ((cl_float4){{-q.s[0], -q.s[1], -q.s[2], q.s[3]}});
 }
 
-inline cl_float4	angle_to_quat(const cl_float4 rot, const float radian)
+cl_float4	angle_to_quat(const cl_float4 rot, const float radian)
 {
 	float	sine;
 
@@ -49,17 +49,17 @@ inline cl_float4	angle_to_quat(const cl_float4 rot, const float radian)
 	return ((cl_float4){{rot.s[0] * sine, rot.s[1] * sine, rot.s[2] * sine, cos(radian * 0.5f)}});
 }
 
-inline cl_float4	quat_sum(const cl_float4 q1, const cl_float4 q2)
+cl_float4	quat_sum(const cl_float4 q1, const cl_float4 q2)
 {
 	return ((cl_float4){{q1.s[0] + q2.s[0], q1.s[1] + q2.s[1], q1.s[2] + q2.s[2], q1.s[3] + q2.s[3]}});
 }
 
-inline cl_float4	quat_scalar_product(const cl_float4 q, const float scale)
+cl_float4	quat_scalar_product(const cl_float4 q, const float scale)
 {
 	return ((cl_float4){{q.s[0] * scale, q.s[1] * scale, q.s[2] * scale, q.s[3] * scale}});
 }
 
-inline cl_float4	quat_slerp(const cl_float4 dest, const cl_float4 src, const float angle, const float t)
+cl_float4	quat_slerp(const cl_float4 dest, const cl_float4 src, const float angle, const float t)
 {
 	float	sine;
 	cl_float4	q1;
@@ -71,12 +71,12 @@ inline cl_float4	quat_slerp(const cl_float4 dest, const cl_float4 src, const flo
 	return ((cl_float4){{q1.s[0] + q2.s[0], q1.s[1] + q2.s[1], q1.s[2] + q2.s[2], q1.s[3] + q2.s[3]}});
 }
 
-inline float	quat_abs(const cl_float4 q)
+float	quat_abs(const cl_float4 q)
 {
 	return (sqrt(q.s[0] * q.s[0] + q.s[1] * q.s[1] + q.s[2] * q.s[2] + q.s[3] * q.s[3]));
 }
 
-inline cl_float4	quat_normalize(cl_float4 q)
+cl_float4	quat_normalize(cl_float4 q)
 {
 	return (quat_scalar_product(q, 1 / (quat_abs(q))));
 }
