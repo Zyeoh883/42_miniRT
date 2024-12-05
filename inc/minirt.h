@@ -94,7 +94,7 @@ t_list					*create_ll_objects(void);
 t_object				*create_objects_array(t_list *root_node);
 t_OBB					assign_sphere_obb(t_sphere sphere);
 
-void					render_frame(t_data *data, t_opencl *opencl);
+int					render_frame(t_data *data);
 
 // tests
 // void			vector_test(void);

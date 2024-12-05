@@ -81,10 +81,10 @@ t_opencl	*init_opencl(t_data *data)
 	c_size[4] = ft_strlen(c_files[4]);
 
 
-	ret = clGetPlatformIDs(2, &opencl->platform, NULL);
+	ret = clGetPlatformIDs(1, &opencl->platform, NULL);
 	if (ret != CL_SUCCESS)
 		print_cl_error(ret);
-    ret = clGetDeviceIDs(opencl->platform, CL_DEVICE_TYPE_GPU, 2, &opencl->device, NULL);
+    ret = clGetDeviceIDs(opencl->platform, CL_DEVICE_TYPE_GPU, 1, &opencl->device, NULL);
 	if (ret != CL_SUCCESS)
 		print_cl_error(ret);
 
@@ -197,25 +197,27 @@ XCloseDisplay(debug_display);
 	data->num_objects = count_objects(data->objects);
 	// printf("num of objects: %d\n", data->num_objects);
 	data->opencl = init_opencl(data);
-	render_frame(data, data->opencl);
+	render_frame(data);
   printf("HEREEEEEEEEE\n");
 	return (1);
 }
 
 // t_data *data,
 
-void	render_frame(t_data *data, t_opencl *opencl)
+int	render_frame(t_data *data)
 {
+  t_opencl *opencl;
 	cl_int ret;
 	size_t global_size[2];
 	// size_t local_size[2];
 	double	time_start;
 
+  deal_input(data);
+  opencl = data->opencl;
 	ft_bzero(data->addr, data->win_height * data->line_length);
 	
 	//execution
 	// printf("%f %f %F %F\n", data->camera->pos.s[0], data->camera->pos.s[1], data->camera->pos.s[2], data->camera->pos.s[3]);
-	(void)opencl;
 	global_size[0] = data->win_width;
 	global_size[1] = data->win_height;
 	//  local_size[0] = 16;
@@ -247,10 +249,11 @@ void	render_frame(t_data *data, t_opencl *opencl)
 		print_cl_error(ret);
 	}
 
-	// while ((double)clock() / CLOCKS_PER_SEC - time_start < 0.0005f)
-	// 	usleep(50);
+	while ((double)clock() / CLOCKS_PER_SEC - time_start < 0.0010f)
+		usleep(50);
 	printf("%f\n", (double)clock() / CLOCKS_PER_SEC - time_start);
 	mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, data->img, 0, 0);
+  return 0;
 }
 // fflush(stdout);
 // print_vector(ray.direction);
@@ -267,9 +270,9 @@ int	main(void)
 	mlx_mouse_hide(data.mlx_ptr, data.win_ptr);
 	mlx_hook(data.win_ptr, 2, 1L << 0, deal_key_press, &data);
 	mlx_hook(data.win_ptr, 3, 1L << 1, deal_key_release, &data);
-	mlx_loop_hook(data.mlx_ptr, deal_input, &data);
+	// mlx_hook(data.win_ptr, 0, 0,deal_input, &data);
+	mlx_loop_hook(data.mlx_ptr, render_frame, &data);
 	mlx_hook(data.win_ptr, 6, 1L << 6, mouse_hook, &data);
 	mlx_loop(data.mlx_ptr);
-	mlx_put_image_to_window(&data, data.win_ptr, data.img, 0, 0);
 	return (0);
 }
