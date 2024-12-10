@@ -44,7 +44,7 @@ int	deal_key_release(int key, t_data *data)
 
 int	deal_key_press(int key, t_data *data) // ! does not free
 {
-  // printf("MLX Key is %d\n", key);
+  printf("MLX Key is %d\n", key);
 	if (key == ESC_KEY)
 	{
 		// free_map(data->map);

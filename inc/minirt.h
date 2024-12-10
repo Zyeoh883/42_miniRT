@@ -17,6 +17,11 @@
 # include <CL/opencl.h>
 // end of funni
 
+
+// this is temporary for debug
+#include <X11/Xlib.h>
+
+
 # include "data_struct.h"
 # include "libft.h"
 # include "math_utils.h"

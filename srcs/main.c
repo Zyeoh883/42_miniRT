@@ -14,6 +14,14 @@
 
 void print_cl_error(cl_int error) {
     switch (error) {
+
+        case CL_IMAGE_FORMAT_NOT_SUPPORTED: printf("Error: CL_IMAGE_FORMAT_NOT_SUPPORTED\n"); break;
+        case CL_IMAGE_FORMAT_MISMATCH: printf("Error: CL_IMAGE_FORMAT_MISMATCH\n"); break;
+        case CL_MEM_COPY_OVERLAP: printf("Error: CL_MEM_COPY_OVERLAP\n"); break;
+        case CL_PROFILING_INFO_NOT_AVAILABLE: printf("Error: CL_PROFILING_INFO_NOT_AVAILABLE\n"); break;
+        case CL_COMPILER_NOT_AVAILABLE: printf("Error: CL_COMPILER_NOT _AVAILABLE\n"); break;
+        case CL_DEVICE_NOT_AVAILABLE: printf("Error: CL_DEVICE_NOT_AVAILABLE\n"); break;
+        case CL_DEVICE_NOT_FOUND: printf("Error: CL_DEVICE_NOT_FOUND\n"); break;
         case CL_INVALID_KERNEL: printf("Error: CL_INVALID_KERNEL\n"); break;
         case CL_INVALID_WORK_DIMENSION: printf("Error: CL_INVALID_WORK_DIMENSION\n"); break;
         case CL_INVALID_WORK_GROUP_SIZE: printf("Error: CL_INVALID_WORK_GROUP_SIZE\n"); break;
@@ -80,6 +88,8 @@ t_opencl	*init_opencl(t_data *data)
 	c_size[3] = ft_strlen(c_files[3]);
 	c_size[4] = ft_strlen(c_files[4]);
 
+  printf("Loaded c_files\n");
+
 
 	ret = clGetPlatformIDs(1, &opencl->platform, NULL);
 	if (ret != CL_SUCCESS)
@@ -88,6 +98,7 @@ t_opencl	*init_opencl(t_data *data)
 	if (ret != CL_SUCCESS)
 		print_cl_error(ret);
 
+  printf("Retrieved platformID and deviceID\n");
 
 	// size_t maxWorkGroupSize;
 	// clGetDeviceInfo(opencl->device, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(size_t), &maxWorkGroupSize, NULL);
@@ -98,10 +109,14 @@ t_opencl	*init_opencl(t_data *data)
 	if (ret != CL_SUCCESS)
 		print_cl_error(ret);
 
+  printf("Created Context\n");
+
     // Create a command queue
     opencl->queue = clCreateCommandQueueWithProperties(opencl->context, opencl->device, 0, &ret);
 	if (ret != CL_SUCCESS)
 		print_cl_error(ret);
+
+  printf("Queued context\n");
 
     // Create memory buffers on the device for the result
     opencl->addr = clCreateBuffer(opencl->context, CL_MEM_WRITE_ONLY, sizeof(int) * data->win_width * data->win_height, NULL, &ret);
@@ -117,6 +132,8 @@ t_opencl	*init_opencl(t_data *data)
 	if (ret != CL_SUCCESS)
 		print_cl_error(ret);
 
+  printf("Loaded params\n");
+
     // Create a program from the kernel source
     opencl->program = clCreateProgramWithSource(opencl->context, 5, (const char **)c_files, c_size, &ret);
 	if (ret != CL_SUCCESS)
@@ -124,8 +141,19 @@ t_opencl	*init_opencl(t_data *data)
 		print_cl_error(ret);
 	}
 
+  printf("Loaded program\n");
+
+  // Add these before clBuildProgram
+cl_device_info power_info;
+ret = clGetDeviceInfo(opencl->device, CL_DEVICE_GLOBAL_MEM_CACHE_SIZE, 
+                     sizeof(power_info), &power_info, NULL);
+
+// Modify your clBuildProgram call to include build options
+const char *build_options = "-cl-opt-disable -cl-strict-aliasing";
+ret = clBuildProgram(opencl->program, 1, &opencl->device, build_options, NULL, NULL);
+
     // Build the program
-    ret = clBuildProgram(opencl->program, 1, &opencl->device, NULL, NULL, NULL);
+  ret = clBuildProgram(opencl->program, 1, &opencl->device, NULL, NULL, NULL);
 	if (ret != CL_SUCCESS)
 	{
 		printf("clBuildProgram error: %d\n", ret);
@@ -142,20 +170,22 @@ t_opencl	*init_opencl(t_data *data)
 		exit(EXIT_FAILURE);
 	}
 
+  printf("Program Built\n");
+
     // Create the OpenCL kernel
     opencl->kernel = clCreateKernel(opencl->program, "render_scene", &ret);
 	if (ret != CL_SUCCESS)
 		print_cl_error(ret);
 
+  printf("Created kernel\n");
 	// Set the arguments of the kernel
-    ret = clSetKernelArg(opencl->kernel, 0, sizeof(cl_mem), (void *)&opencl->addr);
+  ret = clSetKernelArg(opencl->kernel, 0, sizeof(cl_mem), (void *)&opencl->addr);
 	ret = clSetKernelArg(opencl->kernel, 1, sizeof(cl_mem), (void *)&opencl->camera);
 	ret = clSetKernelArg(opencl->kernel, 2, sizeof(cl_mem), (void *)&opencl->objects);
 	data->opencl = opencl;
 	return (opencl);
 }
 
-#include <X11/Xlib.h>
 
 int	initialize(t_data *data, t_camera *camera)
 {
@@ -196,8 +226,10 @@ XCloseDisplay(debug_display);
 	data->objects = create_objects_array(create_ll_objects());
 	data->num_objects = count_objects(data->objects);
 	// printf("num of objects: %d\n", data->num_objects);
+  printf("Initializing opencl\n");
 	data->opencl = init_opencl(data);
-	render_frame(data);
+	printf("Rendering frame in initialize\n");
+  render_frame(data);
   printf("HEREEEEEEEEE\n");
 	return (1);
 }
@@ -212,19 +244,28 @@ int	render_frame(t_data *data)
 	// size_t local_size[2];
 	double	time_start;
 
+  printf("Start render_frame\n");
+
   deal_input(data);
+
+  printf("Dealt input\n");
+
+
   opencl = data->opencl;
-	ft_bzero(data->addr, data->win_height * data->line_length);
 	
 	//execution
 	// printf("%f %f %F %F\n", data->camera->pos.s[0], data->camera->pos.s[1], data->camera->pos.s[2], data->camera->pos.s[3]);
 	global_size[0] = data->win_width;
 	global_size[1] = data->win_height;
+
+  printf("Init render_frame local var\n");
 	//  local_size[0] = 16;
 	// local_size[1] = 16;
 	time_start = (double)clock() / CLOCKS_PER_SEC;
+
+  printf("Clock in\n");
 	
-    ret = clEnqueueWriteBuffer(opencl->queue, opencl->camera, CL_TRUE, 0, sizeof(t_camera), data->camera, 0, NULL, NULL);
+  ret = clEnqueueWriteBuffer(opencl->queue, opencl->camera, CL_TRUE, 0, sizeof(t_camera), data->camera, 0, NULL, NULL);
 	if (ret != CL_SUCCESS)
 	{
 		printf("ret 1 error: %d\n", ret);
@@ -248,6 +289,8 @@ int	render_frame(t_data *data)
 		printf("ret 4 error: %d\n", ret);
 		print_cl_error(ret);
 	}
+
+  printf("Queued all Buffers\n");
 
 	while ((double)clock() / CLOCKS_PER_SEC - time_start < 0.0010f)
 		usleep(50);

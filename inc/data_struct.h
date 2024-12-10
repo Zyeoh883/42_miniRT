@@ -16,6 +16,7 @@
 # define SPHERE 'S'
 # define PLANE 'P'
 # define CYCLINDER 'C'
+# define LIGHT 'L'
 
 typedef struct __attribute__ ((aligned(16))) s_ray
 {
@@ -63,7 +64,13 @@ typedef struct __attribute__ ((aligned(16))) s_BHVnode
 	int					object_count;
 }						t_BHVnode;
 
+
 // __attribute__((packed,aligned(4))
 // __attribute__ ((aligned(16)))
 
+/*// light*/
+/* typedef struct __attribute__ ((aligned(16))) s_light {*/
+/**/
+/* }          t_light;*/
+/**/
 #endif

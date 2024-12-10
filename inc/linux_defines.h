@@ -1,31 +1,43 @@
 #ifndef LINUX_DEFINES_H
 # define LINUX_DEFINES_H
 
-# define Q_KEY         113  // Q key
-# define W_KEY         119 // W key
-# define E_KEY         101  // E key
-# define A_KEY         97  // A key
-# define S_KEY         115  // S key
-# define D_KEY         100  // D key
+
+# define A_KEY 97
+# define B_KEY 98
+# define C_KEY 99
+# define D_KEY 100
+# define E_KEY 101
+# define F_KEY 102
+# define G_KEY 103
+# define H_KEY 104
+# define I_KEY 105
+# define J_KEY 106
+# define K_KEY 107
+# define L_KEY 108
+# define M_KEY 109
+# define N_KEY 110
+# define O_KEY 111
+# define P_KEY 112
+# define Q_KEY 113
+# define R_KEY 114
+# define S_KEY 115
+# define T_KEY 116
+# define U_KEY 117
+# define V_KEY 118
+# define W_KEY 119
+# define X_KEY 120
+# define Y_KEY 121
+# define Z_KEY 122
+
+# define SPACE_KEY 32
+# define ESC_KEY 65307
+
 # define PLUS_KEY      61  // Plus key (+) on numpad
 # define MINUS_KEY     63  // Minus key (-) on numpad
-# define I_KEY         31  // I key
-# define J_KEY         44  // J key
-# define K_KEY         45  // K key
-# define L_KEY         46  // L key
-# define R_KEY         27  // R key
-# define T_KEY         28  // T key
-# define Y_KEY         29  // Y key
-# define F_KEY         41  // F key
-# define G_KEY         42  // G key
-# define H_KEY         43  // H key
 # define FIVE_KEY      71  // 5 key
 # define SIX_KEY       72  // 6 key
 # define SEVEN_KEY     73  // 7 key
-# define B_KEY         56  // B key
-# define ESC_KEY       65307   // Escape key
-# define SPACE_KEY     65  // Spacebar key
-# define CTRL_KEY      37  // Left Control key
+# define CTRL_KEY      65507  // Left Control key
 # define SHIFT_KEY     50  // Left Shift key
 
 #endif
