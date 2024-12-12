@@ -94,12 +94,20 @@ typedef struct __attribute__ ((aligned(16))) s_data
 
 // init
 t_camera				*init_camera(t_data *data, int win_height, int win_width);
-int						initialize(t_data *data, t_camera *camera);
+int						initialize(t_data *data, t_camera *camera, char *filename);
 t_list					*create_ll_objects(void);
 t_object				*create_objects_array(t_list *root_node);
 t_OBB					assign_sphere_obb(t_sphere sphere);
+t_object *get_objects(char *filename);
 
 int					render_frame(t_data *data);
+
+// create_objects
+
+void	assign_sphere(t_object *object, char **split);
+void	assign_plane(t_object *object, char **split);
+
+
 
 // tests
 // void			vector_test(void);
@@ -121,5 +129,8 @@ void					perror_and_exit(char *str, int exit_code);
 void					print_m128(__m128 m);
 char					*read_cfile(char *name);
 int count_objects(t_object	*arr_objects);
+void	free_str_arr(char **str_arr);
+int	get_rgb_value(char *str);
+cl_float4 get_quat_value(char *str);
 
 #endif

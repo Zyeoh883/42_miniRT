@@ -38,7 +38,7 @@
 # define SIX_KEY       72  // 6 key
 # define SEVEN_KEY     73  // 7 key
 # define CTRL_KEY      65507  // Left Control key
-# define SHIFT_KEY     50  // Left Shift key
+# define SHIFT_KEY     65505  // Left Shift key
 
 #endif
 

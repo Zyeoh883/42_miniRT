@@ -12,9 +12,9 @@
 
 #include "minirt.h"
 
-void print_cl_error(cl_int error) {
+void print_cl_error(cl_int error)
+{
     switch (error) {
-
         case CL_IMAGE_FORMAT_NOT_SUPPORTED: printf("Error: CL_IMAGE_FORMAT_NOT_SUPPORTED\n"); break;
         case CL_IMAGE_FORMAT_MISMATCH: printf("Error: CL_IMAGE_FORMAT_MISMATCH\n"); break;
         case CL_MEM_COPY_OVERLAP: printf("Error: CL_MEM_COPY_OVERLAP\n"); break;
@@ -187,7 +187,7 @@ ret = clBuildProgram(opencl->program, 1, &opencl->device, build_options, NULL, N
 }
 
 
-int	initialize(t_data *data, t_camera *camera)
+int	initialize(t_data *data, t_camera *camera, char *filename)
 {
 
   // At start of initialize()
@@ -213,8 +213,7 @@ XCloseDisplay(debug_display);
 	data->img = mlx_new_image(data->mlx_ptr, data->win_width, data->win_height);
 	data->addr = mlx_get_data_addr(data->img, &data->bits_per_pixel,
 			&data->line_length, &data->endian);
-	data->win_ptr = mlx_new_window(data->mlx_ptr, data->win_width,
-			data->win_height, "miniRT");
+	data->win_ptr = mlx_new_window(data->mlx_ptr, data->win_width, data->win_height, "miniRT");
 	ft_bzero(&data->inputs, sizeof(t_inputs));
 	data->inputs.key = -1;
 	data->inputs.mouse_x = data->win_width * 0.5f;
@@ -223,7 +222,7 @@ XCloseDisplay(debug_display);
 	camera = init_camera(data, data->win_height, data->win_width);
   (void) camera;
 	mlx_mouse_move(data->mlx_ptr, data->win_ptr, data->win_width * 0.5f, data->win_height * 0.5f);
-	data->objects = create_objects_array(create_ll_objects());
+	data->objects = get_objects(filename);
 	data->num_objects = count_objects(data->objects);
 	// printf("num of objects: %d\n", data->num_objects);
   printf("Initializing opencl\n");
@@ -301,12 +300,12 @@ int	render_frame(t_data *data)
 // fflush(stdout);
 // print_vector(ray.direction);
 
-int	main(void)
+int	main(int ac, char **av)
 {
 	t_camera	camera;
 	t_data		data;
 
-	if (!initialize(&data, &camera))
+	if (ac != 2 || !initialize(&data, &camera, av[1]))
 		return (1);
 	// opencl = init_opencl(&data);
 	// render_frame(data);

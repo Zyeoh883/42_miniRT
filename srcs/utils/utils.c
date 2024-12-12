@@ -51,3 +51,55 @@ char	*read_cfile(char *name)
 	close(fd);
 	return (result);
 }
+
+void	free_str_arr(char **str_arr)
+{
+	int	i;
+
+	i = 0;
+	if (str_arr == NULL)
+		return ;
+	while (str_arr[i] != NULL)
+	{
+		free(str_arr[i]);
+		i++;
+	}
+	free(str_arr);
+}
+
+int	get_rgb_value(char *str)
+{
+	int	result;
+
+	str += 2;
+	result = 0;
+	while (ft_isalpha(*str) || ft_isdigit(*str))
+	{
+		result *= 16;
+		if (ft_isalpha(*str))
+		{
+			if (*str >= 97)
+				result += *str - 'a' + 10;
+			else
+				result += *str - 'A' + 10;
+		}
+		else
+			result += *str - '0';
+		++str;
+	}
+	return (result);
+} 
+
+cl_float4 get_quat_value(char *str)
+{
+  cl_float4 quat;
+  char **split;
+ 
+  split = ft_split(str, '.');
+  if (!split)
+    perror_and_exit("malloc", EXIT_FAILURE);
+  quat = (cl_float4){{ft_atoi(split[0]), ft_atoi(split[1]), ft_atoi(split[2]), 0}};
+  free_str_arr(split);
+  return(quat);  
+}
+
