@@ -49,6 +49,9 @@ typedef struct __attribute__ ((aligned(16))) s_object
 	cl_int			color;
 	cl_float4		pos;
 	cl_float4		quat;
+  cl_float3   k_ambient;
+  cl_float3   k_diffuse;
+  cl_float3   k_specular;
 	union
 	{
 		struct s_sphere	sphere;

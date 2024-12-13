@@ -94,7 +94,7 @@ typedef struct __attribute__ ((aligned(16))) s_data
 
 // init
 t_camera				*init_camera(t_data *data, int win_height, int win_width);
-int						initialize(t_data *data, t_camera *camera, char *filename);
+int						initialize(t_data *data, char *filename);
 t_list					*create_ll_objects(void);
 t_object				*create_objects_array(t_list *root_node);
 t_OBB					assign_sphere_obb(t_sphere sphere);

@@ -22,7 +22,7 @@ inline void	my_mlx_put_pixels(t_data *data, int x, int y, int color)
 
 int	deal_key_release(int key, t_data *data)
 {
-  printf("MLX Key is %d\n", key);
+  // printf("MLX Key is %d\n", key);
 	if (data->inputs.key == key)
 	{
 		data->inputs.key = -1;
@@ -44,12 +44,11 @@ int	deal_key_release(int key, t_data *data)
 
 int	deal_key_press(int key, t_data *data) // ! does not free
 {
-  printf("MLX Key is %d\n", key);
-	if (key == ESC_KEY)
+  // printf("MLX Key is %d\n", key);
+	if (key == ESC_KEY) // ! free everything in data
 	{
-		// free_map(data->map);
-		// free_map(data->map_copy);
 		mlx_destroy_window(data->mlx_ptr, data->win_ptr);
+    free(data->camera);
 		exit(0);
 	}
 	if (key == SHIFT_KEY)

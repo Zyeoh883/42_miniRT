@@ -24,9 +24,9 @@ t_ray	create_ray(U __global t_camera *camera, int i, int j)
 
 int	render_ray(t_ray ray, U __global t_object *objects)
 {
-	__global t_object	*closest_object;
-	float2				t;
-	float				closest_t;
+	__global  t_object	*closest_object;
+	float2		t;
+	float			closest_t;
 
 	closest_object = 0;
 	closest_t = INFINITY;
@@ -46,7 +46,7 @@ int	render_ray(t_ray ray, U __global t_object *objects)
 		objects++;
 	}
 	if (closest_object == 0)
-		return (1);
+		return (0);
 	return (closest_object->color);
 }
 
@@ -62,8 +62,7 @@ __kernel void	render_scene(U __global uchar *addr,
 	y = get_global_id(1);
 	color = render_ray(create_ray(camera, x, y), objects);
 	dst = addr + (y * camera->line_length + x * (camera->bytes_per_pixel));
-	if (color)
-		*(__global unsigned int *)dst = color;
+  *(__global unsigned int *)dst = color;
 }
 
 // __kernel void	render_scene(u __global uchar *addr,

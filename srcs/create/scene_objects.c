@@ -35,11 +35,8 @@ t_object	*assign_object(char *line)
 
 void	assign_sphere(t_object *object, char **split)
 {
-	t_sphere	sphere;
-
   object->type = SPHERE;
-	sphere.radius = ft_atoi(split[3]);
-  object->sphere = sphere;
+  object->sphere.radius =  ft_atoi(split[3]);
 }
 
 void	assign_plane(t_object *object, char **split)
