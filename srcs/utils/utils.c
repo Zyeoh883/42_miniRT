@@ -52,6 +52,16 @@ char	*read_cfile(char *name)
 	return (result);
 }
 
+void free_cfile(char **c_file)
+{
+  int n;
+
+  n = -1;
+  while (c_file[++n])
+    free(c_file[n]);
+  free(c_file);
+}
+
 void	free_str_arr(char **str_arr)
 {
 	int	i;

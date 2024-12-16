@@ -13,6 +13,7 @@
 #define U
 #define SPHERE 'S'
 #define PLANE 'P'
+#define LIGHT 'L'
 
 typedef struct __attribute__((aligned(16))) s_camera
 {
@@ -42,11 +43,12 @@ typedef struct __attribute__((aligned(16))) s_object
 {
 	uchar		type;
 	int			color;
-	float4		pos;
-	float4		quat;
-  float3   k_ambient;
-  float3   k_diffuse;
-  float3   k_specular;
+	float4	pos;
+	float4	quat;
+  float   k_ambient;
+  float   k_diffuse;
+  float   k_specular;
+  float   emission; 
 	union
 	{
 		struct s_sphere	sphere;

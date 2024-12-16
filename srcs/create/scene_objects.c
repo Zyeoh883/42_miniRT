@@ -26,6 +26,9 @@ t_object	*assign_object(char *line)
     assign_sphere(object, split);
   else if (**split == PLANE)
     assign_plane(object, split);
+  else if (**split == LIGHT)
+    assign_light(object, split);
+
 	object->type = *split[0];
   object->color = get_rgb_value(split[1]); 
 	object->pos = get_quat_value(split[2]);
@@ -43,6 +46,13 @@ void	assign_plane(t_object *object, char **split)
 {
   object->type = PLANE;
   object->quat = get_quat_value(split[3]);
+}
+
+void	assign_light(t_object *object, char **split)
+{
+  object->type = LIGHT;
+  object->emission = 1;
+  object->sphere.radius =  ft_atoi(split[3]);
 }
 
 t_cyclinder	assign_cyclinder(cl_float radius, cl_float height)
@@ -176,6 +186,7 @@ t_object	*create_objects_array(t_list *root_node)
 	{
 		print_vector(arr_objects[n].pos);
 	}
+  ft_lstclear(&root_node, free);
 	return (arr_objects);
 }
 

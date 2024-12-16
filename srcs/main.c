@@ -71,7 +71,7 @@ t_camera	*init_camera(t_data *data, int win_height, int win_width)
 t_opencl	*init_opencl(t_data *data)
 {
 	char		**c_files;
-	size_t		c_size[5];
+	size_t		c_size[6];
 	t_opencl	*opencl;
   cl_int ret;
 
@@ -79,7 +79,7 @@ t_opencl	*init_opencl(t_data *data)
 	if (!opencl)
 		exit(EXIT_FAILURE);
 
-	c_files = ft_calloc(5, sizeof(char *));
+	c_files = ft_calloc(6, sizeof(char *));
 	c_files[0] = read_cfile("srcs/opencl_srcs/opencl.h");
 	c_files[1] = read_cfile("srcs/opencl_srcs/ray.c"); // * load GPU source files
 	c_files[2] = read_cfile("srcs/opencl_srcs/opencl_vector.c");
@@ -127,9 +127,6 @@ t_opencl	*init_opencl(t_data *data)
 	if (ret != CL_SUCCESS)
 		print_cl_error(ret);
 	opencl->objects = clCreateBuffer(opencl->context, CL_MEM_WRITE_ONLY, sizeof(t_object) * data->num_objects, NULL, &ret);
-	if (ret != CL_SUCCESS)
-		print_cl_error(ret);
-	opencl->camera = clCreateBuffer(opencl->context, CL_MEM_WRITE_ONLY, sizeof(t_camera), NULL, &ret);
 	if (ret != CL_SUCCESS)
 		print_cl_error(ret);
 
@@ -182,6 +179,7 @@ t_opencl	*init_opencl(t_data *data)
 	ret = clSetKernelArg(opencl->kernel, 1, sizeof(cl_mem), (void *)&opencl->camera);
 	ret = clSetKernelArg(opencl->kernel, 2, sizeof(cl_mem), (void *)&opencl->objects);
 	data->opencl = opencl;
+  free_cfile(c_files);
 	return (opencl);
 }
 

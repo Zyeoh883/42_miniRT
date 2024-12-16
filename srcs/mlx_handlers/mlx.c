@@ -48,7 +48,20 @@ int	deal_key_press(int key, t_data *data) // ! does not free
 	if (key == ESC_KEY) // ! free everything in data
 	{
 		mlx_destroy_window(data->mlx_ptr, data->win_ptr);
+    clReleaseMemObject(data->opencl->addr);
+    clReleaseMemObject(data->opencl->camera);
+    clReleaseMemObject(data->opencl->objects);
+    clReleaseKernel(data->opencl->kernel);
+    clReleaseProgram(data->opencl->program);
+    clReleaseCommandQueue(data->opencl->queue);
+    clReleaseContext(data->opencl->context);
+    clReleaseDevice(data->opencl->device);
     free(data->camera);
+    free(data->objects);
+    free(data->opencl);
+    mlx_destroy_image(data->mlx_ptr, data->img);
+    mlx_destroy_display(data->mlx_ptr);
+    free(data->mlx_ptr);
 		exit(0);
 	}
 	if (key == SHIFT_KEY)

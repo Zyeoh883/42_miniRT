@@ -15,7 +15,7 @@ float2	intersect_ray_plane(U __global t_object *object, t_ray ray);
 
 float2 ray_intersection(U __global t_object *object, t_ray ray)
 {
-	if (object->type == SPHERE)
+	if (object->type == SPHERE || object->type == LIGHT)
 		return (intersect_ray_sphere(object, ray));
 	else if (object->type == PLANE)
 		return (intersect_ray_plane(object, ray));

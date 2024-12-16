@@ -106,7 +106,7 @@ int					render_frame(t_data *data);
 
 void	assign_sphere(t_object *object, char **split);
 void	assign_plane(t_object *object, char **split);
-
+void	assign_light(t_object *object, char **split);
 
 
 // tests
@@ -128,6 +128,7 @@ void					perror_and_exit(char *str, int exit_code);
 // utils
 void					print_m128(__m128 m);
 char					*read_cfile(char *name);
+void free_cfile(char **c_file);
 int count_objects(t_object	*arr_objects);
 void	free_str_arr(char **str_arr);
 int	get_rgb_value(char *str);
