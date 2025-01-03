@@ -22,13 +22,11 @@ t_ray	create_ray(U __global t_camera *camera, int i, int j)
 	return (ray);
 }
 
-int	render_ray(t_ray ray, U __global t_object *objects)
+float get_closest_object(t_ray ray, U __global t_object *objects, t_object **closest_object)
 {
-	__global  t_object	*closest_object;
 	float2		t;
 	float			closest_t;
 
-	closest_object = 0;
 	closest_t = INFINITY;
 	while (objects->type != 0)
 	{
@@ -36,31 +34,103 @@ int	render_ray(t_ray ray, U __global t_object *objects)
 		if (t[0] < closest_t && t[0] > 0)
 		{
 			closest_t = t[0];
-			closest_object = objects;
+			*closest_object = objects;
 		}
 		if (t[1] < closest_t && t[1] > 0)
 		{
 			closest_t = t[1];
-			closest_object = objects;
+			*closest_object = objects;
 		}
 		objects++;
 	}
-	if (closest_object == 0)
-		return (0);
-	return (closest_object->color);
+	return (closest_t);
+}
+
+float3 iterative_path_trace(t_ray initial_ray, U __global t_object *objects, uint2 *seed) {
+    float3 final_color = (float3)(0.0f, 0.0f, 0.0f);
+    float3 throughput = (float3)(1.0f, 1.0f, 1.0f);
+    t_ray current_ray = initial_ray;
+    
+    for (int bounce = 0; bounce < MAX_BOUNCES; bounce++) {
+        t_object *hit_obj = get_closest_object(current_ray, objects);
+        if (!hit_obj) 
+            break;
+            
+        // Calculate intersection point and normal
+        float2 t = ray_intersection(hit_obj, current_ray);
+        float4 hit_point = current_ray.pos + 
+                          vector_scalar_product(current_ray.direction, t.x);
+        float4 normal = vector_normalize(hit_point - hit_obj->pos);
+        
+        // Add emission if we hit a light
+        if (hit_obj->type == LIGHT) {
+            final_color += throughput * hit_obj->emission;
+            break;
+        }
+        
+        // Calculate direct lighting
+        float3 direct_light = calculate_direct_light(hit_point, normal, 
+                                                   hit_obj, objects);
+        final_color += throughput * direct_light;
+        
+        // Update throughput for next bounce
+        float3 brdf = (float3)(hit_obj->k_diffuse / M_PI);
+        throughput *= brdf;
+        
+        // Russian roulette for path termination
+        float p = max(throughput.x, max(throughput.y, throughput.z));
+        if (random(seed) > p)
+            break;
+        throughput /= p;
+        
+        // Generate new ray direction
+        float4 bounce_dir = random_hemisphere_sample(normal, seed);
+        float cos_theta = dot(normal, bounce_dir);
+        
+        // Update ray for next bounce
+        current_ray.pos = hit_point + vector_scalar_product(normal, EPSILON);
+        current_ray.direction = bounce_dir;
+        
+        // Account for cosine term and PDF
+        throughput *= cos_theta * 2.0f * M_PI;  // PDF = 1/(2π) for hemisphere
+    }
+    
+    return final_color;
+}
+
+
+int rendering_equation(t_ray ray, U __global t_object *objects)
+{
+  float2 t;
+  t_object *hit_object;
+  float4 hit_point;
+  float4 normal;
+  t_ray sample_ray;
+
+  t = get_closest_object(ray, objects, &hit_object);
+  hit_point = ray.pos + vector_scalar_product(ray.direction, t);
+  normal = vector_normalize(hit_point - hit_object->pos);
+
+
+
 }
 
 __kernel void	render_scene(U __global uchar *addr,
 	U __global t_camera *camera, U __global t_object *objects)
 {
 	U __global uchar	*dst;
+  t_ray ray;
+  t_object *closest_object;
+  float2 t; 
 	int					color;
 	int					x;
 	int					y;
 
 	x = get_global_id(0);
 	y = get_global_id(1);
-	color = render_ray(create_ray(camera, x, y), objects);
+
+  ray = create_ray(camera, x, y);
+  color = rendering_equation(ray, objects);
 	dst = addr + (y * camera->line_length + x * (camera->bytes_per_pixel));
   *(__global unsigned int *)dst = color;
 }
