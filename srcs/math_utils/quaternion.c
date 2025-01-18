@@ -12,17 +12,14 @@
 
 #include "minirt.h"
 
-cl_float4	quat_rotate(cl_float4 q, const cl_float4 v) // rotate point
+cl_float3	quat_rotate(cl_float4 q, cl_float4 q_v) // rotate point
 {
-	cl_float4 q_v;
 	cl_float4 rotated;
 
-	q_v = v;
 	q_v.s[3] = 0;
 	q = quat_normalize(q);
 	rotated = quat_product(quat_product(q, q_v), quat_conjugate(q));
-	rotated.s[3] = 0;
-	return (rotated);
+	return ((cl_float3){{rotated.s[0], rotated.s[1], rotated.s[2]}});
 }
 
 cl_float4	quat_product(const cl_float4 q1, const cl_float4 q2)

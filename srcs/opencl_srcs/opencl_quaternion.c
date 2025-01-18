@@ -14,17 +14,14 @@ float4	quat_normalize(float4 q);
 float4	quat_product(const float4 q1, const float4 q2);
 float4	quat_conjugate(const float4 q);
 
-float4	quat_rotate(float4 q, const float4 v) // rotate point
+float3	quat_rotate(float4 q, float3 q_v) // rotate point
 {
-	float4	q_v;
 	float4	rotated;
 
-	q_v = v;
-	q_v[3] = 0;
+  rotated = (float4)(q_v, 0);
 	q = quat_normalize(q);
-	rotated = quat_product(quat_product(q, q_v), quat_conjugate(q));
-	rotated[3] = 0;
-	return (rotated);
+	rotated = quat_product(quat_product(q, rotated), quat_conjugate(q));
+	return ((float3)(rotated[0], rotated[1], rotated[2]));
 }
 
 float4	quat_product(const float4 q1, const float4 q2)

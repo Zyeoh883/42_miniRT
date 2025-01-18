@@ -10,32 +10,32 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-float4	vector_cross_product(const float4 v1, const float4 v2)
+float3	vector_cross_product(const float3 v1, const float3 v2)
 {
 	return (cross(v1, v2));
 }
 
-float	vector_dot_product(const float4 v1, const float4 v2)
+float	vector_dot_product(const float3 v1, const float3 v2)
 {
 	return (dot(v1, v2));
 }
 
-float4	vector_scalar_product(const float4 v, const float scalar)
+float3	vector_scalar_product(const float3 v, const float scalar)
 {
 	return (v * scalar);
 }
 
-float4	vector_addition(const float4 v1, const float4 v2)
+float3	vector_addition(const float3 v1, const float3 v2)
 {
 	return (v1 + v2);
 }
 
-float4	vector_subtraction(const float4 v1, const float4 v2)
+float3	vector_subtraction(const float3 v1, const float3 v2)
 {
 	return (v1 - v2);
 }
 
-float4	vector_normalize(float4 v)
+float3	vector_normalize(float3 v)
 {
 	return (fast_normalize(v));
 }

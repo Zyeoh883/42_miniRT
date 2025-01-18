@@ -48,7 +48,7 @@
 
 typedef struct __attribute__ ((aligned(16))) s_camera
 {
-	cl_float4	pos;
+	cl_float3	pos;
 	cl_float4	quat;
 	cl_float	pixel_width;
 	cl_float	pixel_height;
@@ -133,5 +133,7 @@ int count_objects(t_object	*arr_objects);
 void	free_str_arr(char **str_arr);
 int	get_rgb_value(char *str);
 cl_float4 get_quat_value(char *str);
+cl_float3 get_vec_value(char *str);
+cl_float3 inv_rgb_float(int rgb);
 
 #endif

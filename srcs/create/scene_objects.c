@@ -29,28 +29,31 @@ t_object	*assign_object(char *line)
   else if (**split == LIGHT)
     assign_light(object, split);
 
-	object->type = *split[0];
-  object->color = get_rgb_value(split[1]); 
-	object->pos = get_quat_value(split[2]);
+	object->obj_type = *split[0];
+  object->color = get_rgb_value(split[1]);
+  object->albedo = inv_rgb_float(object->color);
+  printf("%c %x %f %f %f\n",object->obj_type, object->color, object->albedo.x, object->albedo.y, object->albedo.z);
+	object->pos = get_vec_value(split[2]);
+  object->mat_type = split[4] ? *split[4] : 'D';
   free_str_arr(split);
 	return (object);
 }
 
 void	assign_sphere(t_object *object, char **split)
 {
-  object->type = SPHERE;
+  object->obj_type = SPHERE;
   object->sphere.radius =  ft_atoi(split[3]);
 }
 
 void	assign_plane(t_object *object, char **split)
 {
-  object->type = PLANE;
-  object->quat = get_quat_value(split[3]);
+  object->obj_type = PLANE;
+  object->dir = get_quat_value(split[3]);
 }
 
 void	assign_light(t_object *object, char **split)
 {
-  object->type = LIGHT;
+  object->obj_type = LIGHT;
   object->emission = 1;
   object->sphere.radius =  ft_atoi(split[3]);
 }
@@ -195,7 +198,7 @@ int	count_objects(t_object *arr_objects)
 	int	count;
 
 	count = -1;
-	while (arr_objects[++count].type != 0)
+	while (arr_objects[++count].obj_type != 0)
 		;
 	return (count);
 }

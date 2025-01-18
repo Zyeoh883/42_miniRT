@@ -113,3 +113,24 @@ cl_float4 get_quat_value(char *str)
   return(quat);  
 }
 
+cl_float3 get_vec_value(char *str)
+{
+  cl_float3 vec;
+  char **split;
+ 
+  split = ft_split(str, '.');
+  if (!split)
+    perror_and_exit("malloc", EXIT_FAILURE);
+  vec = (cl_float3){{ft_atoi(split[0]), ft_atoi(split[1]), ft_atoi(split[2])}};
+  free_str_arr(split);
+  return(vec);  
+}
+
+cl_float3 inv_rgb_float(int rgb)
+{
+  return ((cl_float3){{
+    (float)((rgb >> 16) % 0x100) / 0xFF,
+    (float)((rgb >> 8)  % 0x100) / 0xFF,
+    (float)((rgb % 0x100) / 0xFF)
+  }});
+}

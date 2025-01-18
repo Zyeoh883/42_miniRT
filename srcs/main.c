@@ -55,7 +55,7 @@ t_camera	*init_camera(t_data *data, int win_height, int win_width)
 	camera = ft_calloc(1, sizeof(t_camera));
 	if (!camera)
 		exit(EXIT_FAILURE);
-	camera->pos = (cl_float4) {{0, 0, 0, 0}};
+	camera->pos = (cl_float4) {{0, 0, 0}};
 	camera->quat = (cl_float4) {{0, 0, 0, 1}};
 	fov = 60 * TO_RADIAN;
 	aspect_ratio = (cl_float)win_width / win_height;
@@ -79,17 +79,19 @@ t_opencl	*init_opencl(t_data *data)
 	if (!opencl)
 		exit(EXIT_FAILURE);
 
-	c_files = ft_calloc(6, sizeof(char *));
+	c_files = ft_calloc(7, sizeof(char *));
 	c_files[0] = read_cfile("srcs/opencl_srcs/opencl.h");
 	c_files[1] = read_cfile("srcs/opencl_srcs/ray.c"); // * load GPU source files
 	c_files[2] = read_cfile("srcs/opencl_srcs/opencl_vector.c");
 	c_files[3] = read_cfile("srcs/opencl_srcs/opencl_quaternion.c");
 	c_files[4] = read_cfile("srcs/opencl_srcs/opencl_object_intercept.c");
+	c_files[5] = read_cfile("srcs/opencl_srcs/brdf.c");
 	c_size[0] = ft_strlen(c_files[0]);
 	c_size[1] = ft_strlen(c_files[1]);
 	c_size[2] = ft_strlen(c_files[2]);
 	c_size[3] = ft_strlen(c_files[3]);
 	c_size[4] = ft_strlen(c_files[4]);
+	c_size[5] = ft_strlen(c_files[5]);
   printf("Loaded c_files\n");
 
 	ret = clGetPlatformIDs(1, &opencl->platform, NULL);
@@ -133,7 +135,7 @@ t_opencl	*init_opencl(t_data *data)
   printf("Loaded params\n");
 
   // Create a program from the kernel source
-  opencl->program = clCreateProgramWithSource(opencl->context, 5, (const char **)c_files, c_size, &ret);
+  opencl->program = clCreateProgramWithSource(opencl->context, 6, (const char **)c_files, c_size, &ret);
 	if (ret != CL_SUCCESS)
 		print_cl_error(ret);
 
@@ -186,6 +188,7 @@ t_opencl	*init_opencl(t_data *data)
 
 int	initialize(t_data *data, char *filename)
 {
+	data->objects = get_objects(filename);
 	data->mlx_ptr = mlx_init();
 	if (!data->mlx_ptr)
 		return (0);
@@ -204,7 +207,6 @@ int	initialize(t_data *data, char *filename)
 	data->inputs.pitch_angle = 0;
 	data->camera = init_camera(data, data->win_height, data->win_width); 
 	mlx_mouse_move(data->mlx_ptr, data->win_ptr, data->win_width * 0.5f, data->win_height * 0.5f);
-	data->objects = get_objects(filename);
 
   // t_object *temp = data->objects;
 
@@ -237,9 +239,10 @@ int	render_frame(t_data *data)
 	
 	//execution
 	// printf("%f %f %F %F\n", data->camera->pos.s[0], data->camera->pos.s[1], data->camera->pos.s[2], data->camera->pos.s[3]);
-	global_size[0] = data->win_width;
-	global_size[1] = data->win_height;
-
+	global_size[0] = 1;
+	global_size[1] = 1;
+	// global_size[0] = data->win_width;
+	// global_size[1] = data->win_height;
   // printf("Init render_frame local var\n");
 	// local_size[0] = 16;
 	// local_size[1] = 16;

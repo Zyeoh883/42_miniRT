@@ -20,8 +20,8 @@
 
 typedef struct __attribute__ ((aligned(16))) s_ray
 {
-	cl_float4		pos; // ! changed from pointer to value
-	cl_float4		direction;
+	cl_float3		pos; // ! changed from pointer to value
+	cl_float3		dir;
 }						t_ray;
 
 typedef struct __attribute__ ((aligned(16))) s_sphere
@@ -45,12 +45,16 @@ typedef struct __attribute__ ((aligned(16))) s_OBB
 	// struct s_OBB obb;
 typedef struct __attribute__ ((aligned(16))) s_object
 {
-	cl_uchar		type;
+	cl_uchar		obj_type;
+	cl_uchar		mat_type; // D, M, G, R, P
 	cl_int			color;
-	cl_float4		pos;
-	cl_float4		quat;
+	cl_float3		pos;
+	cl_float3		dir;
   cl_float    k_ambient;
-  cl_float    k_diffuse;
+  cl_float3   albedo; //diffuse for lambartian_BRDF
+  cl_float3   F_0; // basic_reflectivity; // F_0 Freshnel component
+  cl_float    roughness_sqr; // NDF and geometric component
+  cl_float    metallic; // diffuse and specular blending
   cl_float    k_specular;
   cl_float    emission; 
 	union
