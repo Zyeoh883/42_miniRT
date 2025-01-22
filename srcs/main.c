@@ -241,8 +241,8 @@ int	render_frame(t_data *data)
 	// printf("%f %f %F %F\n", data->camera->pos.s[0], data->camera->pos.s[1], data->camera->pos.s[2], data->camera->pos.s[3]);
 	global_size[0] = 1;
 	global_size[1] = 1;
-	// global_size[0] = data->win_width;
-	// global_size[1] = data->win_height;
+	global_size[0] = data->win_width;
+	global_size[1] = data->win_height;
   // printf("Init render_frame local var\n");
 	// local_size[0] = 16;
 	// local_size[1] = 16;

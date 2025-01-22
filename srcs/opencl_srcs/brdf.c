@@ -14,9 +14,16 @@
 float NDF_GGX(float alphaSqr, float NdotH)
 {
   float denom;
+  float NdotHSqr;
+  float TanNdotHSqr;
 
-  denom = NdotH * NdotH * (alphaSqr - 1.0f) + 1.0f;
+  NdotHSqr = NdotH * NdotH;
+  TanNdotHSqr = (1 - NdotHSqr) / NdotHSqr;
+  denom = NdotHSqr * (alphaSqr + TanNdotHSqr);
   return (alphaSqr / (M_PI * denom * denom));
+  // denom = NdotHSqr * (alphaSqr - 1.0f) + 1.0f;
+  
+  // return (alphaSqr / (M_PI * denom * denom));
 }
 
 float geometric_smith(float3 in, float NdotL, float alphaSqr, float3 normal, float NdotH)
@@ -24,10 +31,13 @@ float geometric_smith(float3 in, float NdotL, float alphaSqr, float3 normal, flo
   float k;
   float NdotV;
   float G1;
+  float G2;
 
   k = alphaSqr / 2.0f;
-  G1 = 2.0f * NdotH / (NdotH + k);
-  return (G1 * G1);
+  // G1 = 2.0f * NdotH / (NdotH + k);
+  G1 = NdotL / (NdotL * (1.0f - k) + k);
+  G2 = NdotV / (NdotV * (1.0f - k) + k);
+  return (G1 * G2);
 }
 
 float3 freshnel_schlick(float NdotH, float3 F_0)
@@ -46,7 +56,7 @@ float3 freshnel_schlick(float NdotH, float3 F_0)
 
    // Calculate NDF (Normal Distribution Function - GGX)
    NdotH = max(dot(normal, halfDir), 0.0f);
-   NdotL = max(dot(normal, in), 0.0f);
+   NdotL = max(dot(normal, out), 0.0f);
    NdotV = max(dot(normal, in), 0.0f); 
 
    D = NDF_GGX(hit_object->roughness_sqr, NdotH);
@@ -61,26 +71,30 @@ float3 freshnel_schlick(float NdotH, float3 F_0)
    return (D * F * G / (4.0f * NdotL * NdotV));   
  }
 
-
  float3 lambertian_BRDF(float3 albedo)
  {
-   return (albedo / (float)M_PI);
+   return (albedo); //dividing by (float)M_PI gets too dark
  }
 
 // {in : incoming ray}, {out : outgoing ray}, {normal : normal vector of surface}
  float3 BRDF(float3 in, float3 out, float3 normal, U __global t_object *hit_object)
  {
-   float3 halfDir;
+  float3 halfDir;
+  float3 diffuse;
+  float3 specular;
 
-   if (hit_object->mat_type == 'D')
-     return (lambertian_BRDF(hit_object->albedo));
+  diffuse = lambertian_BRDF(hit_object->albedo);
+   // if (hit_object->mat_type == 'D')
+   //   return (lambertian_BRDF(hit_object->albedo));
 
    halfDir = fast_normalize(in + out);
    if (hit_object->mat_type == 'M')
-     return (lambertian_BRDF(hit_object->albedo) * cook_torrance_BRDF(in, out, normal, halfDir,hit_object));
-   // lambert (diffuse) + Cook-Torrance (specular)
-
-   return (0);  
+  {
+    specular = cook_torrance_BRDF(in, out, normal, halfDir, hit_object);
+    return ((1 - hit_object->metallic) * diffuse + specular * hit_object->metallic);
+    // ambert (diffuse) + Cook-Torrance (specular)
+  }
+   return (diffuse);  
 
  }
 

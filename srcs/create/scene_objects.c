@@ -35,6 +35,7 @@ t_object	*assign_object(char *line)
   printf("%c %x %f %f %f\n",object->obj_type, object->color, object->albedo.x, object->albedo.y, object->albedo.z);
 	object->pos = get_vec_value(split[2]);
   object->mat_type = split[4] ? *split[4] : 'D';
+  object->emission = (cl_float3){{0.1f, 0.1f, 0.1f}};
   free_str_arr(split);
 	return (object);
 }
@@ -48,14 +49,14 @@ void	assign_sphere(t_object *object, char **split)
 void	assign_plane(t_object *object, char **split)
 {
   object->obj_type = PLANE;
-  object->dir = get_quat_value(split[3]);
+  object->dir = get_vec_value(split[3]);
 }
 
 void	assign_light(t_object *object, char **split)
 {
   object->obj_type = LIGHT;
-  object->emission = 1;
   object->sphere.radius =  ft_atoi(split[3]);
+  object->emission = (cl_float3){{0.3f, 0.3f, 1.0f}};
 }
 
 t_cyclinder	assign_cyclinder(cl_float radius, cl_float height)

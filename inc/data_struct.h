@@ -56,7 +56,7 @@ typedef struct __attribute__ ((aligned(16))) s_object
   cl_float    roughness_sqr; // NDF and geometric component
   cl_float    metallic; // diffuse and specular blending
   cl_float    k_specular;
-  cl_float    emission; 
+  cl_float3    emission; 
 	union
 	{
 		struct s_sphere	sphere;

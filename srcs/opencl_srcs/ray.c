@@ -46,11 +46,12 @@ t_ray	create_ray(U __global t_camera *camera, int i, int j)
  int intersect_scene(t_ray ray, U __global t_object *objects, U __global t_object **hit_object, float *closest_t)
  {
  	float2			t;
+  *closest_t = INFINITY;
 
  	while (objects->obj_type != 0)
  	{
  		t = ray_intersection(objects, ray);
- 		if (t[0] > 0 && *closest_t < t[0])
+ 		if (t[0] > 0 && t[0] < *closest_t)
  		{
  			*closest_t = t[0];
  			*hit_object = objects;
@@ -72,7 +73,7 @@ t_ray generate_hemisphere_ray(float3 hit_point, float3 normal, unsigned int *see
 {
   t_ray new_ray;
 
-  new_ray.pos = hit_point + normal * 0.0001f;
+  new_ray.pos = hit_point + normal;
 
 
   /* compute two random numbers to pick a random point on the hemisphere above the hitpoint*/
@@ -87,7 +88,7 @@ t_ray generate_hemisphere_ray(float3 hit_point, float3 normal, unsigned int *see
 	float3 v = cross(w, u);
 
 	/* use the coordinte frame and random numbers to compute the next ray direction */
-	new_ray.dir = normalize(u * cos(rand1)*rand2s + v*sin(rand1)*rand2s + w*sqrt(1.0f - rand2));
+	new_ray.dir = fast_normalize(u * cos(rand1)*rand2s + v*sin(rand1)*rand2s + w*sqrt(1.0f - rand2));
 
   return (new_ray);
 }
@@ -95,14 +96,15 @@ t_ray generate_hemisphere_ray(float3 hit_point, float3 normal, unsigned int *see
 
 float3 get_normal(U __global t_object *hit_object, float3 hit_point, float3 ray_dir)
 {
-  float3 resultant_normal;
+  float3 normal;
 
   if (hit_object->obj_type == SPHERE)
-    resultant_normal = hit_point - hit_object->pos;
+    normal = hit_point - hit_object->pos;
   else if (hit_object->obj_type == PLANE)
-    resultant_normal = dot(hit_object->dir, ray_dir) < 0.0f ? hit_object->dir : hit_object->dir * -1.0f;
+    normal = hit_object->dir;
 
-  return (fast_normalize(resultant_normal));
+  normal = fast_normalize(normal);
+	return (dot(normal, ray_dir) < 0.0f ? normal : normal * (-1.0f));
 }
 
 
@@ -115,9 +117,10 @@ float3 path_trace(t_ray in_ray, U __global t_object *objects, unsigned int seed0
   float3 brdf;
   float t;
   float3 accum_color = (float3)(0.0f, 0.0f, 0.0f);
+  float3 mask = (float3)(1.0f, 1.0f, 1.0f);
  
-  int n_bounces = 2;
-  while (--n_bounces > 0)
+  int n_bounces = 3;
+  while (n_bounces-- > 0)
   {
     if (!intersect_scene(in_ray, objects, &hit_object, &t))
     {
@@ -127,9 +130,14 @@ float3 path_trace(t_ray in_ray, U __global t_object *objects, unsigned int seed0
     normal = get_normal(hit_object, hit_point, in_ray.dir);
     out_ray = generate_hemisphere_ray(hit_point, normal, &seed0, &seed1);
     brdf = BRDF(in_ray.dir, out_ray.dir, normal, hit_object);
-    accum_color *=  brdf * max(0.0f, dot(in_ray.dir, normal));  
+    // printf("brdf : %f %f %f\n", brdf[0], brdf[1], brdf[2]);
+    // accum_color +=  brdf * max(0.0f, dot(in_ray.dir, normal)) * hit_object->emission * hit_object->color;  
+    // mask *= brdf * fmax(dot(fast_normalize(out_ray.dir), normal), 0.0f);
+    accum_color += mask * hit_object->emission;
+    mask *= brdf * max(dot(fast_normalize(out_ray.dir), normal), 0.0f);
     in_ray = out_ray;
   }
+  // printf("hit-----------------------\n");
   return (accum_color);
 }
 
@@ -139,36 +147,38 @@ __kernel void	render_scene(U __global uchar *addr,
 {
 U __global uchar	*dst;
   t_ray ray;
-	float3			color;
+	float3			color = (float3)(0.0f, 0.0f, 0.0f);
 	unsigned int					x;
 	unsigned int					y;
 
-	// x = get_global_id(0);
-	// y = get_global_id(1);
-  x = 1280 / 2;
-  y = 720 / 2;
+	x = get_global_id(0);
+	y = get_global_id(1);
+  // x = 1280 / 2;
+  // y = 720 / 2;
 
 	ray = create_ray(camera, x, y);
 
-  int n_samples = 10;
+  int n_samples = 100;
   float inv_samples = 1.0f / n_samples;
-
-  printf("kernell %d\n", n_samples);
+ 
   while (--n_samples > 0)
   {
     color += path_trace(ray, objects, x, y) * inv_samples;
   }
+  // printf("%f %f %f\n", color.x, color[1], color[2]);
 	dst = addr + (y * camera->line_length + x * (camera->bytes_per_pixel));
   // printf("%f %f %f\n", color[0], color[1], color[2]);
   // color *= 0xFF;
   unsigned int result = 0;
   // printf("%f %f %f\n", color[0], color[1], color[2]);
-  result += (unsigned int)(color[0] * 0xFF) % 0xFF << 16;
-  result += (unsigned int)(color[1] * 0xFF) % 0xFF << 8;
-  result += (unsigned int)(color[2] * 0xFF) % 0xFF;
+  result += (unsigned int)(color[0] * 0xFF) << 16;
+  result += (unsigned int)(color[1] * 0xFF) << 8;
+  result += (unsigned int)(color[2] * 0xFF);
   // printf("%f %f %f\n", camera->pos[0], camera->pos[1], camera->pos[2]);
-  printf("%x %f %f %f\n", result, color[0], color[1], color[2]);
- 	*(__global unsigned int *)dst = 0;
+  // if (result > 0)
+  //   printf("%x %f %f %f\n", result, color[0], color[1], color[2]);
+  // printf("%x\n", result);
+ 	*(__global unsigned int *)dst = result;
 }
 // __kernel void	render_scene(u __global uchar *addr,
 		// u __global t_camera *camera,

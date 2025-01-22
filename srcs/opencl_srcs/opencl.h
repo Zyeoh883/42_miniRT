@@ -55,7 +55,7 @@ typedef struct __attribute__((aligned(16))) s_object
   float   roughness_sqr;
   float   metallic;
   float   k_specular;
-  float   emission; 
+  float3   emission; 
 	union
 	{
 		struct s_sphere	sphere;
