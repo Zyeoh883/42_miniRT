@@ -11,23 +11,41 @@
 /* ************************************************************************** */
 
 
+
+float GetRandomFloat(unsigned int* seed)
+{
+    *seed = (*seed ^ 61) ^ (*seed >> 16);
+    *seed = *seed + (*seed << 3);
+    *seed = *seed ^ (*seed >> 4);
+    *seed = *seed * 0x27d4eb2d;
+    *seed = *seed ^ (*seed >> 15);
+    *seed = 1103515245 * (*seed) + 12345;
+
+    return (float)(*seed) * 2.3283064365386963e-10f;
+}
+
+unsigned int HashUInt32(unsigned int x)
+{
+#if 0
+    x = (x ^ 61) ^ (x >> 16);
+    x = x + (x << 3);
+    x = x ^ (x >> 4);
+    x = x * 0x27d4eb2d;
+    x = x ^ (x >> 15);
+    return x;
+#else
+    return 1103515245 * x + 12345;
+#endif
+}
+
+
 // Linear congruential generator
 static float get_random(unsigned int *seed0, unsigned int *seed1) {
 
-	/* hash the seeds using bitwise and operations and bitshifts */
-	*seed0 = 36969 * ((*seed0) & 65535) + ((*seed0) >> 16);  
-	*seed1 = 18000 * ((*seed1) & 65535) + ((*seed1) >> 16);
+  *seed0 = GetRandomFloat(seed1);
+  *seed1 = GetRandomFloat(seed0);
+  return (*seed0);
 
-	unsigned int ires = ((*seed0) << 16) + (*seed1);
-
-	/* use union struct to convert int to float */
-	union {
-		float f;
-		unsigned int ui;
-	} res;
-
-	res.ui = (ires & 0x007fffff) | 0x40000000;  /* bitwise and, bitwise or */
-	return (res.f - 2.0f) / 2.0f;
 }
 
 t_ray	create_ray(U __global t_camera *camera, int i, int j)
@@ -73,12 +91,12 @@ t_ray generate_hemisphere_ray(float3 hit_point, float3 normal, unsigned int *see
 {
   t_ray new_ray;
 
-  new_ray.pos = hit_point + normal;
+  new_ray.pos = hit_point + normal * 0.0001f;
 
 
   /* compute two random numbers to pick a random point on the hemisphere above the hitpoint*/
-	float rand1 = 2.0f * M_PI * get_random(seed0, seed1);
-	float rand2 = get_random(seed0, seed1);
+	float rand1 = 2.0f * M_PI * GetRandomFloat(seed0);
+	float rand2 = GetRandomFloat(seed0);
 	float rand2s = sqrt(rand2);
 
   /* create a local orthogonal coordinate frame centered at the hitpoint */
@@ -119,7 +137,7 @@ float3 path_trace(t_ray in_ray, U __global t_object *objects, unsigned int seed0
   float3 accum_color = (float3)(0.0f, 0.0f, 0.0f);
   float3 mask = (float3)(1.0f, 1.0f, 1.0f);
  
-  int n_bounces = 3;
+  int n_bounces = 2;
   while (n_bounces-- > 0)
   {
     if (!intersect_scene(in_ray, objects, &hit_object, &t))
@@ -133,6 +151,9 @@ float3 path_trace(t_ray in_ray, U __global t_object *objects, unsigned int seed0
     // printf("brdf : %f %f %f\n", brdf[0], brdf[1], brdf[2]);
     // accum_color +=  brdf * max(0.0f, dot(in_ray.dir, normal)) * hit_object->emission * hit_object->color;  
     // mask *= brdf * fmax(dot(fast_normalize(out_ray.dir), normal), 0.0f);
+    if (hit_object->obj_type == LIGHT)
+      return((float3)(1.0f, 1.0f, 1.0f));
+      // return (accum_color + hit_object->emission);
     accum_color += mask * hit_object->emission;
     mask *= brdf * max(dot(fast_normalize(out_ray.dir), normal), 0.0f);
     in_ray = out_ray;
@@ -158,12 +179,15 @@ U __global uchar	*dst;
 
 	ray = create_ray(camera, x, y);
 
-  int n_samples = 100;
+  int n_samples = 1000;
   float inv_samples = 1.0f / n_samples;
- 
+
+
+  unsigned int seed = x + y * camera->line_length + HashUInt32(x);
+
   while (--n_samples > 0)
   {
-    color += path_trace(ray, objects, x, y) * inv_samples;
+    color += path_trace(ray, objects, seed, y) * inv_samples;
   }
   // printf("%f %f %f\n", color.x, color[1], color[2]);
 	dst = addr + (y * camera->line_length + x * (camera->bytes_per_pixel));
