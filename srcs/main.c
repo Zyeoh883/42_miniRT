@@ -94,10 +94,10 @@ t_opencl	*init_opencl(t_data *data)
 	c_size[5] = ft_strlen(c_files[5]);
   printf("Loaded c_files\n");
 
-	ret = clGetPlatformIDs(1, &opencl->platform, NULL);
+	ret = clGetPlatformIDs(10, opencl->platform, NULL);
 	if (ret != CL_SUCCESS)
 		print_cl_error(ret);
-    ret = clGetDeviceIDs(opencl->platform, CL_DEVICE_TYPE_GPU, 1, &opencl->device, NULL);
+  ret = clGetDeviceIDs(opencl->platform[1], CL_DEVICE_TYPE_GPU, 1, &opencl->device, NULL);
 	if (ret != CL_SUCCESS)
 		print_cl_error(ret);
 

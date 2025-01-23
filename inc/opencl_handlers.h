@@ -15,7 +15,7 @@
 
 typedef struct s_opencl
 {
-	cl_platform_id		platform; //which openCL
+	cl_platform_id		platform[2]; //which openCL
 	cl_device_id		device; // which hardware
 	cl_context			context; // env for OpenCL operations
 	cl_command_queue	queue; // Sequence of commands
