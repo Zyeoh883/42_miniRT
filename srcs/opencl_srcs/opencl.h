@@ -18,6 +18,8 @@
 #define PLANE 'P'
 #define LIGHT 'L'
 
+#define INV_PI 1 / M_PI
+
 typedef struct __attribute__((aligned(16))) s_camera
 {
 	float3	pos;
