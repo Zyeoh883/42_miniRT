@@ -41,7 +41,7 @@ unsigned int HashUInt32(unsigned int x)
 
 // Linear congruential generator was here
 
-t_ray	create_ray(U __global t_camera *camera, int i, int j)
+t_ray	create_ray(U __constant t_camera *camera, int i, int j)
 {
 	t_ray	ray;
 
@@ -55,7 +55,7 @@ t_ray	create_ray(U __global t_camera *camera, int i, int j)
 	return (ray);
 }
 
- int intersect_scene(t_ray ray, U __global t_object *objects, U __global t_object **hit_object, float *closest_t)
+ int intersect_scene(t_ray ray, U __constant t_object *objects, U __constant t_object **hit_object, float *closest_t)
  {
  	float2			t;
   *closest_t = INFINITY;
@@ -81,7 +81,7 @@ t_ray	create_ray(U __global t_camera *camera, int i, int j)
  }
 
 
-t_ray generate_hemisphere_ray(float3 hit_point, float3 normal, unsigned int *seed0)
+t_ray sample_hemisphere(float3 hit_point, float3 normal, unsigned int *seed0)
 {
   t_ray new_ray;
 
@@ -105,8 +105,15 @@ t_ray generate_hemisphere_ray(float3 hit_point, float3 normal, unsigned int *see
   return (new_ray);
 }
 
+// t_ray sample_reflection(float3 hit_point, float3 normal, float3 view_dir, float roughness, unsigned int* seed0)
+// {
+//     float2 rand = (float2)(GetRandomFloat(seed0), GetRandomFloat(seed0));
+//     float3 half_dir = GGX_Sample(rand, normal, roughness);
+//     float3 reflect_dir = reflect(-view_dir, half_dir);
+//     return (t_ray){hit_point + normal * 1e-5f, reflect_dir};
+// }
 
-float3 get_normal(U __global t_object *hit_object, float3 hit_point, float3 ray_dir)
+float3 get_normal(U __constant t_object *hit_object, float3 hit_point, float3 ray_dir)
 {
   float3 normal;
 
@@ -116,13 +123,13 @@ float3 get_normal(U __global t_object *hit_object, float3 hit_point, float3 ray_
     normal = hit_object->dir;
 
   normal = fast_normalize(normal);
-	return (dot(normal, ray_dir) < 0.0f ? normal : normal * (-1.0f));
+	return (dot(normal, ray_dir) < 0.0f ? normal : -normal);
 }
 
 
-float3 path_trace(t_ray in_ray, U __global t_object *objects, unsigned int *seed0)
+float3 path_trace(t_ray in_ray, U __constant t_object *objects, unsigned int *seed0)
 {
-  U __global t_object *hit_object;
+  U __constant t_object *hit_object;
   t_ray out_ray;
   float3 hit_point;
   float3 normal;
@@ -140,7 +147,7 @@ float3 path_trace(t_ray in_ray, U __global t_object *objects, unsigned int *seed
     }
     hit_point = in_ray.pos + in_ray.dir * t;
     normal = get_normal(hit_object, hit_point, in_ray.dir);
-    out_ray = generate_hemisphere_ray(hit_point, normal, seed0);
+    out_ray = sample_hemisphere(hit_point, normal, seed0);
     brdf = BRDF(in_ray.dir, out_ray.dir, normal, hit_object);
     // printf("brdf : %f %f %f\n", brdf[0], brdf[1], brdf[2]);
     // accum_color +=  brdf * max(0.0f, dot(in_ray.dir, normal)) * hit_object->emission * hit_object->color;  
@@ -158,7 +165,7 @@ float3 path_trace(t_ray in_ray, U __global t_object *objects, unsigned int *seed
 
 
 __kernel void	render_scene(U __global uchar *addr,
-	U __global t_camera *camera, U __global t_object *objects)
+	U __constant t_camera *camera, U __constant t_object *objects)
 {
 U __global uchar	*dst;
   t_ray ray;
@@ -187,13 +194,12 @@ U __global uchar	*dst;
 
     color += temp;
   }
-  // if (count != 999)
-    // printf("%d\n", count);
   // printf("%f %f %f\n", color.x, color[1], color[2]);
 	dst = addr + (y * camera->line_length + x * (camera->bytes_per_pixel));
   // printf("%f %f %f\n", color[0], color[1], color[2]);
   // color *= 0xFF;
   unsigned int result = 0;
+  color = color / (color + 1.0f); 
   // printf("%f %f %f\n", color[0], color[1], color[2]);
   result += (unsigned int)(min(color[0], 1.0f) * 0xFF) << 16;
   result += (unsigned int)(min(color[1], 1.0f) * 0xFF) << 8;
@@ -206,144 +212,4 @@ U __global uchar	*dst;
   // printf("%x\n", result);
  	*(__global unsigned int *)dst = result;
 }
-// __kernel void	render_scene(u __global uchar *addr,
-		// u __global t_camera *camera,
-// 	u __global t_object *objects)
-// {
-// 	// t_ray	ray;
-// 	uchar	*dst;
-// 	// int color;
-// 	int	x;
-// 	int	y;
 
-// 	x = get_global_id(0);
-// 	y = get_global_id(1);
-// 	// ray = create_ray(camera, i, j);
-// 	// color = render_ray(create_ray(camera, i, j), objects);
-// 	// if (color)
-// 		// put color in image
-// 	dst = (uchar *)addr + (y * camera->line_length + x
-			// * (camera->bytes_per_pixel));
-// 	*(unsigned int *)dst = 0xFFFFFF;
-// }
-
-// #include "minirt.h"
-
-// typedef struct __attribute__ ((aligned(16))) s_camera
-// {
-// 	float4	pos;
-// 	float4	quat;
-// 	float	pixel_width;
-// 	float	pixel_height;
-// 	int		win_height;
-// 	int		win_width;
-// 	char	num_objects;
-// 	int		bytes_per_pixel;
-// 	int		line_length;
-// }						t_camera;
-
-// typedef struct __attribute__ ((aligned(16))) s_ray
-// {
-// 	float4	pos; // ! changed from pointer to value
-// 	float4	direction;
-// }						t_ray;
-
-// typedef struct __attribute__ ((aligned(16))) s_sphere
-// {
-// 	float4	pos;
-// 	float4	quat;
-// 	float		radius;
-// 	int			color;
-// }						t_sphere;
-
-// typedef struct __attribute__ ((aligned(16)))  s_object
-// {
-// 	// struct __attribute__ ((aligned(16))) s_OBB obb;
-// 	uchar				type;
-// 	union
-// 	{
-// 		struct __attribute__ ((aligned(16))) s_sphere	sphere;
-// 	};
-// }						t_object;
-
-// #define u
-
-// t_ray	create_ray(t_camera *camera, int i, int j);
-// // (2 * i / width) lies between 0 to 2
-// // (2 * i / width - 1) lies between -1 to 1, an offset is added
-
-// t_ray	create_ray(t_camera *camera, int i, int j)
-// {
-// 	t_ray	ray;
-// 	// int	height;
-// 	// int	width;
-
-// 	ray.pos = camera->pos;
-// 	ray.direction = (float4){
-// 		1,
-// 		(1 - 2 * j / camera->win_height) * camera->pixel_height,
-// 		(2 * i / camera->win_width - 1) * camera->pixel_width,
-// 		0
-// 	};
-// 	// ray.direction = quat_rotate(camera->quat, ray.direction);
-// 	// vector_normalize(&ray.direction);
-// 	// print_m128(ray.direction);
-// 	return (ray);
-// }
-
-// int	render_ray(t_ray ray, t_object *objects)
-// {
-// 	float		t[2];
-// 	t_sphere	*closest_sphere;
-// 	float		closest_t;
-// 	int			n;
-
-// 	closest_sphere = 0;
-// 	closest_t = INFINITY;
-// 	// printf("2. ");
-// 	// print_vector(*ray.pos);
-// 	n = 0;
-// 	while (objects->type != 0)
-// 	{
-// 		intersect_ray_sphere(objects->sphere, ray, t);
-// 		if (t[0] < closest_t && t[0] > 0)
-// 		{
-// 			closest_t = t[0];
-// 			closest_sphere = &objects->sphere;
-// 		}
-// 		if (t[1] < closest_t && t[1] > 0)
-// 		{
-// 			closest_t = t[1];
-// 			closest_sphere = &objects->sphere;
-// 		}
-// 		objects++;
-// 	}
-// 	// if (n == 1)
-// 	// 	return (0xFFFFFF);
-// 	// else
-// 	// 	return (0);
-// 	if (closest_sphere == 0)
-// 		return (1);
-// 	return (closest_sphere->color);
-// }
-
-// __kernel void	render_scene(u __global uchar *addr,
-		// u __global t_camera *camera,
-// 	u __global t_object *objects)
-// {
-// 	// t_ray	ray;
-// 	uchar	*dst;
-// 	// int color;
-// 	int	x;
-// 	int	y;
-
-// 	x = get_global_id(0);
-// 	y = get_global_id(1);
-// 	// ray = create_ray(camera, i, j);
-// 	// color = render_ray(create_ray(camera, i, j), objects);
-// 	// if (color)
-// 		// put color in image
-// 	dst = (uchar *)addr + (y * camera->line_length + x
-			// * (camera->bytes_per_pixel));
-// 	*(unsigned int *)dst = 0xFFFFFF;
-// }

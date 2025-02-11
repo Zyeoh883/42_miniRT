@@ -10,10 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-float2	intersect_ray_sphere(U __global t_object *object, t_ray ray);
-float2	intersect_ray_plane(U __global t_object *object, t_ray ray);
+float2	intersect_ray_sphere(U __constant t_object *object, t_ray ray);
+float2	intersect_ray_plane(U __constant t_object *object, t_ray ray);
 
-float2 ray_intersection(U __global t_object *object, t_ray ray)
+float2 ray_intersection(U __constant t_object *object, t_ray ray)
 {
 	if (object->obj_type == SPHERE || object->obj_type == LIGHT)
 		return (intersect_ray_sphere(object, ray));
@@ -22,7 +22,7 @@ float2 ray_intersection(U __global t_object *object, t_ray ray)
 	return((float2)(INFINITY, INFINITY));
 }
 
-float2	intersect_ray_sphere(U __global t_object *object, t_ray ray)
+float2	intersect_ray_sphere(U __constant t_object *object, t_ray ray)
 {
 	float3	sphere_to_camera;
 	float	a;
@@ -43,7 +43,7 @@ float2	intersect_ray_sphere(U __global t_object *object, t_ray ray)
 				* a)));
 }
 
-float2	intersect_ray_plane(U __global t_object *object, t_ray ray)
+float2	intersect_ray_plane(U __constant t_object *object, t_ray ray)
 {
 	float t;
 	float denom;
@@ -56,7 +56,7 @@ float2	intersect_ray_plane(U __global t_object *object, t_ray ray)
 }
 
 // ! do this first
-float2	intersect_ray_cyclinder(U __global t_object *object, t_ray ray)
+float2	intersect_ray_cyclinder(U __constant t_object *object, t_ray ray)
 {
 	float4	sphere_to_camera;
 	float	a;

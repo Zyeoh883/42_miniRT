@@ -22,7 +22,7 @@ t_object	*assign_object(char *line)
   split = ft_split(line, ',');
   if (!object || !split)
     perror_and_exit("malloc", EXIT_FAILURE);
-  object->emission = (cl_float3){{0.05f, 0.05f, 0.05f}};
+  object->emission = (cl_float3){{0.1f, 0.1f, 0.1f}};
   if (**split == SPHERE)
     assign_sphere(object, split);
   else if (**split == PLANE)
@@ -32,13 +32,17 @@ t_object	*assign_object(char *line)
 
 	object->obj_type = *split[0];
   object->color = get_rgb_value(split[1]);
-  object->albedo = inv_rgb_float(object->color);
-  printf("%c %x %f %f %f\n",object->obj_type, object->color, object->albedo.x, object->albedo.y, object->albedo.z);
+  object->diffuse_albedo = inv_rgb_float(object->color);
+  object->specular_albedo = (cl_float3){{0.7f, 0.0f, 0.0f}};
+  // printf("%c %x %f %f %f\n",object->obj_type, object->color, object->albedo.x, object->albedo.y, object->albedo.z);
 	object->pos = get_vec_value(split[2]);
-  object->mat_type = split[4] ? *split[4] : 'D';
-  object->metallic = 0.0f;
-  object->F_0 = (cl_float3){{0.1f, 0.1f, 0.1f}};
-  object->roughness_sqr = 0.5f;
+  object->mat_type = split[4] ? *split[4] : 'M';
+  object->F_0 = (cl_float3){{ 0.7, 0.7, 0.7}}; 
+  object->metallic = 1.0f;
+  // object->F_0 = (cl_float3){{ object->diffuse_albedo.x *  object->metallic,
+  //                       object->diffuse_albedo.y *  object->metallic,
+  //                       object->diffuse_albedo.z *  object->metallic }};
+  object->roughness_sqr = 0.3f * 0.3f;
   // object->emission = (cl_float3){{0.05f, 0.05f, 0.05f}};
   free_str_arr(split);
 	return (object);
@@ -60,7 +64,7 @@ void	assign_light(t_object *object, char **split)
 {
   object->obj_type = LIGHT;
   object->sphere.radius =  ft_atoi(split[3]);
-  object->emission = (cl_float3){{10.0f, 10.0f, 10.0f}};
+  object->emission = (cl_float3){{100.0f, 100.0f, 100.0f}};
 }
 
 t_cyclinder	assign_cyclinder(cl_float radius, cl_float height)

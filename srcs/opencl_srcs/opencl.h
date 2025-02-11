@@ -18,7 +18,7 @@
 #define PLANE 'P'
 #define LIGHT 'L'
 
-#define INV_PI 1 / M_PI
+#define INV_PI 1 / (float)M_PI
 
 typedef struct __attribute__((aligned(16))) s_camera
 {
@@ -52,7 +52,8 @@ typedef struct __attribute__((aligned(16))) s_object
 	float3	pos;
 	float3	dir;
   float   k_ambient;
-  float3  albedo;
+  float3  diffuse_albedo;
+  float3  specular_albedo;
   float3  F_0;
   float   roughness_sqr;
   float   metallic;
@@ -65,11 +66,11 @@ typedef struct __attribute__((aligned(16))) s_object
 }				t_object;
 
 float3			vector_normalize(float3 v);
-t_ray			create_ray(U __global t_camera *camera, int i, int j);
-int				render_ray(t_ray ray, U __global t_object *objects);
+t_ray			create_ray(U __constant t_camera *camera, int i, int j);
+int				render_ray(t_ray ray, U __constant t_object *objects);
 float3			vector_scalar_product(const float3 v, const float scalar);
-float2			intersect_ray_sphere(U __global t_object *object, t_ray ray);
+float2			intersect_ray_sphere(U __constant t_object *object, t_ray ray);
 float3			quat_rotate(float4 q, const float3 q_v);
-float2			ray_intersection(U __global t_object *object, t_ray ray);
+float2			ray_intersection(U __constant t_object *object, t_ray ray);
 
-float3       BRDF(float3 in, float3 out, float3 normal, U __global t_object *hit_object);
+float3       BRDF(float3 in, float3 out, float3 normal, U __constant t_object *hit_object);
