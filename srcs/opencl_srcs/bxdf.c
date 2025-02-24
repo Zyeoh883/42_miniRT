@@ -22,7 +22,7 @@ unsigned int WangHash(unsigned int x)
 
 float sample_random(t_sample_data sample_data, uint type)
 {
-    type = sample_data.n_bounce * 5 + type; 
+    type += sample_data.n_bounce * 5; 
     uint seed = WangHash(sample_data.x);
     seed = WangHash(seed + WangHash(sample_data.y));
     seed = WangHash(seed + WangHash(sample_data.sample_index));
@@ -99,11 +99,11 @@ float3 sample_specular(float2 s, float3 in, float3* out, float3 normal,t_object 
     else
     {
         wh = GGX_Sample(s, normal, hit_object->roughness_sqr);
-        *out = reflect(-in, wh);
+        *out = reflect(in, wh);
 
         n_dot_o = dot(normal, *out);
         n_dot_h = dot(normal, wh);
-        n_dot_i = dot(normal, in);
+        n_dot_i = dot(normal, -in);
         h_dot_o = dot(*out, wh);
 
         float D = NDF_GGX(hit_object->roughness_sqr, n_dot_h);
@@ -112,6 +112,8 @@ float3 sample_specular(float2 s, float3 in, float3* out, float3 normal,t_object 
         float G = V_SmithGGXCorrelated(n_dot_i, n_dot_o, hit_object->roughness_sqr);
 
         *pdf = D * n_dot_h / (4.0f * dot(wh, *out));
+  // if (n_dot_h == 0)
+  //   printf("here\n");
 
         return to_float3(D /* F */ * G);
     }
@@ -142,6 +144,7 @@ float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, 
   specular_sampling_pdf = specular_weight * inv_weight_sum;
   diffuse_sampling_pdf = diffuse_weight * inv_weight_sum;
 
+
   if (seed <= specular_sampling_pdf)
   {
     bxdf = freshnel * sample_specular(s, in, out, normal, hit_object, pdf);
@@ -152,5 +155,10 @@ float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, 
     bxdf = (1 - freshnel) * sample_diffuse(s, out, normal, hit_object->diffuse_albedo, pdf);
     *pdf *= diffuse_sampling_pdf;
   }
-  return bxdf * max(dot(*out, normal), 0.0f);
+
+  if (*pdf == 0)
+    *pdf = 1e-5f;
+  // if (*pdf == 0)
+  //   printf("here\n");
+  return bxdf * fmax(dot(*out, normal), 0.0f);
 }

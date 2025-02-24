@@ -33,16 +33,19 @@ t_object	*assign_object(char *line)
 	object->obj_type = *split[0];
   object->color = get_rgb_value(split[1]);
   object->diffuse_albedo = inv_rgb_float(object->color);
-  object->specular_albedo = (cl_float3){{0.5f, 0.5f, 0.5f}};
+  // object->specular_albedo = (cl_float3){{0.5f, 0.5f, 0.5f}};
   // printf("%c %x %f %f %f\n",object->obj_type, object->color, object->albedo.x, object->albedo.y, object->albedo.z);
 	object->pos = get_vec_value(split[2]);
   object->mat_type = split[4] ? *split[4] : 'D';
-  object->F_0 = (cl_float3){{ 1.0, 1.0, 1.0}}; 
+  object->F_0 = (cl_float3){{0.5, 0.5, 0.5}}; 
   object->metallic = 0.5f;
-  // object->F_0 = (cl_float3){{ object->diffuse_albedo.x *  object->metallic,
-  //                       object->diffuse_albedo.y *  object->metallic,
-  //                       object->diffuse_albedo.z *  object->metallic }};
-  object->roughness_sqr = 0; //0.3f * 0.3f;
+  object->specular_albedo = (cl_float3){{ object->diffuse_albedo.x * object->metallic,
+                        object->diffuse_albedo.y *  object->metallic,
+                        object->diffuse_albedo.z *  object->metallic }};
+  object->diffuse_albedo = (cl_float3){{ object->diffuse_albedo.x * (1 - object->metallic),
+                        object->diffuse_albedo.y * (1 - object->metallic),
+                        object->diffuse_albedo.z * (1 - object->metallic)}}; 
+  object->roughness_sqr = 1e-3f;; //0.3f * 0.3f;
   // object->emission = (cl_float3){{0.05f, 0.05f, 0.05f}};
   free_str_arr(split);
 	return (object);
@@ -64,7 +67,7 @@ void	assign_light(t_object *object, char **split)
 {
   object->obj_type = LIGHT;
   object->sphere.radius =  ft_atoi(split[3]);
-  object->emission = (cl_float3){{100.0f, 100.0f, 100.0f}};
+  object->emission = (cl_float3){{10.0f, 10.0f, 10.0f}};
 }
 
 t_cyclinder	assign_cyclinder(cl_float radius, cl_float height)

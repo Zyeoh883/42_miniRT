@@ -26,16 +26,12 @@ float GetRandomFloat(unsigned int* seed)
 
 unsigned int HashUInt32(unsigned int x)
 {
-#if 0
     x = (x ^ 61) ^ (x >> 16);
     x = x + (x << 3);
     x = x ^ (x >> 4);
     x = x * 0x27d4eb2d;
     x = x ^ (x >> 15);
     return x;
-#else
-    return 1103515245 * x + 12345;
-#endif
 }
 
 
@@ -137,16 +133,16 @@ float3 path_trace(t_ray in_ray, U __constant t_object *objects, t_sample_data sa
   float t;
   float2 seed;
   float pdf;
-  float3 accum_color = (float3)(0.0f, 0.0f, 0.0f);
+  // float3 accum_color = (float3)(0.0f, 0.0f, 0.0f);
   float3 mask = (float3)(1.0f, 1.0f, 1.0f);
  
-  sample_data.n_bounce = 2;
+  if (!intersect_scene(in_ray, objects, &hit_object, &t))
+    return (to_float3(0));
+  sample_data.n_bounce = 3;
   while (sample_data.n_bounce-- > 0)
   {
     if (!intersect_scene(in_ray, objects, &hit_object, &t))
-    {
-      return(accum_color);
-    }
+      return(mask * 0.1f); 
     hit_point = in_ray.pos + in_ray.dir * t;
     normal = get_normal(&hit_object, hit_point, in_ray.dir);
     seed.x = sample_random(sample_data, 1);
@@ -165,10 +161,10 @@ float3 path_trace(t_ray in_ray, U __constant t_object *objects, t_sample_data sa
       return(hit_object.emission * mask);
     mask *= bxdf / pdf;
     in_ray = out_ray;
-    in_ray.pos = hit_point;
+    in_ray.pos = hit_point + normal * 0.001f;
   }
   // printf("hit-----------------------\n");
-  return (accum_color);
+  return (mask * 0.1f);
 }
 
 
@@ -178,8 +174,8 @@ __kernel void	render_scene(U __global uchar *addr,
 U __global uchar	*dst;
   t_ray ray;
 	float3			color = (float3)(0.0f, 0.0f, 0.0f);
-	float3			temp = (float3)(0.0f, 0.0f, 0.0f);
 	t_sample_data sample_data;
+  unsigned int result = 0;
 
 	sample_data.x = get_global_id(0);
 	sample_data.y = get_global_id(1);
@@ -188,7 +184,9 @@ U __global uchar	*dst;
 
 	ray = create_ray(camera, sample_data.x, sample_data.y);
 
-  sample_data.sample_index = 2000;
+
+
+  sample_data.sample_index = 1000;
   float inv_samples = 1.0f / sample_data.sample_index;
 
 
@@ -197,20 +195,21 @@ U __global uchar	*dst;
   while (--sample_data.sample_index > 0)
   {
     // printf("test\n");
-    temp = path_trace(ray, objects, sample_data) * inv_samples;
-
-    color += temp;
+    color += path_trace(ray, objects, sample_data);
   }
-  // printf("%f %f %f\n", color.x, color[1], color[2]);
+
+  color *= inv_samples;
+
 	dst = addr + (sample_data.y * camera->line_length + sample_data.x * (camera->bytes_per_pixel));
   // printf("%f %f %f\n", color[0], color[1], color[2]);
   // color *= 0xFF;
-  unsigned int result = 0;
-  color = color / (color + 1.0f); 
+  color = color / (color + 1.0f);
+  // if (color[0] > 0.1f && color[1] > 0.1f && color[2] > 0.1f)
+  //   printf("%f %f %f\n", color[0], color[1], color[2]);
   // printf("%f %f %f\n", color[0], color[1], color[2]);
-  result += (unsigned int)(min(color[0], 1.0f) * 0xFF) << 16;
-  result += (unsigned int)(min(color[1], 1.0f) * 0xFF) << 8;
-  result += (unsigned int)(min(color[2], 1.0f) * 0xFF);
+  result += (unsigned int)(fmin(color.x, 1.0f) * 0xFF) << 16;
+  result += (unsigned int)(fmin(color.y, 1.0f) * 0xFF) << 8;
+  result += (unsigned int)(fmin(color.z, 1.0f) * 0xFF);
   // if (result >= 0xFAFAFA)
   //     printf("%f %f %f\n", color[0], color[1], color[2]);
   // printf("%f %f %f\n", camera->pos[0], camera->pos[1], camera->pos[2]);
