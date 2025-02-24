@@ -10,11 +10,23 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-float3 to_float3(float x)
-{
-    return (float3)(x, x, x);
-}
 
+float V_SmithGGXCorrelated(float n_dot_i, float n_dot_o, float alphaG)
+{
+    // Original formulation of G_SmithGGX Correlated
+    // lambda_v = ( -1 + sqrt ( alphaG2 * (1 - NdotL2 ) / NdotL2 + 1)) * 0.5 f;
+    // lambda_l = ( -1 + sqrt ( alphaG2 * (1 - NdotV2 ) / NdotV2 + 1)) * 0.5 f;
+    // G_SmithGGXCorrelated = 1 / (1 + lambda_v + lambda_l );
+    // V_SmithGGXCorrelated = G_SmithGGXCorrelated / (4.0 f * NdotL * NdotV );
+
+    // This is the optimize version
+    float alphaG2 = alphaG * alphaG;
+    // Caution : the " NdotL *" and " NdotV *" are explicitely inversed , this is not a mistake .
+    float Lambda_GGXV = n_dot_o * sqrt((-n_dot_i * alphaG2 + n_dot_i) * n_dot_i + alphaG2);
+    float Lambda_GGXL = n_dot_i * sqrt((-n_dot_o * alphaG2 + n_dot_o) * n_dot_o + alphaG2);
+
+    return 0.5f / (Lambda_GGXV + Lambda_GGXL);
+}
 
 float NDF_GGX(float alphaSqr, float NdotH)
 {
@@ -44,12 +56,12 @@ float geometric_smith(float3 in, float NdotL, float alphaSqr, float3 normal, flo
   return (G1 * G2);
 }
 
-float3 freshnel_schlick(float NdotH, float3 F_0)
+float3 freshnel_schlick(float3 F_0, float NdotH)
 {
   return (F_0 + (1.0f - F_0) * pow(1.0f - NdotH, 5.0f));
 }
 
- float3 cook_torrance_BRDF(float3 in, float3 out, float3 normal, float NdotH, U __constant t_object *hit_object)
+ float3 cook_torrance_BRDF(float3 in, float3 out, float3 normal, float NdotH, t_object *hit_object)
  {
     float D;
     float3 F;
@@ -69,7 +81,7 @@ float3 freshnel_schlick(float NdotH, float3 F_0)
    G = geometric_smith(out, NdotL, hit_object->roughness_sqr, normal, NdotV);
 
    // Calculate Fresnel term (Schlick's approximation)
-   F = freshnel_schlick(NdotH, hit_object->F_0);
+   F = freshnel_schlick(hit_object->F_0, NdotH);
 
   // printf("D = %f, G = %f, F = %f %f %f\n", D, G, F[0], F[1], F[2]);
 
@@ -84,7 +96,7 @@ float3 freshnel_schlick(float NdotH, float3 F_0)
  }
 
 // {in : incoming ray}, {out : outgoing ray}, {normal : normal vector of surface}
- float3 BRDF(float3 in, float3 out, float3 normal, U __constant t_object *hit_object)
+ float3 BRDF(float3 in, float3 out, float3 normal, t_object *hit_object)
  {
   float3 halfDir;
   float3 diffuse;
@@ -96,6 +108,8 @@ float3 freshnel_schlick(float NdotH, float3 F_0)
   out = fast_normalize(out); // Normalize outgoing ray
   // hit_object->F_0 = mix((float3)(0.04f), hit_object->diffuse_albedo, hit_object->metallic);
   // printf("%f %f %f\n", in[0], in[1], in[2]);
+  if (hit_object->mat_type == 'D')
+    return (lambertian_BRDF(hit_object->diffuse_albedo));
   diffuse = lambertian_BRDF((1 - hit_object->metallic) * hit_object->diffuse_albedo);
    // if (hit_object->mat_type == 'D')
    //   return (lambertian_BRDF(hit_object->albedo));
@@ -106,7 +120,7 @@ float3 freshnel_schlick(float NdotH, float3 F_0)
   {
     halfDir = fast_normalize(in + out);
     NdotH = max(dot(normal, halfDir), 0.0f);
-    freshnel = freshnel_schlick(NdotH, hit_object->F_0);
+    freshnel = freshnel_schlick(hit_object->F_0, NdotH);
     specular = cook_torrance_BRDF(in, out, normal, NdotH, hit_object);
 
     // printf("%f %f %f\n", freshnel[0], freshnel[1], freshnel[2]);

@@ -55,7 +55,7 @@ t_ray	create_ray(U __constant t_camera *camera, int i, int j)
 	return (ray);
 }
 
- int intersect_scene(t_ray ray, U __constant t_object *objects, U __constant t_object **hit_object, float *closest_t)
+ int intersect_scene(t_ray ray, U __constant t_object *objects, t_object *hit_object, float *closest_t)
  {
  	float2			t;
   *closest_t = INFINITY;
@@ -66,12 +66,12 @@ t_ray	create_ray(U __constant t_camera *camera, int i, int j)
  		if (t[0] > 0 && t[0] < *closest_t)
  		{
  			*closest_t = t[0];
- 			*hit_object = objects;
+ 			*hit_object = *objects;
  		}
  		if (t[1] > 0 && t[1] < *closest_t)
  		{
  			*closest_t = t[1];
-      *hit_object = objects;
+      *hit_object = *objects;
  		}
  		objects++;
  	}
@@ -81,29 +81,29 @@ t_ray	create_ray(U __constant t_camera *camera, int i, int j)
  }
 
 
-t_ray sample_hemisphere(float3 hit_point, float3 normal, unsigned int *seed0)
-{
-  t_ray new_ray;
-
-  new_ray.pos = hit_point + normal * 0.0001f;
-
-
-  /* compute two random numbers to pick a random point on the hemisphere above the hitpoint*/
-	float rand1 = 2.0f * M_PI * GetRandomFloat(seed0);
-	float rand2 = GetRandomFloat(seed0);
-	float rand2s = sqrt(rand2);
-
-  /* create a local orthogonal coordinate frame centered at the hitpoint */
-	float3 w = normal;
-	float3 axis = fabs(w.x) > 0.1f ? (float3)(0.0f, 1.0f, 0.0f) : (float3)(1.0f, 0.0f, 0.0f);
-	float3 u = normalize(cross(axis, w));
-	float3 v = cross(w, u);
-
-	/* use the coordinte frame and random numbers to compute the next ray direction */
-	new_ray.dir = fast_normalize(u * cos(rand1)*rand2s + v*sin(rand1)*rand2s + w*sqrt(1.0f - rand2));
-
-  return (new_ray);
-}
+// t_ray sample_hemisphere(float3 hit_point, float3 normal, unsigned int *seed0)
+// {
+//   t_ray new_ray;
+//
+//   new_ray.pos = hit_point + normal * 0.0001f;
+//
+//
+//   /* compute two random numbers to pick a random point on the hemisphere above the hitpoint*/
+// 	float rand1 = 2.0f * M_PI * GetRandomFloat(seed0);
+// 	float rand2 = GetRandomFloat(seed0);
+// 	float rand2s = sqrt(rand2);
+//
+//   /* create a local orthogonal coordinate frame centered at the hitpoint */
+// 	float3 w = normal;
+// 	float3 axis = fabs(w.x) > 0.1f ? (float3)(0.0f, 1.0f, 0.0f) : (float3)(1.0f, 0.0f, 0.0f);
+// 	float3 u = normalize(cross(axis, w));
+// 	float3 v = cross(w, u);
+//
+// 	/* use the coordinte frame and random numbers to compute the next ray direction */
+// 	new_ray.dir = fast_normalize(u * cos(rand1)*rand2s + v*sin(rand1)*rand2s + w*sqrt(1.0f - rand2));
+//
+//   return (new_ray);
+// }
 
 // t_ray sample_reflection(float3 hit_point, float3 normal, float3 view_dir, float roughness, unsigned int* seed0)
 // {
@@ -113,7 +113,7 @@ t_ray sample_hemisphere(float3 hit_point, float3 normal, unsigned int *seed0)
 //     return (t_ray){hit_point + normal * 1e-5f, reflect_dir};
 // }
 
-float3 get_normal(U __constant t_object *hit_object, float3 hit_point, float3 ray_dir)
+float3 get_normal(t_object *hit_object, float3 hit_point, float3 ray_dir)
 {
   float3 normal;
 
@@ -127,37 +127,45 @@ float3 get_normal(U __constant t_object *hit_object, float3 hit_point, float3 ra
 }
 
 
-float3 path_trace(t_ray in_ray, U __constant t_object *objects, unsigned int *seed0)
+float3 path_trace(t_ray in_ray, U __constant t_object *objects, t_sample_data sample_data)
 {
-  U __constant t_object *hit_object;
+  t_object hit_object;
   t_ray out_ray;
   float3 hit_point;
   float3 normal;
-  float3 brdf;
+  float3 bxdf;
   float t;
+  float2 seed;
+  float pdf;
   float3 accum_color = (float3)(0.0f, 0.0f, 0.0f);
   float3 mask = (float3)(1.0f, 1.0f, 1.0f);
  
-  int n_bounces = 2;
-  while (n_bounces-- > 0)
+  sample_data.n_bounce = 2;
+  while (sample_data.n_bounce-- > 0)
   {
     if (!intersect_scene(in_ray, objects, &hit_object, &t))
     {
       return(accum_color);
     }
     hit_point = in_ray.pos + in_ray.dir * t;
-    normal = get_normal(hit_object, hit_point, in_ray.dir);
-    out_ray = sample_hemisphere(hit_point, normal, seed0);
-    brdf = BRDF(in_ray.dir, out_ray.dir, normal, hit_object);
+    normal = get_normal(&hit_object, hit_point, in_ray.dir);
+    seed.x = sample_random(sample_data, 1);
+    seed.y = sample_random(sample_data, 2);
+
+    // out_ray = sample_hemisphere(hit_point, normal, seed0);
+    // brdf = BRDF(in_ray.dir, out_ray.dir, normal, &hit_object);
+  
+    bxdf = sample_bxdf(sample_random(sample_data, 3), seed, in_ray.dir, &out_ray.dir, normal, &hit_object, &pdf);
     // printf("brdf : %f %f %f\n", brdf[0], brdf[1], brdf[2]);
     // accum_color +=  brdf * max(0.0f, dot(in_ray.dir, normal)) * hit_object->emission * hit_object->color;  
     // mask *= brdf * fmax(dot(fast_normalize(out_ray.dir), normal), 0.0f);
       // return (accum_color + hit_object->emission);
-    accum_color += mask * hit_object->emission;
-    if (hit_object->obj_type == LIGHT)
-      return(accum_color);
-    mask *= brdf * max(dot(fast_normalize(out_ray.dir), normal), 0.0f);
+    // accum_color += mask * hit_object.emission;
+    if (hit_object.obj_type == LIGHT)
+      return(hit_object.emission * mask);
+    mask *= bxdf / pdf;
     in_ray = out_ray;
+    in_ray.pos = hit_point;
   }
   // printf("hit-----------------------\n");
   return (accum_color);
@@ -171,31 +179,30 @@ U __global uchar	*dst;
   t_ray ray;
 	float3			color = (float3)(0.0f, 0.0f, 0.0f);
 	float3			temp = (float3)(0.0f, 0.0f, 0.0f);
-	unsigned int					x;
-	unsigned int					y;
+	t_sample_data sample_data;
 
-	x = get_global_id(0);
-	y = get_global_id(1);
+	sample_data.x = get_global_id(0);
+	sample_data.y = get_global_id(1);
   // x = 1280 / 2;
   // y = 720 / 2;
 
-	ray = create_ray(camera, x, y);
+	ray = create_ray(camera, sample_data.x, sample_data.y);
 
-  int n_samples = 1000;
-  float inv_samples = 1.0f / n_samples;
+  sample_data.sample_index = 2000;
+  float inv_samples = 1.0f / sample_data.sample_index;
 
 
-  unsigned int seed = x + y * camera->line_length + HashUInt32(x);
+  // unsigned int seed = x + y * camera->line_length + HashUInt32(x);
 
-  while (--n_samples > 0)
+  while (--sample_data.sample_index > 0)
   {
-    // printf("%u\n", seed);
-    temp = path_trace(ray, objects, &seed) * inv_samples;
+    // printf("test\n");
+    temp = path_trace(ray, objects, sample_data) * inv_samples;
 
     color += temp;
   }
   // printf("%f %f %f\n", color.x, color[1], color[2]);
-	dst = addr + (y * camera->line_length + x * (camera->bytes_per_pixel));
+	dst = addr + (sample_data.y * camera->line_length + sample_data.x * (camera->bytes_per_pixel));
   // printf("%f %f %f\n", color[0], color[1], color[2]);
   // color *= 0xFF;
   unsigned int result = 0;

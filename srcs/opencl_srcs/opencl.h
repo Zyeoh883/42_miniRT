@@ -19,6 +19,8 @@
 #define LIGHT 'L'
 
 #define INV_PI 1 / (float)M_PI
+#define TWO_PI 2 * (float)M_PI
+
 
 typedef struct __attribute__((aligned(16))) s_camera
 {
@@ -65,6 +67,14 @@ typedef struct __attribute__((aligned(16))) s_object
 	};
 }				t_object;
 
+typedef struct __attribute__((aligned(16))) s_sample_data
+{
+  uint x;
+  uint y;
+  uint sample_index;
+  uint n_bounce;
+}       t_sample_data;
+
 float3			vector_normalize(float3 v);
 t_ray			create_ray(U __constant t_camera *camera, int i, int j);
 int				render_ray(t_ray ray, U __constant t_object *objects);
@@ -73,4 +83,13 @@ float2			intersect_ray_sphere(U __constant t_object *object, t_ray ray);
 float3			quat_rotate(float4 q, const float3 q_v);
 float2			ray_intersection(U __constant t_object *object, t_ray ray);
 
-float3       BRDF(float3 in, float3 out, float3 normal, U __constant t_object *hit_object);
+float3       BRDF(float3 in, float3 out, float3 normal, t_object *hit_object);
+
+
+float sample_random(t_sample_data sample_data, uint type);
+float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, t_object *hit_object, float *pdf);
+
+
+// utils
+
+float3 to_float3(float x);

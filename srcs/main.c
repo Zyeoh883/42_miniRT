@@ -42,6 +42,7 @@ void print_cl_error(cl_int error)
         case CL_MEM_OBJECT_ALLOCATION_FAILURE: printf("Error: CL_MEM_OBJECT_ALLOCATION_FAILURE\n"); break;
         case CL_INVALID_EVENT_WAIT_LIST: printf("Error: CL_INVALID_EVENT_WAIT_LIST\n"); break;
         case CL_OUT_OF_HOST_MEMORY: printf("Error: CL_OUT_OF_HOST_MEMORY\n"); break;
+        case CL_INVALID_VALUE: printf("Error: CL_INVALID_VALUE\n"); break;
         default: printf("Unknown OpenCL error: %d\n", error);
     }
 }
@@ -71,7 +72,7 @@ t_camera	*init_camera(t_data *data, int win_height, int win_width)
 t_opencl	*init_opencl(t_data *data)
 {
 	char		**c_files;
-	size_t		c_size[6];
+	size_t		c_size[9];
 	t_opencl	*opencl;
   cl_int ret;
 
@@ -79,22 +80,26 @@ t_opencl	*init_opencl(t_data *data)
 	if (!opencl)
 		exit(EXIT_FAILURE);
 
-	c_files = ft_calloc(7, sizeof(char *));
+	c_files = ft_calloc(9, sizeof(char *));
 	c_files[0] = read_cfile("srcs/opencl_srcs/opencl.h");
 	c_files[1] = read_cfile("srcs/opencl_srcs/ray.c"); // * load GPU source files
 	c_files[2] = read_cfile("srcs/opencl_srcs/opencl_vector.c");
 	c_files[3] = read_cfile("srcs/opencl_srcs/opencl_quaternion.c");
 	c_files[4] = read_cfile("srcs/opencl_srcs/opencl_object_intercept.c");
 	c_files[5] = read_cfile("srcs/opencl_srcs/brdf.c");
+	c_files[6] = read_cfile("srcs/opencl_srcs/bxdf.c");
+	c_files[7] = read_cfile("srcs/opencl_srcs/utils.c");
 	c_size[0] = ft_strlen(c_files[0]);
 	c_size[1] = ft_strlen(c_files[1]);
 	c_size[2] = ft_strlen(c_files[2]);
 	c_size[3] = ft_strlen(c_files[3]);
 	c_size[4] = ft_strlen(c_files[4]);
 	c_size[5] = ft_strlen(c_files[5]);
+	c_size[6] = ft_strlen(c_files[6]);
+	c_size[7] = ft_strlen(c_files[7]);
   printf("Loaded c_files\n");
 
-	ret = clGetPlatformIDs(10, opencl->platform, NULL);
+	ret = clGetPlatformIDs(2, opencl->platform, NULL);
 	if (ret != CL_SUCCESS)
 		print_cl_error(ret);
   ret = clGetDeviceIDs(opencl->platform[1], CL_DEVICE_TYPE_GPU, 1, &opencl->device, NULL);
@@ -135,7 +140,7 @@ t_opencl	*init_opencl(t_data *data)
   printf("Loaded params\n");
 
   // Create a program from the kernel source
-  opencl->program = clCreateProgramWithSource(opencl->context, 6, (const char **)c_files, c_size, &ret);
+  opencl->program = clCreateProgramWithSource(opencl->context, 8, (const char **)c_files, c_size, &ret);
 	if (ret != CL_SUCCESS)
 		print_cl_error(ret);
 
