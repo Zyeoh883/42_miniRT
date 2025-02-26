@@ -119,6 +119,47 @@ float3 sample_specular(float2 s, float3 in, float3* out, float3 normal,t_object 
     }
 }
 
+int check_checkerboard(float3 normal)
+{
+  float3 x_axis;
+  float3 y_axis;
+  float3 z_axis;
+
+  // int3 bools;
+  //
+  // bools.x = (int)floor(normal.x * 2.);
+  // bools.y = (int)floor(normal.y * 2);
+  // bools.z = (int)floor(normal.z * 2);
+
+  // bools.x = asin(fabs(cross(normal, (float3)(0, 1, 0))).x / fabs(normal).x);
+  // bools.x = (1 - dot(normal, (float3)(0, 0, 1)));
+  // bools.y = (int) 2 * (1 - dot(normal, (float3)(0, 1, 0)));
+  // bools.x = atan(normal.z * 0.5f);
+  //
+  // if (bools.x < 0)
+  //   bools.x += TWO_PI;
+  // bools.x = fmod(1.0f, bools.x);
+
+  // if ((bools.x + bools.y + bools.z) % 2 == 0)
+  //   return 1;
+
+  float theta;
+  float phi;
+
+  theta = acos(-normal.y);
+  phi = atan2(-normal.z, normal.x) + M_PI;
+
+  float u = phi * 0.5f * INV_PI;
+  float v = theta * INV_PI;
+
+  int tile_u = floor(u * 12.0f);
+  int tile_v = floor(v * 12.0f);
+
+  if ((tile_u + tile_v) % 2 == 0)
+    return 1;
+
+  return 0;
+}
 
 float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, t_object *hit_object, float *pdf)
 {
@@ -131,6 +172,12 @@ float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, 
   float diffuse_sampling_pdf;
 
   float3 bxdf;
+
+  if (hit_object->obj_type == SPHERE && check_checkerboard(normal))
+  {
+    *pdf = -1;
+    return (NULL);
+  }
 
   in = fast_normalize(in);
   // *out = fast_normalize(*out);

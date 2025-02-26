@@ -37,7 +37,7 @@ unsigned int HashUInt32(unsigned int x)
 
 // Linear congruential generator was here
 
-t_ray	create_ray(U __constant t_camera *camera, int i, int j)
+t_ray	create_ray(U __constant t_camera *camera, float i, float j)
 {
 	t_ray	ray;
 
@@ -142,7 +142,7 @@ float3 path_trace(t_ray in_ray, U __constant t_object *objects, t_sample_data sa
   while (sample_data.n_bounce-- > 0)
   {
     if (!intersect_scene(in_ray, objects, &hit_object, &t))
-      return(mask * 0.1f); 
+      return(mask * 0.5f); 
     hit_point = in_ray.pos + in_ray.dir * t;
     normal = get_normal(&hit_object, hit_point, in_ray.dir);
     seed.x = sample_random(sample_data, 1);
@@ -157,6 +157,8 @@ float3 path_trace(t_ray in_ray, U __constant t_object *objects, t_sample_data sa
     // mask *= brdf * fmax(dot(fast_normalize(out_ray.dir), normal), 0.0f);
       // return (accum_color + hit_object->emission);
     // accum_color += mask * hit_object.emission;
+    if (pdf == -1)
+      return 0;
     if (hit_object.obj_type == LIGHT)
       return(hit_object.emission * mask);
     mask *= bxdf / pdf;
@@ -164,7 +166,7 @@ float3 path_trace(t_ray in_ray, U __constant t_object *objects, t_sample_data sa
     in_ray.pos = hit_point + normal * 0.001f;
   }
   // printf("hit-----------------------\n");
-  return (mask * 0.1f);
+  return (mask * 0.5f);
 }
 
 
@@ -186,7 +188,7 @@ U __global uchar	*dst;
 
 
 
-  sample_data.sample_index = 1000;
+  sample_data.sample_index = 100;
   float inv_samples = 1.0f / sample_data.sample_index;
 
 
@@ -194,8 +196,13 @@ U __global uchar	*dst;
 
   while (--sample_data.sample_index > 0)
   {
-    // printf("test\n");
-    color += path_trace(ray, objects, sample_data);
+    // printf("test\n");sample_data.x, sample_data.y), objects, sample_data);
+    // color += path_trace(ray, objects, sample_data);
+    color += path_trace(create_ray(camera, sample_data.x, sample_data.y), objects, sample_data);
+    // color += path_trace(create_ray(camera, sample_data.x + 0.2, sample_data.y + 0.2), objects, sample_data);
+    // color += path_trace(create_ray(camera, sample_data.x - 0.2, sample_data.y - 0.2), objects, sample_data);
+    // color += path_trace(create_ray(camera, sample_data.x + 0.2, sample_data.y - 0.2), objects, sample_data);
+    // color += path_trace(create_ray(camera, sample_data.x - 0.2, sample_data.y + 0.2), objects, sample_data);
   }
 
   color *= inv_samples;

@@ -76,7 +76,7 @@ typedef struct __attribute__((aligned(16))) s_sample_data
 }       t_sample_data;
 
 float3			vector_normalize(float3 v);
-t_ray			create_ray(U __constant t_camera *camera, int i, int j);
+t_ray			create_ray(U __constant t_camera *camera, float i, float j);
 int				render_ray(t_ray ray, U __constant t_object *objects);
 float3			vector_scalar_product(const float3 v, const float scalar);
 float2			intersect_ray_sphere(U __constant t_object *object, t_ray ray);
