@@ -94,7 +94,7 @@ float3       BRDF(float3 in, float3 out, float3 normal, t_object *hit_object);
 
 
 float sample_random(t_sample_data sample_data, uint type);
-float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, t_object *hit_object, float *pdf);
+float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, t_object *hit_object, float *pdf, t_sample_data sample_data);
 
 
 // utils

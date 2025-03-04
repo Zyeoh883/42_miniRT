@@ -112,8 +112,7 @@ float3 sample_specular(float2 s, float3 in, float3* out, float3 normal,t_object 
         float G = V_SmithGGXCorrelated(n_dot_i, n_dot_o, hit_object->roughness_sqr);
 
         *pdf = D * n_dot_h / (4.0f * dot(wh, *out));
-  // if (n_dot_h == 0)
-  //   printf("here\n");
+
 
         return to_float3(D /* F */ * G);
     }
@@ -138,49 +137,144 @@ int check_checkerboard(float3 normal)
 
   return 0;
 }
-
-float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, t_object *hit_object, float *pdf)
+float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, t_object *hit_object, float *pdf, t_sample_data sample_data)
 {
-  float3 freshnel;
-  float specular_weight;
-  float diffuse_weight;
-  float inv_weight_sum;
+    #define M 4 // Number of candidates
+    float3 candidates[M];
+    float3 out_dirs[M];
+    float pdfs_proposal[M];
+    float weights[M];
+    float W = 0.0f;
 
-  float specular_sampling_pdf;
-  float diffuse_sampling_pdf;
+    // Precompute Fresnel term (same for all candidates)
+    float3 freshnel = freshnel_schlick(hit_object->F_0, dot(normal, -in)) * hit_object->specular_albedo;
+    float specular_weight = luma(freshnel);
+    float diffuse_weight = luma((1.0f - freshnel) * hit_object->diffuse_albedo);
+    float inv_weight_sum = 1.0f / (specular_weight + diffuse_weight + 1e-5f);
+    float specular_sampling_pdf = specular_weight * inv_weight_sum;
+    float diffuse_sampling_pdf = diffuse_weight * inv_weight_sum;
 
-  float3 bxdf;
+    // Generate M candidates
+    for (int i = 0; i < M; ++i)
+    {
+        // Generate unique seeds for each candidate
+        float seed_i = sample_random(sample_data, i + 6);
+        float2 s_i = (float2)(
+            sample_random(sample_data, i + 4),
+            sample_random(sample_data, i + 5)
+        );
 
-  // if (hit_object->obj_type == SPHERE && check_checkerboard(normal))
-  // {
-  //   *pdf = -1;
-  //   return (to_float3(0));
-  // }
+        // Temporary variables
+        float3 out_dir_i;
+        float pdf_proposal_i;
+        float3 bxdf_i;
 
-  in = fast_normalize(in);
+        // Choose between specular and diffuse
+        if (seed_i <= specular_sampling_pdf)
+        {
+            bxdf_i = freshnel * sample_specular(s_i, in, &out_dir_i, normal, hit_object, &pdf_proposal_i);
+            pdf_proposal_i *= specular_sampling_pdf;
+        }
+        else
+        {
+            bxdf_i = (1.0f - freshnel) * sample_diffuse(s_i, &out_dir_i, normal, hit_object->diffuse_albedo, &pdf_proposal_i);
+            pdf_proposal_i *= diffuse_sampling_pdf;
+        }
 
-  freshnel = freshnel_schlick(hit_object->F_0, dot(normal, -in)) * hit_object->specular_albedo;
+        // Store results
+        candidates[i] = bxdf_i;
+        out_dirs[i] = out_dir_i;
+        pdfs_proposal[i] = pdf_proposal_i;
 
-  specular_weight = luma(hit_object->specular_albedo * freshnel);
-  diffuse_weight = luma(hit_object->diffuse_albedo * (1 - freshnel));
-  inv_weight_sum = 1 / (specular_weight + diffuse_weight);
+        // Compute weight (handle zero PDF to avoid NaNs)
+        float weight_i = select(0.0f, luma(bxdf_i / pdf_proposal_i), (int)(pdf_proposal_i > 0.0f));
+        // float weight_i = (pdf_proposal_i > 0.0f) ? luma(bxdf_i / pdf_proposal_i) : 0.0f;
+        weights[i] = weight_i;
+        W += weight_i;
+    }
 
-  specular_sampling_pdf = specular_weight * inv_weight_sum;
-  diffuse_sampling_pdf = diffuse_weight * inv_weight_sum;
+    // Handle zero total weight
+    if (W <= 0.0f)
+    {
+        *pdf = 0.0f;
+        return (float3)(0.0f);
+    }
 
+    // Select a candidate based on weights
+    float selector = sample_random(sample_data, 7);
+    float accum = 0.0f;
+    int selected = 0;
+    for (int i = 0; i < M; ++i)
+    {
+        accum += weights[i] / W;
+        if (selector <= accum)
+        {
+            selected = i;
+            break;
+        }
+    }
 
-  if (seed <= specular_sampling_pdf)
-  {
-    bxdf = freshnel * sample_specular(s, in, out, normal, hit_object, pdf);
-    *pdf *= specular_sampling_pdf;
-  }
-  else
-  {
-    bxdf = (1 - freshnel) * sample_diffuse(s, out, normal, hit_object->diffuse_albedo, pdf);
-    *pdf *= diffuse_sampling_pdf;
-  }
+    // Set output and PDF
+    *out = out_dirs[selected];
+    *pdf = W / (M * pdfs_proposal[selected]); // Effective PDF after resampling
 
-  if (*pdf == 0)
-    *pdf = 1e-5f;
-  return bxdf * fmax(dot(*out, normal), 0.0f);
+    // Return adjusted BxDF contribution
+    return (candidates[selected] * M) / W;
 }
+// float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, t_object *hit_object, float *pdf)
+// {
+//   float3 freshnel;
+//   float specular_weight;
+//   float diffuse_weight;
+//   float inv_weight_sum;
+//
+//   float specular_sampling_pdf;
+//   float diffuse_sampling_pdf;
+//
+//   float3 bxdf;
+//
+//   // if (hit_object->obj_type == SPHERE && check_checkerboard(normal))
+//   // {
+//   //   *pdf = -1;
+//   //   return (to_float3(0));
+//   // }
+//
+//   in = fast_normalize(in);
+//
+//   freshnel = freshnel_schlick(hit_object->F_0, dot(normal, -in)) * hit_object->specular_albedo;
+//
+//   specular_weight = luma(hit_object->specular_albedo * freshnel);
+//   diffuse_weight = luma(hit_object->diffuse_albedo * (1 - freshnel));
+//   inv_weight_sum = 1 / (specular_weight + diffuse_weight);
+//
+//   specular_sampling_pdf = specular_weight * inv_weight_sum;
+//   diffuse_sampling_pdf = diffuse_weight * inv_weight_sum;
+//
+//   // int condition = seed <= specular_sampling_pdf; 
+//   // //                         // seed <= specular_sampling_pdf,
+//   // //                         // seed <= specular_sampling_pdf); 
+//   // //
+//   // // // condition.x = seed <= specular_sampling_pdf;
+//   // //
+//   // bxdf = select(1 - freshnel, freshnel, (int3) condition);
+//   // bxdf *= select(sample_diffuse(s, out, normal, hit_object->diffuse_albedo, pdf)
+//   //             , sample_specular(s, in, out, normal, hit_object, pdf)
+//   //             , (int3)condition);
+//   // *pdf *= select(diffuse_sampling_pdf, specular_sampling_pdf, condition);
+//
+//   if (seed <= specular_sampling_pdf)
+//   {
+//     bxdf = freshnel * sample_specular(s, in, out, normal, hit_object, pdf);
+//     *pdf *= specular_sampling_pdf;
+//   }
+//   else
+//   {
+//     bxdf = (1 - freshnel) * sample_diffuse(s, out, normal, hit_object->diffuse_albedo, pdf);
+//     *pdf *= diffuse_sampling_pdf;
+//   }
+//
+//   *pdf = select(*pdf, 1e-5f, *pdf == 0);
+//   // if (*pdf == 0)
+//   //   *pdf = 1e-5f;
+//   return bxdf * fmax(dot(*out, normal), 0.0f);
+// }

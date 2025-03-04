@@ -53,26 +53,39 @@ t_ray	create_ray(U __constant t_camera *camera, float i, float j)
 
  int intersect_scene(t_ray ray, U __constant t_object *objects, t_object *hit_object, float *closest_t)
  {
+  uint condition;
+  uint index;
+  uint object_index;
  	float2			t;
   *closest_t = INFINITY;
 
- 	while (objects->obj_type != 0)
+  index = -1;
+ 	while (objects[++index].obj_type != 0)
  	{
- 		t = ray_intersection(objects, ray);
- 		if (t[0] > 0 && t[0] < *closest_t)
- 		{
- 			*closest_t = t[0];
- 			*hit_object = *objects;
- 		}
- 		if (t[1] > 0 && t[1] < *closest_t)
- 		{
- 			*closest_t = t[1];
-      *hit_object = *objects;
- 		}
- 		objects++;
+ 		t = ray_intersection(objects + index, ray);
+    condition = (t[0] > 0 && t[0] < *closest_t);
+    *closest_t = select(*closest_t, t[0], condition);
+    object_index = select(object_index, index, condition);
+    
+    condition = (t[1] > 0 && t[1] < *closest_t);
+    *closest_t = select(*closest_t, t[1], condition);
+    object_index = select(object_index, index, condition);
+
+ 		// if (t[0] > 0 && t[0] < *closest_t)
+ 		// {
+ 		// 	*closest_t = t[0];
+ 		// 	*hit_object = *objects;
+ 		// }
+ 		// if (t[1] > 0 && t[1] < *closest_t)
+ 		// {
+ 		// 	*closest_t = t[1];
+ 		//    *hit_object = *objects;
+ 		// }
+ 		// objects++;
  	}
    if (*closest_t == INFINITY)
      return 0;
+  *hit_object = objects[object_index];
    return 1;
  }
 
@@ -113,13 +126,17 @@ float3 get_normal(t_object *hit_object, float3 hit_point, float3 ray_dir)
 {
   float3 normal;
 
-  if (hit_object->obj_type == SPHERE)
-    normal = hit_point - hit_object->pos;
-  else if (hit_object->obj_type == PLANE)
-    normal = hit_object->dir;
+  normal = select(normal, hit_point - hit_object->pos, (int3)(hit_object->obj_type == SPHERE) << 31);
+  normal = select(normal, hit_object->dir, (int3)(hit_object->obj_type == PLANE) << 31);
+
+  // if (hit_object->obj_type == SPHERE)
+  //   normal = hit_point - hit_object->pos;
+  // else if (hit_object->obj_type == PLANE)
+  //   normal = hit_object->dir;
 
   normal = fast_normalize(normal);
-	return (dot(normal, ray_dir) < 0.0f ? normal : -normal);
+	// return (dot(normal, ray_dir) < 0.0f ? normal : -normal);
+  return (select(normal, -normal, (int3)(dot(normal, ray_dir) > 0) << 31));
 }
 
 
@@ -147,7 +164,7 @@ float3 path_trace(t_ray in_ray, U __constant t_object *objects, t_sample_data sa
     normal = get_normal(&hit_object, hit_point, in_ray.dir);
     seed.x = sample_random(sample_data, 1);
     seed.y = sample_random(sample_data, 2);
-    bxdf = sample_bxdf(sample_random(sample_data, 3), seed, in_ray.dir, &out_ray.dir, normal, &hit_object, &pdf);
+    bxdf = sample_bxdf(sample_random(sample_data, 3), seed, in_ray.dir, &out_ray.dir, normal, &hit_object, &pdf, sample_data);
     if (pdf == -1)
       return 0;
     if (hit_object.obj_type == LIGHT)
