@@ -37,16 +37,15 @@ typedef struct __attribute__ ((aligned(16))) s_cyclinder
 
 typedef struct __attribute__ ((aligned(16))) s_OBB
 {
-	cl_float4		pos;
-	cl_float4		quat;
-	cl_float4		half_len;
+	cl_float3		quat;
+	cl_float3		half_len;
 }						t_OBB;
 
-	// struct s_OBB obb;
 typedef struct __attribute__ ((aligned(16))) s_object
 {
+	/*struct s_OBB		obb;*/
 	cl_uchar		obj_type;
-	cl_uchar		mat_type; // D, M, G, R, P
+	/*cl_uchar		mat_type; // D, M, G, R, P*/
 	cl_int			color;
 	cl_float3		pos;
 	cl_float3		dir;
@@ -55,8 +54,8 @@ typedef struct __attribute__ ((aligned(16))) s_object
   cl_float3   specular_albedo; 
   cl_float3   F_0; // basic_reflectivity; // F_0 Freshnel component
   cl_float    roughness_sqr; // NDF and geometric component
-  cl_float    metallic; // diffuse and specular blending
-  cl_float    k_specular;
+  /*cl_float    metallic; // diffuse and specular blending*/
+  /*cl_float    k_specular;*/
   cl_float3    emission; 
 	union
 	{

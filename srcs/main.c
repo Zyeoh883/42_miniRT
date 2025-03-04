@@ -210,14 +210,12 @@ int	initialize(t_data *data, char *filename)
 	data->inputs.mouse_x = data->win_width * 0.5f;
 	data->inputs.mouse_y = data->win_height * 0.5f;
 	data->inputs.pitch_angle = 0;
-	data->camera = init_camera(data, data->win_height, data->win_width); 
-	mlx_mouse_move(data->mlx_ptr, data->win_ptr, data->win_width * 0.5f, data->win_height * 0.5f);
+	data->camera = init_camera(data, data->win_height, data->win_width);
+  mlx_mouse_move(data->mlx_ptr, data->win_ptr, data->inputs.mouse_x, data->inputs.mouse_y);
 
   // t_object *temp = data->objects;
-
   // printf("%c %x, %F %F %F, %F %F %F, %f\n", temp->type, temp->color, (double)(temp->pos.s[0]), (double)(temp->pos.s[1]), (double)temp->pos.s[2], (double)temp->quat.s[0], (double)temp->quat.s[1], (double)temp->quat.s[2], temp->sphere.radius);
-
-
+  data->inputs.update = 1;
 	data->num_objects = count_objects(data->objects);
 	data->opencl = init_opencl(data);
   render_frame(data);
@@ -234,10 +232,12 @@ int	render_frame(t_data *data)
 	// size_t local_size[2];
 	double	time_start;
   static double average = 0;
-  static int count = 0;
+  // static int count = 0;
 
   // printf("Start render_frame\n");
   deal_input(data);
+  if (!data->inputs.update)
+    return 0;
   // printf("Dealt input\n");
 
   opencl = data->opencl;
@@ -282,12 +282,13 @@ int	render_frame(t_data *data)
 
   // printf("Queued all Buffers\n");
 
-	average += (double)clock() / CLOCKS_PER_SEC - time_start;
+	average = (double)clock() / CLOCKS_PER_SEC - time_start;
   while ((double)clock() / CLOCKS_PER_SEC - time_start < 0.0020f)
 		usleep(50);
 
-	printf("%f\n", average / ++count);
+	printf("%f\n", 1 / average);
 	mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, data->img, 0, 0);
+  data->inputs.update = 0;
   return 0;
 }
 // fflush(stdout);
@@ -303,9 +304,9 @@ int	main(int ac, char **av)
 	mlx_hook(data.win_ptr, 2, 1L << 0, deal_key_press, &data);
 	mlx_hook(data.win_ptr, 3, 1L << 1, deal_key_release, &data);
 	// mlx_hook(data.win_ptr, 0, 0,deal_input, &data);
+  mlx_hook(data.win_ptr, 6, 1L << 6, mouse_hook, &data);
 	mlx_loop_hook(data.mlx_ptr, render_frame, &data);
-	mlx_hook(data.win_ptr, 6, 1L << 6, mouse_hook, &data);
-	mlx_loop(data.mlx_ptr);
+  mlx_loop(data.mlx_ptr);
 	return (0);
 }
 

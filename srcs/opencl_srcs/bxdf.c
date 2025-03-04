@@ -121,28 +121,6 @@ float3 sample_specular(float2 s, float3 in, float3* out, float3 normal,t_object 
 
 int check_checkerboard(float3 normal)
 {
-  float3 x_axis;
-  float3 y_axis;
-  float3 z_axis;
-
-  // int3 bools;
-  //
-  // bools.x = (int)floor(normal.x * 2.);
-  // bools.y = (int)floor(normal.y * 2);
-  // bools.z = (int)floor(normal.z * 2);
-
-  // bools.x = asin(fabs(cross(normal, (float3)(0, 1, 0))).x / fabs(normal).x);
-  // bools.x = (1 - dot(normal, (float3)(0, 0, 1)));
-  // bools.y = (int) 2 * (1 - dot(normal, (float3)(0, 1, 0)));
-  // bools.x = atan(normal.z * 0.5f);
-  //
-  // if (bools.x < 0)
-  //   bools.x += TWO_PI;
-  // bools.x = fmod(1.0f, bools.x);
-
-  // if ((bools.x + bools.y + bools.z) % 2 == 0)
-  //   return 1;
-
   float theta;
   float phi;
 
@@ -173,14 +151,13 @@ float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, 
 
   float3 bxdf;
 
-  if (hit_object->obj_type == SPHERE && check_checkerboard(normal))
-  {
-    *pdf = -1;
-    return (NULL);
-  }
+  // if (hit_object->obj_type == SPHERE && check_checkerboard(normal))
+  // {
+  //   *pdf = -1;
+  //   return (to_float3(0));
+  // }
 
   in = fast_normalize(in);
-  // *out = fast_normalize(*out);
 
   freshnel = freshnel_schlick(hit_object->F_0, dot(normal, -in)) * hit_object->specular_albedo;
 
@@ -205,7 +182,5 @@ float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, 
 
   if (*pdf == 0)
     *pdf = 1e-5f;
-  // if (*pdf == 0)
-  //   printf("here\n");
   return bxdf * fmax(dot(*out, normal), 0.0f);
 }

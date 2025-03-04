@@ -147,16 +147,7 @@ float3 path_trace(t_ray in_ray, U __constant t_object *objects, t_sample_data sa
     normal = get_normal(&hit_object, hit_point, in_ray.dir);
     seed.x = sample_random(sample_data, 1);
     seed.y = sample_random(sample_data, 2);
-
-    // out_ray = sample_hemisphere(hit_point, normal, seed0);
-    // brdf = BRDF(in_ray.dir, out_ray.dir, normal, &hit_object);
-  
     bxdf = sample_bxdf(sample_random(sample_data, 3), seed, in_ray.dir, &out_ray.dir, normal, &hit_object, &pdf);
-    // printf("brdf : %f %f %f\n", brdf[0], brdf[1], brdf[2]);
-    // accum_color +=  brdf * max(0.0f, dot(in_ray.dir, normal)) * hit_object->emission * hit_object->color;  
-    // mask *= brdf * fmax(dot(fast_normalize(out_ray.dir), normal), 0.0f);
-      // return (accum_color + hit_object->emission);
-    // accum_color += mask * hit_object.emission;
     if (pdf == -1)
       return 0;
     if (hit_object.obj_type == LIGHT)
@@ -188,7 +179,7 @@ U __global uchar	*dst;
 
 
 
-  sample_data.sample_index = 100;
+  sample_data.sample_index = 50;
   float inv_samples = 1.0f / sample_data.sample_index;
 
 

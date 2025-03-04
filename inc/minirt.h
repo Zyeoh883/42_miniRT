@@ -72,6 +72,7 @@ typedef struct __attribute__ ((aligned(16))) s_inputs
 	int mouse_y;
 	int	shift;
 	float pitch_angle; // * Moved pitch angle to inputs
+  int update;
 }						t_inputs;
 
 typedef struct __attribute__ ((aligned(16))) s_data
@@ -108,6 +109,7 @@ void	assign_sphere(t_object *object, char **split);
 void	assign_plane(t_object *object, char **split);
 void	assign_light(t_object *object, char **split);
 
+t_OBB	assign_sphere_obb(t_sphere sphere);
 
 // tests
 // void			vector_test(void);

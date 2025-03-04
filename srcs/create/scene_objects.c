@@ -16,6 +16,7 @@
 t_object	*assign_object(char *line)
 {
   t_object	*object;
+  float metallic;
   char **split;
 
   object = ft_calloc(1, sizeof(t_object));
@@ -37,24 +38,36 @@ t_object	*assign_object(char *line)
   // printf("%c %x %f %f %f\n",object->obj_type, object->color, object->albedo.x, object->albedo.y, object->albedo.z);
 	object->pos = get_vec_value(split[2]);
   // object->mat_type = split[4] ? *split[4] : 'D';
-  object->F_0 = (cl_float3){{0.5, 0.5, 0.5}}; 
-  object->metallic = 0.5f;
-  object->specular_albedo = (cl_float3){{ object->diffuse_albedo.x * object->metallic,
-                        object->diffuse_albedo.y *  object->metallic,
-                        object->diffuse_albedo.z *  object->metallic }};
-  object->diffuse_albedo = (cl_float3){{ object->diffuse_albedo.x * (1 - object->metallic),
-                        object->diffuse_albedo.y * (1 - object->metallic),
-                        object->diffuse_albedo.z * (1 - object->metallic)}}; 
-  object->roughness_sqr = 0.5e-2f;
+  object->F_0 = (cl_float3){{0.5, 0.5, 0.5}}; // never 0.0f 
+  metallic = 0.5f;
+  object->specular_albedo = (cl_float3){{ object->diffuse_albedo.x * metallic,
+                        object->diffuse_albedo.y *  metallic,
+                        object->diffuse_albedo.z *  metallic }};
+  object->diffuse_albedo = (cl_float3){{ object->diffuse_albedo.x * (1 - metallic),
+                        object->diffuse_albedo.y * (1 - metallic),
+                        object->diffuse_albedo.z * (1 - metallic)}}; 
+  object->roughness_sqr = 0.5e-4f;
   // object->emission = (cl_float3){{0.05f, 0.05f, 0.05f}};
   free_str_arr(split);
 	return (object);
+}
+
+t_OBB	assign_sphere_obb(t_sphere sphere)
+{
+	t_OBB	obb;
+
+	// obb.pos = sphere.pos;
+	// obb.quat = sphere.quat;
+	// obb.half_len = _mm_set_ps(sphere.radius, sphere.radius, sphere.radius, 0);
+	obb.half_len = to_float3(sphere.radius);
+  return (obb);
 }
 
 void	assign_sphere(t_object *object, char **split)
 {
   object->obj_type = SPHERE;
   object->sphere.radius =  ft_atoi(split[3]);
+  // object->obb = assign_sphere_obb(object->sphere);
 }
 
 void	assign_plane(t_object *object, char **split)
@@ -68,6 +81,7 @@ void	assign_light(t_object *object, char **split)
   object->obj_type = LIGHT;
   object->sphere.radius =  ft_atoi(split[3]);
   object->emission = (cl_float3){{100.0f, 100.0f, 100.0f}};
+  // object->obb = assign_sphere_obb(object->sphere);
 }
 
 t_cyclinder	assign_cyclinder(cl_float radius, cl_float height)

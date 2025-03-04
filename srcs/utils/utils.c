@@ -134,3 +134,9 @@ cl_float3 inv_rgb_float(int rgb)
     (float)((rgb % 0x100) / 0xFF)
   }});
 }
+
+cl_float3 to_float3(float x)
+{
+    return (cl_float3){{x, x, x}};
+}
+

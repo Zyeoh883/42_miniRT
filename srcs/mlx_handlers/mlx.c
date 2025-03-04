@@ -85,8 +85,11 @@ int	deal_key_press(int key, t_data *data) // ! does not free
 int	deal_input(t_data *data)
 {
 	if (data->inputs.key == -1 && !data->inputs.key_wasd[0] && !data->inputs.key_wasd[1] && !data->inputs.key_wasd[2] && !data->inputs.key_wasd[3])
-		return (0);
-	input_translate(data, data->inputs);
+	{
+    return (0);
+  }
+  data->inputs.update = 1;
+  input_translate(data, data->inputs);
 	// ! add slerp to reset key
 	// else if (data->inputs.key == B_KEY && !data->inputs.key_held)
 	// {
@@ -116,7 +119,8 @@ int	mouse_hook(int x, int y, t_data *data)
 
   if (!dy && !dx)
     return 0;
-
+  
+  data->inputs.update = 1;
 
 	// input_translate(data, data->inputs);
 	// deal_input(data);

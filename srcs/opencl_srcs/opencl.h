@@ -46,10 +46,17 @@ typedef struct __attribute__((aligned(16))) s_sphere
 	float	radius;
 }				t_sphere;
 
+/*typedef struct __attribute__ ((aligned(16))) s_OBB*/
+/*{*/
+/*	float3		quat;*/
+/*	float3		half_len;*/
+/*}						t_OBB;*/
+
 typedef struct __attribute__((aligned(16))) s_object
 {
+	/*struct s_OBB		obb;*/
 	uchar		obj_type;
-  uchar   mat_type;
+  /*uchar   mat_type;*/
 	int			color;
 	float3	pos;
 	float3	dir;
@@ -58,8 +65,8 @@ typedef struct __attribute__((aligned(16))) s_object
   float3  specular_albedo;
   float3  F_0;
   float   roughness_sqr;
-  float   metallic;
-  float   k_specular;
+  /*float   metallic;*/
+  /*float   k_specular;*/
   float3   emission; 
 	union
 	{

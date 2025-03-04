@@ -53,4 +53,5 @@ cl_float4	quat_normalize(cl_float4 q);
 
 void		print_vector(cl_float4 v);
 
+cl_float3 to_float3(float x);
 #endif

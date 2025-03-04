@@ -96,44 +96,44 @@ float3 freshnel_schlick(float3 F_0, float NdotH)
  }
 
 // {in : incoming ray}, {out : outgoing ray}, {normal : normal vector of surface}
- float3 BRDF(float3 in, float3 out, float3 normal, t_object *hit_object)
- {
-  float3 halfDir;
-  float3 diffuse;
-  float3 specular;
-  float3 freshnel;
-  float NdotH;
-  
-  in = fast_normalize(in);  // Normalize incoming ray
-  out = fast_normalize(out); // Normalize outgoing ray
-  // hit_object->F_0 = mix((float3)(0.04f), hit_object->diffuse_albedo, hit_object->metallic);
-  // printf("%f %f %f\n", in[0], in[1], in[2]);
-  if (hit_object->mat_type == 'D')
-    return (lambertian_BRDF(hit_object->diffuse_albedo));
-  diffuse = lambertian_BRDF((1 - hit_object->metallic) * hit_object->diffuse_albedo);
-   // if (hit_object->mat_type == 'D')
-   //   return (lambertian_BRDF(hit_object->albedo));
-  /*printf("Metallic: %f, Roughness: %f, F0: (%f, %f, %f)\n",*/
-  /*     hit_object->metallic, hit_object->roughness_sqr,*/
-  /*     hit_object->F_0.x, hit_object->F_0.y, hit_object->F_0.z);*/
-   if (hit_object->mat_type == 'M')
-  {
-    halfDir = fast_normalize(in + out);
-    NdotH = max(dot(normal, halfDir), 0.0f);
-    freshnel = freshnel_schlick(hit_object->F_0, NdotH);
-    specular = cook_torrance_BRDF(in, out, normal, NdotH, hit_object);
-
-    // printf("%f %f %f\n", freshnel[0], freshnel[1], freshnel[2]);
-
-    // return (specular);
-    float3 kD = (1.0f - freshnel) * (1.0f - hit_object->metallic);
-    return (kD * diffuse + freshnel * specular);
-    return (mix(diffuse, specular, freshnel));
-    // return ((1.0f - freshnel) * diffuse + freshnel * specular);
-    // ambert (diffuse) + Cook-Torrance (specular)
-  }
-   return (diffuse);  
-
- }
-
+ // float3 BRDF(float3 in, float3 out, float3 normal, t_object *hit_object)
+ // {
+ //  float3 halfDir;
+ //  float3 diffuse;
+ //  float3 specular;
+ //  float3 freshnel;
+ //  float NdotH;
+ //
+ //  in = fast_normalize(in);  // Normalize incoming ray
+ //  out = fast_normalize(out); // Normalize outgoing ray
+ //  // hit_object->F_0 = mix((float3)(0.04f), hit_object->diffuse_albedo, hit_object->metallic);
+ //  // printf("%f %f %f\n", in[0], in[1], in[2]);
+ //  if (hit_object->mat_type == 'D')
+ //    return (lambertian_BRDF(hit_object->diffuse_albedo));
+ //  diffuse = lambertian_BRDF((1 - hit_object->metallic) * hit_object->diffuse_albedo);
+ //   // if (hit_object->mat_type == 'D')
+ //   //   return (lambertian_BRDF(hit_object->albedo));
+ //  /*printf("Metallic: %f, Roughness: %f, F0: (%f, %f, %f)\n",*/
+ //  /*     hit_object->metallic, hit_object->roughness_sqr,*/
+ //  /*     hit_object->F_0.x, hit_object->F_0.y, hit_object->F_0.z);*/
+ //   if (hit_object->mat_type == 'M')
+ //  {
+ //    halfDir = fast_normalize(in + out);
+ //    NdotH = max(dot(normal, halfDir), 0.0f);
+ //    freshnel = freshnel_schlick(hit_object->F_0, NdotH);
+ //    specular = cook_torrance_BRDF(in, out, normal, NdotH, hit_object);
+ //
+ //    // printf("%f %f %f\n", freshnel[0], freshnel[1], freshnel[2]);
+ //
+ //    // return (specular);
+ //    float3 kD = (1.0f - freshnel) * (1.0f - hit_object->metallic);
+ //    return (kD * diffuse + freshnel * specular);
+ //    return (mix(diffuse, specular, freshnel));
+ //    // return ((1.0f - freshnel) * diffuse + freshnel * specular);
+ //    // ambert (diffuse) + Cook-Torrance (specular)
+ //  }
+ //   return (diffuse);  
+ //
+ // }
+ //
 
