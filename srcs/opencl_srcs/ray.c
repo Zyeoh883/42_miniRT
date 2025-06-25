@@ -159,7 +159,9 @@ float3 path_trace(t_ray in_ray, U __constant t_object *objects, t_sample_data sa
   while (sample_data.n_bounce-- > 0)
   {
     if (!intersect_scene(in_ray, objects, &hit_object, &t))
-      return(mask * 0.5f); 
+      return(mask * 0.5f);
+    if (t < 1e-2f)
+      return (mask * 0.5f);
     hit_point = in_ray.pos + in_ray.dir * t;
     normal = get_normal(&hit_object, hit_point, in_ray.dir);
     seed.x = sample_random(sample_data, 1);
@@ -177,6 +179,12 @@ float3 path_trace(t_ray in_ray, U __constant t_object *objects, t_sample_data sa
   return (mask * 0.5f);
 }
 
+inline float linear_to_gamma(float x)
+{
+  if (x > 0)
+    return(sqrt(x));
+  return 0;
+}
 
 __kernel void	render_scene(U __global uchar *addr,
 	U __constant t_camera *camera, U __constant t_object *objects)
@@ -196,7 +204,7 @@ U __global uchar	*dst;
 
 
 
-  sample_data.sample_index = 50;
+  sample_data.sample_index = 10;
   float inv_samples = 1.0f / sample_data.sample_index;
 
 
@@ -222,9 +230,9 @@ U __global uchar	*dst;
   // if (color[0] > 0.1f && color[1] > 0.1f && color[2] > 0.1f)
   //   printf("%f %f %f\n", color[0], color[1], color[2]);
   // printf("%f %f %f\n", color[0], color[1], color[2]);
-  result += (unsigned int)(fmin(color.x, 1.0f) * 0xFF) << 16;
-  result += (unsigned int)(fmin(color.y, 1.0f) * 0xFF) << 8;
-  result += (unsigned int)(fmin(color.z, 1.0f) * 0xFF);
+  result += (unsigned int)(fmin(linear_to_gamma(color.x), 1.0f) * 0xFF) << 16;
+  result += (unsigned int)(fmin(linear_to_gamma(color.y), 1.0f) * 0xFF) << 8;
+  result += (unsigned int)(fmin(linear_to_gamma(color.z), 1.0f) * 0xFF);
   // if (result >= 0xFAFAFA)
   //     printf("%f %f %f\n", color[0], color[1], color[2]);
   // printf("%f %f %f\n", camera->pos[0], camera->pos[1], camera->pos[2]);
