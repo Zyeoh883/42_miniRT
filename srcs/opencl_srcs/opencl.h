@@ -34,7 +34,7 @@ typedef struct __attribute__((aligned(16))) s_reservoir
   t_candidate candidate;
   float weighted_sum;
   int M;
-}       t_reservior;
+}       t_reservoir;
 
 typedef struct __attribute__((aligned(16))) s_camera
 {
@@ -109,7 +109,7 @@ float3       BRDF(float3 in, float3 out, float3 normal, t_object *hit_object);
 
 float sample_random(t_sample_data sample_data, uint type);
 float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, t_object *hit_object, float *pdf, t_sample_data sample_data);
-
+float luma(float3 rgb);
 
 // utils
 

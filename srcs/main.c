@@ -21,8 +21,6 @@
 // XCloseDisplay(debug_display);
 //
 
-
-
 void print_cl_error(cl_int error)
 {
     switch (error) {

@@ -89,7 +89,7 @@ float3 sample_specular(float2 s, float3 in, float3* out, float3 normal,t_object 
 {
   float n_dot_o;
   float n_dot_h;
-  float n_dot_i;
+  float n_dot;
   float h_dot_o;
   float3 wh;
 
@@ -108,13 +108,13 @@ float3 sample_specular(float2 s, float3 in, float3* out, float3 normal,t_object 
 
         n_dot_o = dot(normal, *out);
         n_dot_h = dot(normal, wh);
-        n_dot_i = dot(normal, -in);
+        n_dot = dot(normal, -in);
         h_dot_o = dot(*out, wh);
 
         float D = NDF_GGX(hit_object->roughness_sqr, n_dot_h);
         // Don't apply fresnel here, it's applied in the external function
         //float3 F = FresnelSchlick(f0, h_dot_o);
-        float G = V_SmithGGXCorrelated(n_dot_i, n_dot_o, hit_object->roughness_sqr);
+        float G = V_SmithGGXCorrelated(n_dot, n_dot_o, hit_object->roughness_sqr);
 
         *pdf = D * n_dot_h / (4.0f * dot(wh, *out));
 
@@ -144,12 +144,13 @@ int check_checkerboard(float3 normal)
 }
 float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, t_object *hit_object, float *pdf, t_sample_data sample_data)
 {
-    #define M 1 // Number of candidates
-    float3 candidates[M];
-    float3 out_dirs[M];
-    float pdfs_proposal[M];
-    float weights[M];
-    float W = 0.0f;
+    // #define M 1 // Number of candidates
+    // int i = 0;
+    // float3 candidates[M];
+    // float3 out_dirs[M];
+    // float pdfs_proposal[M];
+    // float weights[M];
+    // float W = 0.0f;
 
     // Precompute Fresnel term (same for all candidates)
     float3 freshnel = freshnel_schlick(hit_object->F_0, dot(normal, -in)) * hit_object->specular_albedo;
@@ -159,72 +160,70 @@ float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, 
     float specular_sampling_pdf = specular_weight * inv_weight_sum;
     float diffuse_sampling_pdf = diffuse_weight * inv_weight_sum;
 
-    // Generate M candidates
-    for (int i = 0; i < M; ++i)
+
+
+    // float seed = sample_random(sample_data, i + 6);
+    // float2 s = (float2)(
+    //     sample_random(sample_data, i + 4),
+    //     sample_random(sample_data, i + 5)
+    // );
+
+    // Temporary variables
+    float3 out_dir;
+    float pdf_proposal;
+    float3 bxdf;
+
+    // Choose between specular and diffuse
+    if (seed <= specular_sampling_pdf)
     {
-        // Generate unique seeds for each candidate
-        float seed_i = sample_random(sample_data, i + 6);
-        float2 s_i = (float2)(
-            sample_random(sample_data, i + 4),
-            sample_random(sample_data, i + 5)
-        );
-
-        // Temporary variables
-        float3 out_dir_i;
-        float pdf_proposal_i;
-        float3 bxdf_i;
-
-        // Choose between specular and diffuse
-        if (seed_i <= specular_sampling_pdf)
-        {
-            bxdf_i = freshnel * sample_specular(s_i, in, &out_dir_i, normal, hit_object, &pdf_proposal_i);
-            pdf_proposal_i *= specular_sampling_pdf;
-        }
-        else
-        {
-            bxdf_i = (1.0f - freshnel) * sample_diffuse(s_i, &out_dir_i, normal, hit_object->diffuse_albedo, &pdf_proposal_i);
-            pdf_proposal_i *= diffuse_sampling_pdf;
-        }
-
-        // Store results
-        candidates[i] = bxdf_i;
-        out_dirs[i] = out_dir_i;
-        pdfs_proposal[i] = pdf_proposal_i;
-
-        // Compute weight (handle zero PDF to avoid NaNs)
-        float weight_i = select(0.0f, luma(bxdf_i / pdf_proposal_i), (int)(pdf_proposal_i > 0.0f));
-        // float weight_i = (pdf_proposal_i > 0.0f) ? luma(bxdf_i / pdf_proposal_i) : 0.0f;
-        weights[i] = weight_i;
-        W += weight_i;
+        bxdf = freshnel * sample_specular(s, in, &out_dir, normal, hit_object, &pdf_proposal);
+        pdf_proposal *= specular_sampling_pdf;
+    }
+    else
+    {
+        bxdf = (1.0f - freshnel) * sample_diffuse(s, &out_dir, normal, hit_object->diffuse_albedo, &pdf_proposal);
+        pdf_proposal *= diffuse_sampling_pdf;
     }
 
-    // Handle zero total weight
-    if (W <= 0.0f)
-    {
-        *pdf = 0.0f;
-        return (float3)(0.0f);
-    }
+    // Store results
+    // candidates[i] = bxdf;
+    // out_dirs[i] = out_dir;
+    // pdfs_proposal[i] = pdf_proposal;
+
+    // Compute weight (handle zero PDF to avoid NaNs)
+    // float weight = select(0.0f, luma(bxdf / pdf_proposal), (int)(pdf_proposal > 0.0f));
+    // // float weight = (pdf_proposal > 0.0f) ? luma(bxdf / pdf_proposal) : 0.0f;
+    // weights[i] = weight;
+    // W += weight;
+    // }
+
+    // // Handle zero total weight
+    // if (W <= 0.0f)
+    // {
+    //     *pdf = 0.0f;
+    //     return (float3)(0.0f);
+    // }
 
     // Select a candidate based on weights
-    float selector = sample_random(sample_data, 7);
-    float accum = 0.0f;
-    int selected = 0;
-    for (int i = 0; i < M; ++i)
-    {
-        accum += weights[i] / W;
-        if (selector <= accum)
-        {
-            selected = i;
-            break;
-        }
-    }
+    // float selector = sample_random(sample_data, 7);
+    // float accum = 0.0f;
+    // int selected = 0;
+    // for (int i = 0; i < M; ++i)
+    // {
+    //     accum += weights[i] / W;
+    //     if (selector <= accum)
+    //     {
+    //         selected = i;
+    //         break;
+    //     }
+    // }
 
     // Set output and PDF
-    *out = out_dirs[selected];
-    *pdf = W / (M * pdfs_proposal[selected]); // Effective PDF after resampling
+    *out = out_dir;
+    *pdf = pdf_proposal; // Effective PDF after resampling
 
     // Return adjusted BxDF contribution
-    return (candidates[selected] * M) / W;
+    return bxdf;
 }
 // float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, t_object *hit_object, float *pdf)
 // {
