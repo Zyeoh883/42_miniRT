@@ -39,14 +39,14 @@ t_object	*assign_object(char *line)
 	object->pos = get_vec_value(split[2]);
   // object->mat_type = split[4] ? *split[4] : 'D';
   object->F_0 = (cl_float3){{0.5, 0.5, 0.5}}; // never 0.0f 
-  metallic = 0.3f;
+  metallic = 0.0f;
   object->specular_albedo = (cl_float3){{ object->diffuse_albedo.x * metallic,
                         object->diffuse_albedo.y *  metallic,
                         object->diffuse_albedo.z *  metallic }};
   object->diffuse_albedo = (cl_float3){{ object->diffuse_albedo.x * (1 - metallic),
                         object->diffuse_albedo.y * (1 - metallic),
                         object->diffuse_albedo.z * (1 - metallic)}}; 
-  object->roughness_sqr = 0.5e-4f;
+  object->roughness_sqr = 0.5e-2f;
   // object->emission = (cl_float3){{0.05f, 0.05f, 0.05f}};
   free_str_arr(split);
 	return (object);

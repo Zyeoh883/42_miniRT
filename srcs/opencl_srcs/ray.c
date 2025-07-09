@@ -155,13 +155,13 @@ float3 path_trace(t_ray in_ray, U __constant t_object *objects, t_sample_data sa
  
   if (!intersect_scene(in_ray, objects, &hit_object, &t))
     return (to_float3(0));
-  sample_data.n_bounce = 3;
+  sample_data.n_bounce = 5;
   while (sample_data.n_bounce-- > 0)
   {
     if (!intersect_scene(in_ray, objects, &hit_object, &t))
-      return(mask * 0.5f);
-    if (t < 1e-2f)
-      return (mask * 0.5f);
+      return(mask * 0.1f);
+    // if (t < 1e-2f)
+    //   return (mask * 0.1f);
     hit_point = in_ray.pos + in_ray.dir * t;
     normal = get_normal(&hit_object, hit_point, in_ray.dir);
     seed.x = sample_random(sample_data, 1);
@@ -176,7 +176,7 @@ float3 path_trace(t_ray in_ray, U __constant t_object *objects, t_sample_data sa
     in_ray.pos = hit_point + normal * 0.001f;
   }
   // printf("hit-----------------------\n");
-  return (mask * 0.5f);
+  return (mask * 0.1f);
 }
 
 inline float linear_to_gamma(float x)
@@ -204,7 +204,7 @@ U __global uchar	*dst;
 
 
 
-  sample_data.sample_index = 10;
+  sample_data.sample_index = 100;
   float inv_samples = 1.0f / sample_data.sample_index;
 
 

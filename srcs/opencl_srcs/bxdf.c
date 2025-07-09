@@ -20,13 +20,19 @@ unsigned int WangHash(unsigned int x)
     return x;
 }
 
+uint pcg_hash(uint input) {
+    uint state = input * 747796405u + 2891336453u; // LCG step
+    uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u; // Permutation
+    return (word >> 22u) ^ word; // Final mix
+}
+
 float sample_random(t_sample_data sample_data, uint type)
 {
     type += sample_data.n_bounce * 5; 
-    uint seed = WangHash(sample_data.x);
-    seed = WangHash(seed + WangHash(sample_data.y));
-    seed = WangHash(seed + WangHash(sample_data.sample_index));
-    seed = WangHash(seed + WangHash(type));
+    uint seed = pcg_hash(sample_data.x);
+    seed = pcg_hash(seed ^ pcg_hash(sample_data.y));
+    seed = pcg_hash(seed ^ pcg_hash(sample_data.sample_index));
+    seed = pcg_hash(seed ^ pcg_hash(type));
     return seed * 2.3283064365386963e-10f;
 }
 
@@ -58,7 +64,6 @@ float3 GGX_Sample(float2 s, float3 n, float alpha)
 // TODO: reduce variable count
 float3 sample_diffuse(float2 s, float3 *out, float3 n, float3 diffuse_albedo, float *pdf)
 {
-
   float phi = TWO_PI * s.x;
   float sin_theta = sqrt(s.y);
 
@@ -139,7 +144,7 @@ int check_checkerboard(float3 normal)
 }
 float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, t_object *hit_object, float *pdf, t_sample_data sample_data)
 {
-    #define M 4 // Number of candidates
+    #define M 1 // Number of candidates
     float3 candidates[M];
     float3 out_dirs[M];
     float pdfs_proposal[M];

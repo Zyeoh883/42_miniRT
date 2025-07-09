@@ -47,7 +47,6 @@ int	deal_key_press(int key, t_data *data) // ! does not free
   // printf("MLX Key is %d\n", key);
 	if (key == ESC_KEY) // ! free everything in data
 	{
-		mlx_destroy_window(data->mlx_ptr, data->win_ptr);
     clReleaseMemObject(data->opencl->addr);
     clReleaseMemObject(data->opencl->camera);
     clReleaseMemObject(data->opencl->objects);
@@ -59,9 +58,11 @@ int	deal_key_press(int key, t_data *data) // ! does not free
     free(data->camera);
     free(data->objects);
     free(data->opencl);
+    mlx_destroy_window(data->mlx_ptr, data->win_ptr);
     mlx_destroy_image(data->mlx_ptr, data->img);
     mlx_destroy_display(data->mlx_ptr);
-    free(data->mlx_ptr);
+    // free(data->mlx_ptr);
+    // sleep(5);
 		exit(0);
 	}
 	if (key == SHIFT_KEY)

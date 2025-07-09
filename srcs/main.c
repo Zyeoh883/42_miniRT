@@ -301,11 +301,11 @@ int	main(int ac, char **av)
 	if (ac != 2 || !initialize(&data, av[1]))
 		return (1);
 	mlx_mouse_hide(data.mlx_ptr, data.win_ptr);
-	mlx_hook(data.win_ptr, 2, 1L << 0, deal_key_press, &data);
-	mlx_hook(data.win_ptr, 3, 1L << 1, deal_key_release, &data);
+	mlx_hook(data.win_ptr, 2, 1L << 0, (void*)deal_key_press, &data);
+	mlx_hook(data.win_ptr, 3, 1L << 1, (void*)deal_key_release, &data);
 	// mlx_hook(data.win_ptr, 0, 0,deal_input, &data);
-  mlx_hook(data.win_ptr, 6, 1L << 6, mouse_hook, &data);
-	mlx_loop_hook(data.mlx_ptr, render_frame, &data);
+  mlx_hook(data.win_ptr, 6, 1L << 6, (void*)mouse_hook, &data);
+	mlx_loop_hook(data.mlx_ptr, (void*)render_frame, &data);
   mlx_loop(data.mlx_ptr);
 	return (0);
 }

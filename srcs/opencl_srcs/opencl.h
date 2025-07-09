@@ -21,6 +21,20 @@
 #define INV_PI 1 / (float)M_PI
 #define TWO_PI 2 * (float)M_PI
 
+typedef struct __attribute__((aligned(16))) s_candidate
+{
+  float3 radiance;
+  float3 incident_direction;
+  float pdf;
+
+}       t_candidate;
+
+typedef struct __attribute__((aligned(16))) s_reservoir
+{
+  t_candidate candidate;
+  float weighted_sum;
+  int M;
+}       t_reservior;
 
 typedef struct __attribute__((aligned(16))) s_camera
 {

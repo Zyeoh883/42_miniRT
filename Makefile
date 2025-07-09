@@ -1,5 +1,5 @@
 # Compiler and flags
-CC = gcc -o3 -march=native -flto -fno-strict-aliasing -ffast-math -funroll-loops -msse4
+CC = gcc -o3 -march=native -flto -fno-strict-aliasing -ffast-math -funroll-loops -msse4 -std=gnu11
 CFLAGS = -Wall -Wextra -Werror $(INCLUDES) #-g -fsanitize=address #-std=c99 
 INCLUDES = -Iinc -I$(LIBFT_DIR) -I$(MLX_DIR)
 MLX = -Lminilibx_linux -lGL -lOpenCL -lX11 -lXext -lm
