@@ -104,6 +104,10 @@ float2			intersect_ray_sphere(U __constant t_object *object, t_ray ray);
 float3			quat_rotate(float4 q, const float3 q_v);
 float2			ray_intersection(U __constant t_object *object, t_ray ray);
 
+
+t_candidate init_candidate();
+t_reservoir init_reservoir();
+
 float3       BRDF(float3 in, float3 out, float3 normal, t_object *hit_object);
 
 
