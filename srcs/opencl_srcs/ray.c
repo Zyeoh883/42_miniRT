@@ -204,6 +204,9 @@ t_candidate path_trace(t_ray in_ray, U __constant t_object *objects, t_sample_da
       // return(hit_object.emission * throughput);
 
     throughput *= bxdf / pdf;
+if (any(isnan(throughput)) || any(isinf(throughput))) {
+    throughput = (float3)(0.0f);
+}
     in_ray = out_ray;
     in_ray.pos = hit_point + normal * 0.001f;
     // update_reservoir(reservoir, candidate, sample_data);

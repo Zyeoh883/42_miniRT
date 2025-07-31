@@ -39,7 +39,7 @@ float sample_random(t_sample_data sample_data, uint type)
 
 float luma(float3 rgb)
 {
-    return dot(rgb, (float3)(0.299f, 0.587f, 0.114f));
+    return dot(rgb, (float3)(1.0f, 1.0f, 1.0f));
 }
 
 float3 reflect(float3 v, float3 n)
@@ -236,8 +236,8 @@ float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, 
     }
     // Set output and PDF
     *out = out_dir;
-    *pdf = pdf_proposal; // Effective PDF after resampling
-  //
+    // *pdf = pdf_proposal; // Effective PDF after resampling
+    // *pdf = fmax(pdf_proposal, 1e-6f);
   // printf("pdf = %f\n", *pdf)
 
     // Return adjusted BxDF contribution
