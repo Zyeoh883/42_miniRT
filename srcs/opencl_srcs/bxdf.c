@@ -28,7 +28,7 @@ uint pcg_hash(uint input) {
 
 float sample_random(t_sample_data sample_data, uint type)
 {
-    type += sample_data.n_bounce * 5; 
+    type += sample_data.n_bounce * 5 + 500;
     uint seed = pcg_hash(sample_data.x);
     seed = pcg_hash(seed ^ pcg_hash(sample_data.y));
     seed = pcg_hash(seed ^ pcg_hash(sample_data.sample_index));
@@ -70,7 +70,10 @@ float3 sample_diffuse(float2 s, float3 *out, float3 n, float3 diffuse_albedo, fl
   float cos_theta = sqrt(1.0f - s.y);
 
   *pdf = cos_theta * INV_PI;
-
+  if (*pdf <= 0.0f) {
+      *pdf = 0.0f;
+      return (float3)(0.0f);
+  }
   float3 dir = (float3)(cos(phi) * sin_theta, sin(phi) * sin_theta, cos_theta);
 
   /* create a local orthogonal coordinate frame centered at the hitpoint */
@@ -92,12 +95,18 @@ float3 sample_specular(float2 s, float3 in, float3* out, float3 normal,t_object 
   float n_dot;
   float h_dot_o;
   float3 wh;
+  float wi_dot_h;
 
     if (hit_object->roughness_sqr <= 1e-4f)
     {
         *out = reflect(in, normal);
         *pdf = 1.0;
         n_dot_o = dot(*out, normal);
+        if (n_dot_o <= 0.0f)
+        {
+          *pdf = 0;
+          return (float3)(0.0f);
+        }
         // Don't apply fresnel here, it's applied in the external function
         return to_float3(1.0f / n_dot_o);
     }
@@ -110,13 +119,17 @@ float3 sample_specular(float2 s, float3 in, float3* out, float3 normal,t_object 
         n_dot_h = dot(normal, wh);
         n_dot = dot(normal, -in);
         h_dot_o = dot(*out, wh);
-
+        wi_dot_h = dot(-in, wh);       // Incident dot Halfway (Incident is -in)
+        if (n_dot_o <= 0.0f || n_dot_h <= 0.0f || wi_dot_h <= 0.0f) {
+          *pdf = 0.0f;
+          return (float3)(0.0f);
+        }
         float D = NDF_GGX(hit_object->roughness_sqr, n_dot_h);
         // Don't apply fresnel here, it's applied in the external function
         //float3 F = FresnelSchlick(f0, h_dot_o);
         float G = V_SmithGGXCorrelated(n_dot, n_dot_o, hit_object->roughness_sqr);
 
-        *pdf = D * n_dot_h / (4.0f * dot(wh, *out));
+        *pdf = D * n_dot_h / (4.0f * wi_dot_h);
 
 
         return to_float3(D /* F */ * G);
@@ -153,9 +166,9 @@ float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, 
     // float W = 0.0f;
 
     // Precompute Fresnel term (same for all candidates)
-    float3 freshnel = freshnel_schlick(hit_object->F_0, dot(normal, -in)) * hit_object->specular_albedo;
-    float specular_weight = luma(freshnel);
-    float diffuse_weight = luma((1.0f - freshnel) * hit_object->diffuse_albedo);
+    float3 freshnel = freshnel_schlick(hit_object->F_0, dot(normal, -in));
+    float specular_weight = luma(freshnel * hit_object->specular_albedo);
+    float diffuse_weight = luma((to_float3(1.0f) - freshnel) * hit_object->diffuse_albedo);
     float inv_weight_sum = 1.0f / (specular_weight + diffuse_weight + 1e-5f);
     float specular_sampling_pdf = specular_weight * inv_weight_sum;
     float diffuse_sampling_pdf = diffuse_weight * inv_weight_sum;
@@ -217,10 +230,15 @@ float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, 
     //         break;
     //     }
     // }
-
+    if (pdf_proposal <= 0.0f) {
+        *pdf = 0.0f;
+        return (float3)(0.0f);
+    }
     // Set output and PDF
     *out = out_dir;
     *pdf = pdf_proposal; // Effective PDF after resampling
+  //
+  // printf("pdf = %f\n", *pdf)
 
     // Return adjusted BxDF contribution
     return bxdf;

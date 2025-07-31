@@ -23,6 +23,7 @@ t_candidate init_candidate()
   candidate.radiance = 0;
   candidate.incident_direction = (float3)(0.0f, 0.0f, 0.0f);
   candidate.pdf = 0;
+  candidate.weight =  (float3)(0.0f, 0.0f, 0.0f);
   return candidate;
 }
 
@@ -33,6 +34,7 @@ t_reservoir init_reservoir()
   reservoir.candidate = init_candidate();
   reservoir.M = 0;
   reservoir.weighted_sum = 0;
+  reservoir.probability = 0;
   
   return reservoir;
 }

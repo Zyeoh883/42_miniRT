@@ -139,7 +139,7 @@ float3 get_normal(t_object *hit_object, float3 hit_point, float3 ray_dir)
 }
 
 
-t_candidate path_trace(t_ray in_ray, U __constant t_object *objects, t_sample_data sample_data)
+t_candidate path_trace(t_ray in_ray, U __constant t_object *objects, t_sample_data sample_data, t_reservoir *reservoir)
 {
   t_object hit_object;
   t_ray out_ray;
@@ -148,54 +148,71 @@ t_candidate path_trace(t_ray in_ray, U __constant t_object *objects, t_sample_da
   float3 bxdf;
   float t;
   float2 seed;
-  float pdf;
+  float pdf= 1;
+  float pdf_temp = 1;
   // float3 accum_color = (float3)(0.0f, 0.0f, 0.0f);
-  float3 mask = (float3)(1.0f, 1.0f, 1.0f);
+  float3 throughput = (float3)(1.0f, 1.0f, 1.0f);
 
   t_candidate candidate;
 
   candidate = init_candidate();
-
-
  
   if (!intersect_scene(in_ray, objects, &hit_object, &t))
-    return (candidate);
-  sample_data.n_bounce = 5;
-  while (sample_data.n_bounce > 0)
+    return candidate;
+  sample_data.n_bounce = 2;
+  while (true)
   {
+    // printf("%d\n", sample_data.n_bounce);
     if (!intersect_scene(in_ray, objects, &hit_object, &t))
     {
-      candidate.radiance = mask * 0.5f;
+      // update_reservoir(reservoir, candidate, sample_data);
+      // candidate.radiance = throughput * 0.5f   
+      // candidate.radiance = throughput * (float3)(0.1f, 0.3f, 0.8f);
+      candidate.pdf = pdf_temp;
+      candidate.weight = throughput;
+      candidate.incident_direction = -in_ray.dir;
       return candidate;
     }// if (t < 1e-2f)
-    //   return (mask * 0.1f);
+    if (hit_object.obj_type == LIGHT)
+    {
+      candidate.radiance = hit_object.emission * throughput;
+      candidate.incident_direction = -in_ray.dir;
+      candidate.pdf = 1.0f;
+      candidate.weight = throughput;
+      // update_reservoir(reservoir, candidate, sample_data);
+      return candidate;
+    }
+    //   return (throughput * 0.1f);
     hit_point = in_ray.pos + in_ray.dir * t;
     normal = get_normal(&hit_object, hit_point, in_ray.dir);
     seed.x = sample_random(sample_data, 1);
     seed.y = sample_random(sample_data, 2);
     bxdf = sample_bxdf(sample_random(sample_data, 3), seed, in_ray.dir, &out_ray.dir, normal, &hit_object, &pdf, sample_data);
-    if (pdf == -1)
-      return candidate;
+    // if (pdf == -1)
+    //   return candidate;
+    if (pdf < 0.0f)
+    { 
+        // Return current surface emission or black
+        candidate.radiance = hit_object.emission * throughput;
+        candidate.incident_direction = -in_ray.dir;
+        candidate.pdf = pdf;
+        candidate.weight = throughput;
+        return candidate;
+    }
+    pdf_temp *= pdf;
 
-      // return(hit_object.emission * mask);
+      // return(hit_object.emission * throughput);
 
-
-    mask *= bxdf / pdf;
+    throughput *= bxdf / pdf;
     in_ray = out_ray;
     in_ray.pos = hit_point + normal * 0.001f;
-    if (hit_object.obj_type == LIGHT)
-    {
-      candidate.radiance = hit_object.emission * mask;
-      candidate.incident_direction = -in_ray.dir;
-      candidate.pdf = pdf;
-      return candidate;
-    }
-    sample_data.n_bounce--;
-    // if (sample_data.n_bounce == 0)
-    //   printf("%d\n", sample_data.n_bounce);
+    // update_reservoir(reservoir, candidate, sample_data);
+    if (sample_data.n_bounce-- == 0)
+      break;
+    // sample_data.n_bounce--;
   }
   // printf("hit-----------------------\n");
-  candidate.radiance = mask * 0.5f;
+  // candidate.radiance = throughput * 0.5f;
   return candidate;
 }
 
@@ -211,11 +228,11 @@ float calculate_candidate_importance_weight(t_candidate candidate) {
     }
 
     // The importance weight is typically the luminance of the radiance divided by its PDF
-    return luma(candidate.radiance / candidate.pdf);
+    return luma(candidate.radiance) / candidate.pdf;
 }
 
 // Function to add a new candidate to the reservoir
-void add_sample_to_reservoir(t_reservoir* res, t_candidate new_candidate, t_sample_data sample_data) {
+void update_reservoir(t_reservoir* res, t_candidate new_candidate, t_sample_data sample_data) {
     // 1. Calculate the importance weight of the new candidate
     float candidate_importance_weight = calculate_candidate_importance_weight(new_candidate);
 
@@ -241,8 +258,14 @@ float3 reservoir_final_color(t_reservoir *res)
   
   float effective_weight_ratio = res->weighted_sum / (float)res->M;
 
-  return res->candidate.radiance * effective_weight_ratio / res->candidate.pdf;
-
+  float3 final_color = res->candidate.radiance * (effective_weight_ratio / res->candidate.pdf);
+  if (isnan(final_color.x) || isnan(final_color.y) || isnan(final_color.z) ||
+      isinf(final_color.x) || isinf(final_color.y) || isinf(final_color.z))
+  {
+      return (float3)(1.0f, 0.0f, 1.0f);  // Magenta for debug
+  }
+  
+  return final_color;
 }
 
 
@@ -264,8 +287,8 @@ U __global uchar	*dst;
 
 
 
-  sample_data.sample_index = 100;
-  // float inv_samples = 1.0f / sample_data.sample_index;
+  sample_data.sample_index = 1000;
+  float inv_samples = 1.0f / sample_data.sample_index;
 
 
   // unsigned int seed = x + y * camera->line_length + HashUInt32(x);
@@ -283,25 +306,32 @@ U __global uchar	*dst;
     // color += path_trace(create_ray(camera, sample_data.x + 0.2, sample_data.y - 0.2), objects, sample_data);
     // color += path_trace(create_ray(camera, sample_data.x - 0.2, sample_data.y + 0.2), objects, sample_data);
 
-    candidate = path_trace(create_ray(camera, sample_data.x, sample_data.y), objects, sample_data);
-
-    add_sample_to_reservoir(&reservoir, candidate, sample_data);
+    candidate = path_trace(create_ray(camera, sample_data.x, sample_data.y), objects, sample_data, &reservoir);
+    // candidate = init_candidate();
+    // candidate.weight = 0.5f;
+    // candidate.pdf = 0.5f;
+    // candidate.radiance = (float3)(0.8f, 0.0f, 0.0f);
+    // color += candidate.radiance;
+    update_reservoir(&reservoir, candidate, sample_data);
+    // add_sample_to_reservoir(&reservoir, candidate, sample_data);
   }
 
 
 	dst = addr + (sample_data.y * camera->line_length + sample_data.x * (camera->bytes_per_pixel));
   // printf("%f %f %f\n", color[0], color[1], color[2]);
-  // color *= 0xFF;
+  // if (reservoir.candidate.pdf <= 0.0f)
+  //   printf("pdf = %f\n", reservoir.candidate.pdf);
   color = reservoir_final_color(&reservoir);
+
   // color *= inv_samples;
   color = color / (color + 1.0f);
   // if (color[0] > 0.1f && color[1] > 0.1f && color[2] > 0.1f)
   //   printf("%f %f %f\n", color[0], color[1], color[2]);
   color = linear_to_gamma(color);
   // printf("%f %f %f\n", color[0], color[1], color[2]);
-  result += (unsigned int)(fmin(color.x, 1.0f) * 0xFF) << 16;
-  result += (unsigned int)(fmin(color.y, 1.0f) * 0xFF) << 8;
-  result += (unsigned int)(fmin(color.z, 1.0f) * 0xFF);
+  result += (unsigned int)(color.x * 0xFF) << 16;
+  result += (unsigned int)(color.y * 0xFF) << 8;
+  result += (unsigned int)(color.z * 0xFF);
   // if (result >= 0xFAFAFA)
   //     printf("%f %f %f\n", color[0], color[1], color[2]);
   // printf("%f %f %f\n", camera->pos[0], camera->pos[1], camera->pos[2]);
