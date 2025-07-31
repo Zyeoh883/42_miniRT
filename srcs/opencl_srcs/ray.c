@@ -204,9 +204,6 @@ t_candidate path_trace(t_ray in_ray, U __constant t_object *objects, t_sample_da
       // return(hit_object.emission * throughput);
 
     throughput *= bxdf / pdf;
-if (any(isnan(throughput)) || any(isinf(throughput))) {
-    throughput = (float3)(0.0f);
-}
     in_ray = out_ray;
     in_ray.pos = hit_point + normal * 0.001f;
     // update_reservoir(reservoir, candidate, sample_data);
@@ -231,7 +228,7 @@ float calculate_candidate_importance_weight(t_candidate candidate) {
     }
 
     // The importance weight is typically the luminance of the radiance divided by its PDF
-    return luma(candidate.radiance) / candidate.pdf;
+    return luma(candidate.radiance / candidate.pdf);
 }
 
 // Function to add a new candidate to the reservoir

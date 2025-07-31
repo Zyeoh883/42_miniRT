@@ -131,8 +131,9 @@ float3 sample_specular(float2 s, float3 in, float3* out, float3 normal,t_object 
 
         *pdf = D * n_dot_h / (4.0f * wi_dot_h);
 
-
-        return to_float3(D /* F */ * G);
+        float denominator = 4.0f * fabs(n_dot) * fabs(n_dot_o) + 1e-5f;
+        return to_float3(D * G) / denominator;  // Full BRDF value
+        // return to_float3(D /* F */ * G);
     }
 }
 
@@ -236,7 +237,7 @@ float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, 
     }
     // Set output and PDF
     *out = out_dir;
-    // *pdf = pdf_proposal; // Effective PDF after resampling
+    *pdf = pdf_proposal; // Effective PDF after resampling
     // *pdf = fmax(pdf_proposal, 1e-6f);
   // printf("pdf = %f\n", *pdf)
 
