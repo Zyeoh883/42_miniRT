@@ -294,7 +294,6 @@ U __global uchar	*dst;
   // float inv_samples = 1.0f / sample_data.sample_index;
 
 
-  // unsigned int seed = x + y * camera->line_length + HashUInt32(x);
   t_reservoir reservoir;
   t_candidate candidate;
  
@@ -304,30 +303,17 @@ U __global uchar	*dst;
     reservoir = (t_reservoir){0};
   while (--sample_data.sample_index > 0)
   {
-    // printf("test\n");sample_data.x, sample_data.y), objects, sample_data);
-    // color += path_trace(ray, objects, sample_data);
-    // color += path_trace(create_ray(camera, sample_data.x + 0.2, sample_data.y + 0.2), objects, sample_data);
-    // color += path_trace(create_ray(camera, sample_data.x - 0.2, sample_data.y - 0.2), objects, sample_data);
-    // color += path_trace(create_ray(camera, sample_data.x + 0.2, sample_data.y - 0.2), objects, sample_data);
-    // color += path_trace(create_ray(camera, sample_data.x - 0.2, sample_data.y + 0.2), objects, sample_data);
 
     candidate = path_trace(create_ray(camera, sample_data.x, sample_data.y), objects, &sample_data, &reservoir);
-    // candidate = init_candidate();
-    // candidate.weight = 0.5f;
-    // candidate.pdf = 0.5f;
-    // candidate.radiance = (float3)(0.8f, 0.0f, 0.0f);
-    // color += candidate.radiance;
+
     update_reservoir(&reservoir, candidate, &sample_data);
-    // add_sample_to_reservoir(&reservoir, candidate, sample_data);
   }
 
   reservoirs[(int)(sample_data.x + sample_data.y * camera->win_width)] = reservoir;
-  if (sample_data.x + sample_data.y == 0)
-  {
-    // printf("%d\n", reservoir.M);
-    // printf("%f\n", reservoir.candidate.pdf);
-    printf("%u\n", sample_data.seed);
-  }
+  // if (sample_data.x + sample_data.y == 0)
+  // {
+  //   printf("%u\n", sample_data.seed);
+  // }
   
   seed = sample_data.seed;
 	dst = addr + (sample_data.y * camera->line_length + sample_data.x * (camera->bytes_per_pixel));
@@ -345,12 +331,7 @@ U __global uchar	*dst;
   result += (unsigned int)(color.x * 0xFF) << 16;
   result += (unsigned int)(color.y * 0xFF) << 8;
   result += (unsigned int)(color.z * 0xFF);
-  // if (result >= 0xFAFAFA)
-  //     printf("%f %f %f\n", color[0], color[1], color[2]);
-  // printf("%f %f %f\n", camera->pos[0], camera->pos[1], camera->pos[2]);
-  // if (result > 0)
-  //   printf("%x %f %f %f\n", result, color[0], color[1], color[2]);
-  // printf("%x\n", result);
+
  	*(__global unsigned int *)dst = result;
 }
 

@@ -38,7 +38,7 @@ t_object	*assign_object(char *line)
   // printf("%c %x %f %f %f\n",object->obj_type, object->color, object->albedo.x, object->albedo.y, object->albedo.z);
 	object->pos = get_vec_value(split[2]);
   // object->mat_type = split[4] ? *split[4] : 'D';
-  object->F_0 = (cl_float3){{0.5, 0.5, 0.5}}; // never 0.0f 
+  object->F_0 = (cl_float3){{0.2, 0.2, 0.2}}; // never 0.0f 
   metallic = 0.2f;
   object->specular_albedo = (cl_float3){{ object->diffuse_albedo.x * metallic,
                         object->diffuse_albedo.y *  metallic,
@@ -46,7 +46,7 @@ t_object	*assign_object(char *line)
   object->diffuse_albedo = (cl_float3){{ object->diffuse_albedo.x * (1 - metallic),
                         object->diffuse_albedo.y * (1 - metallic),
                         object->diffuse_albedo.z * (1 - metallic)}}; 
-  object->roughness_sqr = 0.5e-5f;
+  object->roughness_sqr = 0.5e-1f;
   // object->emission = (cl_float3){{0.05f, 0.05f, 0.05f}};
   free_str_arr(split);
 	return (object);

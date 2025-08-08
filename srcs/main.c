@@ -199,8 +199,8 @@ int	initialize(t_data *data, char *filename)
 	data->mlx_ptr = mlx_init();
 	if (!data->mlx_ptr)
 		return (0);
-	data->win_width = 1280;
-	data->win_height = 720;
+	data->win_width = 1980;
+	data->win_height = 1080;
 	// data->win_width = 600;
 	// data->win_height = 600;
 	data->img = mlx_new_image(data->mlx_ptr, data->win_width, data->win_height);
