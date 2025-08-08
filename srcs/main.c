@@ -134,7 +134,10 @@ t_opencl	*init_opencl(t_data *data)
 	opencl->objects = clCreateBuffer(opencl->context, CL_MEM_WRITE_ONLY, sizeof(t_object) * data->num_objects, NULL, &ret);
 	if (ret != CL_SUCCESS)
 		print_cl_error(ret);
-
+	opencl->reservoirs = clCreateBuffer(opencl->context, CL_MEM_WRITE_ONLY, sizeof(t_reservoir) * data->win_width * data->win_height, NULL, &ret);
+	if (ret != CL_SUCCESS)
+		print_cl_error(ret);
+  
   printf("Loaded params\n");
 
   // Create a program from the kernel source
@@ -183,7 +186,8 @@ t_opencl	*init_opencl(t_data *data)
   ret = clSetKernelArg(opencl->kernel, 0, sizeof(cl_mem), (void *)&opencl->addr);
 	ret = clSetKernelArg(opencl->kernel, 1, sizeof(cl_mem), (void *)&opencl->camera);
 	ret = clSetKernelArg(opencl->kernel, 2, sizeof(cl_mem), (void *)&opencl->objects);
-	data->opencl = opencl;
+	ret = clSetKernelArg(opencl->kernel, 3, sizeof(cl_mem), (void *)&opencl->reservoirs);
+  data->opencl = opencl;
   free_cfile(c_files);
 	return (opencl);
 }
@@ -234,8 +238,8 @@ int	render_frame(t_data *data)
 
   // printf("Start render_frame\n");
   deal_input(data);
-  if (!data->inputs.update)
-    return 0;
+  // if (!data->inputs.update)
+  //   return 0;
   // printf("Dealt input\n");
 
   opencl = data->opencl;
@@ -277,7 +281,12 @@ int	render_frame(t_data *data)
 		printf("ret 4 error: %d\n", ret);
 		print_cl_error(ret);
 	}
-
+	// ret = clEnqueueReadBuffer(opencl->queue, opencl->reservoirs, CL_TRUE, 0, sizeof(t_reservoir) * data->win_width * data->win_height, data->reservoirs, 0, NULL, NULL);
+	// if (ret != CL_SUCCESS)
+	// {
+	// 	printf("ret 5 error: %d\n", ret);
+	// 	print_cl_error(ret);
+	// }
   // printf("Queued all Buffers\n");
 
 	average = (double)clock() / CLOCKS_PER_SEC - time_start;

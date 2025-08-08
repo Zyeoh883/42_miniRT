@@ -80,7 +80,7 @@ void	assign_light(t_object *object, char **split)
 {
   object->obj_type = LIGHT;
   object->sphere.radius =  ft_atoi(split[3]);
-  object->emission = (cl_float3){{10.0f, 10.0f, 10.0f}};
+  object->emission = (cl_float3){{2.0f, 2.0f, 2.0f}};
   // object->obb = assign_sphere_obb(object->sphere);
 }
 

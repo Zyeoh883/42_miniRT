@@ -24,6 +24,7 @@ typedef struct s_opencl
 	cl_mem				addr; // the result back to host
 	cl_mem				camera;
 	cl_mem				objects;
+  cl_mem        reservoirs;
 }						t_opencl;
 
 #endif

@@ -26,14 +26,18 @@ uint pcg_hash(uint input) {
     return (word >> 22u) ^ word; // Final mix
 }
 
-float sample_random(t_sample_data sample_data, uint type)
+float sample_random(t_sample_data *sample_data, uint type)
 {
-    type += sample_data.n_bounce * 5 + 500;
-    uint seed = pcg_hash(sample_data.x);
-    seed = pcg_hash(seed ^ pcg_hash(sample_data.y));
-    seed = pcg_hash(seed ^ pcg_hash(sample_data.sample_index));
+    uint seed;
+
+    seed = sample_data->seed;
+    seed = pcg_hash(seed ^ pcg_hash(sample_data->x));
+    seed = pcg_hash(seed ^ pcg_hash(sample_data->y));
+    seed = pcg_hash(seed ^ pcg_hash(sample_data->sample_index));
     seed = pcg_hash(seed ^ pcg_hash(type));
+    sample_data->seed = seed;
     return seed * 2.3283064365386963e-10f;
+;
 }
 
 
@@ -156,7 +160,7 @@ int check_checkerboard(float3 normal)
 
   return 0;
 }
-float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, t_object *hit_object, float *pdf, t_sample_data sample_data)
+float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, t_object *hit_object, float *pdf, t_sample_data *sample_data)
 {
     // #define M 1 // Number of candidates
     // int i = 0;

@@ -72,6 +72,22 @@ typedef struct __attribute__ ((aligned(16))) s_BHVnode
 	int					object_count;
 }						t_BHVnode;
 
+typedef struct __attribute__((aligned(16))) s_candidate
+{
+  cl_float3 radiance;
+  cl_float3 incident_direction;
+  cl_float3 weight;
+  float pdf;
+
+}       t_candidate;
+
+typedef struct __attribute__((aligned(16))) s_reservoir
+{
+  t_candidate candidate;
+  float weighted_sum;
+  uint M;
+  float probability;
+}       t_reservoir;
 
 // __attribute__((packed,aligned(4))
 // __attribute__ ((aligned(16)))

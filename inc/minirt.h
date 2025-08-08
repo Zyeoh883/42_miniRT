@@ -57,6 +57,7 @@ typedef struct __attribute__ ((aligned(16))) s_camera
 	cl_uchar	num_objects;
 	cl_int		bytes_per_pixel;
 	cl_int		line_length;
+  cl_uchar  moved;
 }						t_camera;
 	// float pitch_angle;
 	// t_data *data;
@@ -80,6 +81,7 @@ typedef struct __attribute__ ((aligned(16))) s_data
 	t_camera *camera;
 	t_opencl *opencl;
 	t_object *objects;
+  t_reservoir *reservoirs;
 	int	num_objects;
 	void *mlx_ptr;
 	void *win_ptr;

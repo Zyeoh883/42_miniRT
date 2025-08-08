@@ -49,6 +49,7 @@ typedef struct __attribute__((aligned(16))) s_camera
 	char	num_objects;
 	int		bytes_per_pixel;
 	int		line_length;
+  char  moved;
 }				t_camera;
 
 typedef struct __attribute__((aligned(16))) s_ray
@@ -96,6 +97,7 @@ typedef struct __attribute__((aligned(16))) s_sample_data
   uint y;
   uint sample_index;
   uint n_bounce;
+  uint seed;
 }       t_sample_data;
 
 float3			vector_normalize(float3 v);
@@ -113,12 +115,12 @@ t_reservoir init_reservoir();
 float3       BRDF(float3 in, float3 out, float3 normal, t_object *hit_object);
 
 
-float sample_random(t_sample_data sample_data, uint type);
-float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, t_object *hit_object, float *pdf, t_sample_data sample_data);
+float sample_random(t_sample_data *sample_data, uint type);
+float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, t_object *hit_object, float *pdf, t_sample_data *sample_data);
 float luma(float3 rgb);
 
 
-void update_reservoir(t_reservoir* res, t_candidate new_candidate, t_sample_data sample_data);
+void update_reservoir(t_reservoir* res, t_candidate new_candidate, t_sample_data *sample_data);
 float3 reservoir_final_color(t_reservoir *res);
 
 // utils

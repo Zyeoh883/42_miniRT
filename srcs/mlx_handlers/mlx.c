@@ -38,6 +38,7 @@ int	deal_key_release(int key, t_data *data)
 		data->inputs.key_wasd[2] = 0;
 	else if (key == D_KEY)
 		data->inputs.key_wasd[3] = 0;
+  data->camera->moved = false;
 
 	return (0);
 }
@@ -80,17 +81,25 @@ int	deal_key_press(int key, t_data *data) // ! does not free
 		data->inputs.key_wasd[3] = 1;
 	else
 		data->inputs.key = key;
+  data->camera->moved = true;
 	return (0);
 }
 
 int	deal_input(t_data *data)
 {
+  if (data->inputs.key == 107)
+    return 0;
 	if (data->inputs.key == -1 && !data->inputs.key_wasd[0] && !data->inputs.key_wasd[1] && !data->inputs.key_wasd[2] && !data->inputs.key_wasd[3])
 	{
     return (0);
   }
+
+  // ft_bzero(data->reservoirs, sizeof(t_reservoir) * data->win_width * data->win_height);
+  // ft_bzero(data->reservoirs, sizeof(t_reservoir) * data->win_width * data->win_height);
+  // clEnqueueFillBuffer(data->opencl->queue, data->opencl->reservoirs, NULL, 0, 0, sizeof(t_reservoir) * data->win_width * data->win_height, 0, NULL, NULL);
   data->inputs.update = 1;
   input_translate(data, data->inputs);
+  
 	// ! add slerp to reset key
 	// else if (data->inputs.key == B_KEY && !data->inputs.key_held)
 	// {
@@ -120,7 +129,7 @@ int	mouse_hook(int x, int y, t_data *data)
 
   if (!dy && !dx)
     return 0;
-  
+  // data->camera->moved = true;
   data->inputs.update = 1;
 
 	// input_translate(data, data->inputs);
@@ -135,5 +144,6 @@ int	mouse_hook(int x, int y, t_data *data)
 		data->camera->quat = quat_product(angle_to_quat((cl_float4){{0, 1, 0, 0}}, CAM_SENS * dx), data->camera->quat);
 	mlx_mouse_move(data->mlx_ptr, data->win_ptr, data->win_width * 0.5, data->win_height * 0.5); // ! might not work with int
 	// render_frame(data, data->opencl);
+  // data->camera->moved = false;
 	return (0);
 }
