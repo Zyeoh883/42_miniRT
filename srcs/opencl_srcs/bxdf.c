@@ -43,12 +43,13 @@ float sample_random(t_sample_data *sample_data, uint type)
 
 float luma(float3 rgb)
 {
-    return dot(rgb, (float3)(1.0f, 1.0f, 1.0f));
+    // return dot(rgb, (float3)(1.0f, 1.0f, 1.0f));
+    return dot(rgb, (float3)(0.2126f, 0.7152f, 0.0722f));
 }
 
 float3 reflect(float3 v, float3 n)
 {
-    return v - 2.0f * dot(v, n) * n;
+    return normalize(v - 2.0f * dot(v, n) * n);
 }
 
 
@@ -160,6 +161,7 @@ int check_checkerboard(float3 normal)
 
   return 0;
 }
+
 float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, t_object *hit_object, float *pdf, t_sample_data *sample_data)
 {
     // #define M 1 // Number of candidates
@@ -171,7 +173,7 @@ float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, 
     // float W = 0.0f;
 
     // Precompute Fresnel term (same for all candidates)
-    float3 freshnel = freshnel_schlick(hit_object->F_0, dot(normal, -in));
+    float3 freshnel = freshnel_schlick(hit_object->F_0, dot(normalize(normal), normalize(-in)));
     float specular_weight = luma(freshnel * hit_object->specular_albedo);
     float diffuse_weight = luma((to_float3(1.0f) - freshnel) * hit_object->diffuse_albedo);
     float inv_weight_sum = 1.0f / (specular_weight + diffuse_weight + 1e-5f);
@@ -191,6 +193,8 @@ float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, 
     float pdf_proposal;
     float3 bxdf;
 
+    constant char *str;
+
     // Choose between specular and diffuse
     if (seed <= specular_sampling_pdf)
     {
@@ -202,6 +206,14 @@ float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, 
         bxdf = (1.0f - freshnel) * sample_diffuse(s, &out_dir, normal, hit_object->diffuse_albedo, &pdf_proposal);
         pdf_proposal *= diffuse_sampling_pdf;
     }
+
+    if (isnan(bxdf.x) || isnan(bxdf.y) || isnan(bxdf.z)
+      || isinf(bxdf.x) || isinf(bxdf.y) || isinf(bxdf.z))
+  {
+      printf("freshnel: %f %f %f, %f %f %f, %f\n", freshnel.x, freshnel.y, freshnel.z, hit_object->F_0.x, hit_object->F_0.y, hit_object->F_0.z, dot(normal, -in));
+      printf("type: %d\n", seed <= specular_sampling_pdf);
+      printf("bxdf %f %f %f\n", bxdf.x, bxdf.y, bxdf.z);
+  }
 
     // Store results
     // candidates[i] = bxdf;
@@ -240,8 +252,9 @@ float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, 
         return (float3)(0.0f);
     }
     // Set output and PDF
-    *out = out_dir;
+    *out = normalize(out_dir);
     *pdf = pdf_proposal; // Effective PDF after resampling
+  
     // *pdf = fmax(pdf_proposal, 1e-6f);
   // printf("pdf = %f\n", *pdf)
 

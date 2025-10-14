@@ -2,7 +2,7 @@
 CC = gcc -o3 -march=native -flto -fno-strict-aliasing -ffast-math -funroll-loops -msse4 -std=gnu11
 CFLAGS = -Wall -Wextra -Werror $(INCLUDES) #-g -fsanitize=address #-std=c99 
 INCLUDES = -Iinc -I$(LIBFT_DIR) -I$(MLX_DIR)
-MLX = -Lminilibx_linux -lGL -lOpenCL -lX11 -lXext -lm
+MLX = -L$(MLX_DIR) -lGL -lOpenCL -lX11 -lXext -lm
 
 # Output executable
 NAME = miniRT
@@ -39,7 +39,7 @@ OBJS = $(patsubst $(SRCDIR)%.c, $(OBJDIR)%.o, $(SRCS))
 LIBFT_DIR = libft/
 LIBFT_A = $(LIBFT_DIR)libft.a
 
-MLX_DIR = minilibx_linux/
+MLX_DIR = minilibx-linux/
 MLX_A = $(MLX_DIR)libmlx.a
 
 # Build targets

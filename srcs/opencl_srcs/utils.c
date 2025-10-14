@@ -20,7 +20,7 @@ t_candidate init_candidate()
 {
   t_candidate candidate;
   
-  candidate.radiance = 0;
+  candidate.radiance = (float3)(0.0f, 0.0f, 0.0f);
   candidate.incident_direction = (float3)(0.0f, 0.0f, 0.0f);
   candidate.pdf = 0;
   candidate.weight =  (float3)(0.0f, 0.0f, 0.0f);

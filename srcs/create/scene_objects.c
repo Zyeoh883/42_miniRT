@@ -23,7 +23,7 @@ t_object	*assign_object(char *line)
   split = ft_split(line, ',');
   if (!object || !split)
     perror_and_exit("malloc", EXIT_FAILURE);
-  object->emission = (cl_float3){{0.1f, 0.1f, 0.1f}};
+  object->emission = (cl_float3){{0.01f, 0.01f, 0.01f}};
   if (**split == SPHERE)
     assign_sphere(object, split);
   else if (**split == PLANE)
@@ -38,14 +38,14 @@ t_object	*assign_object(char *line)
   // printf("%c %x %f %f %f\n",object->obj_type, object->color, object->albedo.x, object->albedo.y, object->albedo.z);
 	object->pos = get_vec_value(split[2]);
   // object->mat_type = split[4] ? *split[4] : 'D';
-  object->F_0 = (cl_float3){{0.2, 0.2, 0.2}}; // never 0.0f 
+  object->F_0 = (cl_float3){{0.1f, 0.1f, 0.1f}}; // never 0.0f 
   metallic = 0.2f;
   object->specular_albedo = (cl_float3){{ object->diffuse_albedo.x * metallic,
                         object->diffuse_albedo.y *  metallic,
                         object->diffuse_albedo.z *  metallic }};
-  object->diffuse_albedo = (cl_float3){{ object->diffuse_albedo.x * (1 - metallic),
-                        object->diffuse_albedo.y * (1 - metallic),
-                        object->diffuse_albedo.z * (1 - metallic)}}; 
+  object->diffuse_albedo = (cl_float3){{ object->diffuse_albedo.x * (1.0f - metallic),
+                        object->diffuse_albedo.y * (1.0f - metallic),
+                        object->diffuse_albedo.z * (1.0f - metallic)}}; 
   object->roughness_sqr = 0.5e-1f;
   // object->emission = (cl_float3){{0.05f, 0.05f, 0.05f}};
   free_str_arr(split);
@@ -80,7 +80,7 @@ void	assign_light(t_object *object, char **split)
 {
   object->obj_type = LIGHT;
   object->sphere.radius =  ft_atoi(split[3]);
-  object->emission = (cl_float3){{2.0f, 2.0f, 2.0f}};
+  object->emission = (cl_float3){{1.0f, 1.0f, 1.0f}};
   // object->obb = assign_sphere_obb(object->sphere);
 }
 
