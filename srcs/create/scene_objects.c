@@ -13,9 +13,8 @@
 #include "minirt.h"
 // char type, cl_float3 pos, cl_float4 quat, int color)
 
-t_object	*assign_object(char *line)
-{
-  t_object	*object;
+t_object *assign_object(char *line) {
+  t_object *object;
   float metallic;
   char **split;
 
@@ -31,66 +30,63 @@ t_object	*assign_object(char *line)
   else if (**split == LIGHT)
     assign_light(object, split);
 
-	object->obj_type = *split[0];
+  object->obj_type = *split[0];
   object->color = get_rgb_value(split[1]);
   object->diffuse_albedo = inv_rgb_float(object->color);
   // object->specular_albedo = (cl_float3){{0.5f, 0.5f, 0.5f}};
-  // printf("%c %x %f %f %f\n",object->obj_type, object->color, object->albedo.x, object->albedo.y, object->albedo.z);
-	object->pos = get_vec_value(split[2]);
+  // printf("%c %x %f %f %f\n",object->obj_type, object->color,
+  // object->albedo.x, object->albedo.y, object->albedo.z);
+  object->pos = get_vec_value(split[2]);
   // object->mat_type = split[4] ? *split[4] : 'D';
-  object->F_0 = (cl_float3){{0.1f, 0.1f, 0.1f}}; // never 0.0f 
+  object->F_0 = (cl_float3){{0.1f, 0.1f, 0.1f}}; // never 0.0f
   metallic = 0.2f;
-  object->specular_albedo = (cl_float3){{ object->diffuse_albedo.x * metallic,
-                        object->diffuse_albedo.y *  metallic,
-                        object->diffuse_albedo.z *  metallic }};
-  object->diffuse_albedo = (cl_float3){{ object->diffuse_albedo.x * (1.0f - metallic),
-                        object->diffuse_albedo.y * (1.0f - metallic),
-                        object->diffuse_albedo.z * (1.0f - metallic)}}; 
-  object->roughness_sqr = 0.5e-1f;
+  object->specular_albedo = (cl_float3){{object->diffuse_albedo.x * metallic,
+                                         object->diffuse_albedo.y * metallic,
+                                         object->diffuse_albedo.z * metallic}};
+  object->diffuse_albedo =
+      (cl_float3){{object->diffuse_albedo.x * (1.0f - metallic),
+                   object->diffuse_albedo.y * (1.0f - metallic),
+                   object->diffuse_albedo.z * (1.0f - metallic)}};
+  object->roughness_sqr = 0.5e-10f;
   // object->emission = (cl_float3){{0.05f, 0.05f, 0.05f}};
   free_str_arr(split);
-	return (object);
+  return (object);
 }
 
-t_OBB	assign_sphere_obb(t_sphere sphere)
-{
-	t_OBB	obb;
+t_OBB assign_sphere_obb(t_sphere sphere) {
+  t_OBB obb;
 
-	// obb.pos = sphere.pos;
-	// obb.quat = sphere.quat;
-	// obb.half_len = _mm_set_ps(sphere.radius, sphere.radius, sphere.radius, 0);
-	obb.half_len = to_float3(sphere.radius);
+  // obb.pos = sphere.pos;
+  // obb.quat = sphere.quat;
+  // obb.half_len = _mm_set_ps(sphere.radius, sphere.radius, sphere.radius, 0);
+  obb.half_len = to_float3(sphere.radius);
   return (obb);
 }
 
-void	assign_sphere(t_object *object, char **split)
-{
+void assign_sphere(t_object *object, char **split) {
   object->obj_type = SPHERE;
-  object->sphere.radius =  ft_atoi(split[3]);
+  object->sphere.radius = ft_atoi(split[3]);
   // object->obb = assign_sphere_obb(object->sphere);
 }
 
-void	assign_plane(t_object *object, char **split)
-{
+void assign_plane(t_object *object, char **split) {
   object->obj_type = PLANE;
   object->dir = get_vec_value(split[3]);
 }
 
-void	assign_light(t_object *object, char **split)
-{
+void assign_light(t_object *object, char **split) {
   object->obj_type = LIGHT;
-  object->sphere.radius =  ft_atoi(split[3]);
+  object->sphere.radius = ft_atoi(split[3]);
   object->emission = (cl_float3){{1.0f, 1.0f, 1.0f}};
   // object->obb = assign_sphere_obb(object->sphere);
 }
 
-t_cyclinder	assign_cyclinder(cl_float radius, cl_float height)
-{
-	t_cyclinder	cyclinder;
+t_cyclinder assign_cyclinder(cl_float radius, cl_float height) {
+  t_cyclinder cyclinder;
 
-	cyclinder.radius = radius;
-	cyclinder.height = height;
-	return (cyclinder);
+  cyclinder.radius = radius;
+  cyclinder.height = height;
+  return (cyclinder);
 }
 
 // t_list	*create_ll_objects(void) // !parsing to execution starts here
@@ -188,49 +184,43 @@ t_cyclinder	assign_cyclinder(cl_float radius, cl_float height)
 // 	return (root_node);
 // }
 
+t_object *create_objects_array(t_list *root_node) {
+  t_object *arr_objects;
+  t_list *head;
+  int len;
+  int n;
 
-t_object	*create_objects_array(t_list *root_node)
-{
-	t_object	*arr_objects;
-	t_list		*head;
-	int			len;
-	int			n;
-
-	len = ft_lstsize(root_node);
-	arr_objects = ft_calloc(len + 1, sizeof(t_object));
-	if (!arr_objects)
-		perror_and_exit("malloc", EXIT_FAILURE);
-	head = root_node;
-	n = -1;
-	while (++n < len)
-	{
-		// printf("%d\n", n);
-		ft_memcpy(arr_objects + n, head->content, sizeof(t_object));
-		// arr_objects[n].obb = assign_sphere_obb(arr_objects[n].sphere);
-		head = head->next;
-	}
-	ft_lstclear(&root_node, free);
-	n = -1;
-	while (++n < len)
-	{
-		print_vector(arr_objects[n].pos);
-	}
+  len = ft_lstsize(root_node);
+  arr_objects = ft_calloc(len + 1, sizeof(t_object));
+  if (!arr_objects)
+    perror_and_exit("malloc", EXIT_FAILURE);
+  head = root_node;
+  n = -1;
+  while (++n < len) {
+    // printf("%d\n", n);
+    ft_memcpy(arr_objects + n, head->content, sizeof(t_object));
+    // arr_objects[n].obb = assign_sphere_obb(arr_objects[n].sphere);
+    head = head->next;
+  }
   ft_lstclear(&root_node, free);
-	return (arr_objects);
+  n = -1;
+  while (++n < len) {
+    print_vector(arr_objects[n].pos);
+  }
+  ft_lstclear(&root_node, free);
+  return (arr_objects);
 }
 
-int	count_objects(t_object *arr_objects)
-{
-	int	count;
+int count_objects(t_object *arr_objects) {
+  int count;
 
-	count = -1;
-	while (arr_objects[++count].obj_type != 0)
-		;
-	return (count);
+  count = -1;
+  while (arr_objects[++count].obj_type != 0)
+    ;
+  return (count);
 }
 
-t_object *get_objects(char *filename)
-{
+t_object *get_objects(char *filename) {
   t_list *root_node = NULL;
   t_list *node;
   char *line;
@@ -240,8 +230,7 @@ t_object *get_objects(char *filename)
   if (!fd)
     exit(EXIT_FAILURE); // Better handling should be here
   line = get_next_line(fd);
-  while (line)
-  {
+  while (line) {
     node = ft_lstnew(assign_object(line));
     if (!root_node)
       root_node = node;
