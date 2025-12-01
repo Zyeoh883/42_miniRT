@@ -35,7 +35,7 @@ typedef struct __attribute__((aligned(16))) s_reservoir
   t_candidate candidate;
   float weighted_sum;
   uint M;
-  float probability;
+  float seed;
 }       t_reservoir;
 
 typedef struct __attribute__((aligned(16))) s_camera
@@ -101,12 +101,12 @@ typedef struct __attribute__((aligned(16))) s_sample_data
 }       t_sample_data;
 
 float3			vector_normalize(float3 v);
-t_ray			create_ray(U __constant t_camera *camera, float i, float j);
-int				render_ray(t_ray ray, U __constant t_object *objects);
+t_ray			create_ray(U __global t_camera *camera, float i, float j);
+int				render_ray(t_ray ray, U __global t_object *objects);
 float3			vector_scalar_product(const float3 v, const float scalar);
-float2			intersect_ray_sphere(U __constant t_object *object, t_ray ray);
+float2			intersect_ray_sphere(U __global t_object *object, t_ray ray);
 float3			quat_rotate(float4 q, const float3 q_v);
-float2			ray_intersection(U __constant t_object *object, t_ray ray);
+float2			ray_intersection(U __global t_object *object, t_ray ray);
 
 
 t_candidate init_candidate();

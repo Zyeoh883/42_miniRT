@@ -22,7 +22,7 @@ t_object *assign_object(char *line) {
   split = ft_split(line, ',');
   if (!object || !split)
     perror_and_exit("malloc", EXIT_FAILURE);
-  object->emission = (cl_float3){{0.01f, 0.01f, 0.01f}};
+  object->emission = (cl_float3){{1, 1, 1}};
   if (**split == SPHERE)
     assign_sphere(object, split);
   else if (**split == PLANE)
@@ -77,7 +77,7 @@ void assign_plane(t_object *object, char **split) {
 void assign_light(t_object *object, char **split) {
   object->obj_type = LIGHT;
   object->sphere.radius = ft_atoi(split[3]);
-  object->emission = (cl_float3){{1.0f, 1.0f, 1.0f}};
+  object->emission = (cl_float3){{100.0f, 100.0f, 100.0f}};
   // object->obb = assign_sphere_obb(object->sphere);
 }
 

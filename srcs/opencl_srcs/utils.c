@@ -34,7 +34,7 @@ t_reservoir init_reservoir()
   reservoir.candidate = init_candidate();
   reservoir.M = 0;
   reservoir.weighted_sum = 0;
-  reservoir.probability = 0;
+  reservoir.seed = 0;
   
   return reservoir;
 }

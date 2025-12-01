@@ -66,7 +66,7 @@ typedef struct __attribute__ ((aligned(16))) s_camera
 typedef struct __attribute__ ((aligned(16))) s_inputs
 {
 	int key_wasd[4];
-	int key_wasd_held[4];
+	// int key_wasd_held[4];
 	int key;
 	int key_held;
 	int mouse_x;

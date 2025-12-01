@@ -55,8 +55,7 @@ void	input_translate(t_data *data, t_inputs inputs)
 // 	else
 // 		return (0);
 // 	if (data->inputs.key == I_KEY || data->inputs.key == K_KEY)
-// 		data->camera.quat = quat_product(data->camera.quat, angle_to_quat(v,
-// 					M_PI / 16));
+// 		data->camera.quat = quat_product(data->camera.quat, angle_to_quat(v, M_PI / 16));
 // 	else
 // 		data->camera.quat = quat_product(angle_to_quat(v, M_PI / 16),
 // 				data->camera.quat);

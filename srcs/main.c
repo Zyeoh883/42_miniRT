@@ -296,6 +296,7 @@ int	render_frame(t_data *data)
 	printf("%f\n", 1 / average);
 	mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, data->img, 0, 0);
   data->inputs.update = 0;
+  data->camera->moved = false;
   return 0;
 }
 // fflush(stdout);

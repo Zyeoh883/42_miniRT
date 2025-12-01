@@ -86,7 +86,7 @@ typedef struct __attribute__((aligned(16))) s_reservoir
   t_candidate candidate;
   float weighted_sum;
   uint M;
-  float probability;
+  float seed;
 }       t_reservoir;
 
 // __attribute__((packed,aligned(4))
