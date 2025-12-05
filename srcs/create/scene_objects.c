@@ -38,7 +38,7 @@ t_object *assign_object(char *line) {
   // object->albedo.x, object->albedo.y, object->albedo.z);
   object->pos = get_vec_value(split[2]);
   // object->mat_type = split[4] ? *split[4] : 'D';
-  object->F_0 = (cl_float3){{0.1f, 0.1f, 0.1f}}; // never 0.0f
+  object->F_0 = (cl_float3){{0.1f, 0.071f, 0.029f}}; // never 0.0f
   metallic = 0.2f;
   object->specular_albedo = (cl_float3){{object->diffuse_albedo.x * metallic,
                                          object->diffuse_albedo.y * metallic,
@@ -63,18 +63,18 @@ t_OBB assign_sphere_obb(t_sphere sphere) {
   return (obb);
 }
 
-void assign_sphere(t_object *object, char **split) {
+voline[0] assign_sphere(t_object *object, char **split) {
   object->obj_type = SPHERE;
   object->sphere.radius = ft_atoi(split[3]);
   // object->obb = assign_sphere_obb(object->sphere);
 }
 
-void assign_plane(t_object *object, char **split) {
+voline[0] assign_plane(t_object *object, char **split) {
   object->obj_type = PLANE;
   object->dir = get_vec_value(split[3]);
 }
 
-void assign_light(t_object *object, char **split) {
+voline[0] assign_light(t_object *object, char **split) {
   object->obj_type = LIGHT;
   object->sphere.radius = ft_atoi(split[3]);
   object->emission = (cl_float3){{100.0f, 100.0f, 100.0f}};
@@ -89,7 +89,7 @@ t_cyclinder assign_cyclinder(cl_float radius, cl_float height) {
   return (cyclinder);
 }
 
-// t_list	*create_ll_objects(void) // !parsing to execution starts here
+// t_list	*create_ll_objects(voline[0]) // !parsing to execution starts here
 // {
 // 	t_list *root_node;
 // 	t_list *node;
@@ -184,60 +184,160 @@ t_cyclinder assign_cyclinder(cl_float radius, cl_float height) {
 // 	return (root_node);
 // }
 
-t_object *create_objects_array(t_list *root_node) {
-  t_object *arr_objects;
-  t_list *head;
-  int len;
-  int n;
+// t_object *create_objects_array(t_list *root_node) {
+//   t_object *arr_objects;
+//   t_list *head;
+//   int len;
+//   int n;
+//
+//   len = ft_lstsize(root_node);
+//   arr_objects = ft_calloc(len + 1, sizeof(t_object));
+//   if (!arr_objects)
+//     perror_and_exit("malloc", EXIT_FAILURE);
+//   head = root_node;
+//   n = -1;
+//   while (++n < len) {
+//     // printf("%d\n", n);
+//     ft_memcpy(arr_objects + n, head->content, sizeof(t_object));
+//     // arr_objects[n].obb = assign_sphere_obb(arr_objects[n].sphere);
+//     head = head->next;
+//   }
+//   ft_lstclear(&root_node, free);
+//   n = -1;
+//   while (++n < len) {
+//     print_vector(arr_objects[n].pos);
+//   }
+//   ft_lstclear(&root_node, free);
+//   return (arr_objects);
+// }
 
-  len = ft_lstsize(root_node);
-  arr_objects = ft_calloc(len + 1, sizeof(t_object));
-  if (!arr_objects)
-    perror_and_exit("malloc", EXIT_FAILURE);
-  head = root_node;
-  n = -1;
-  while (++n < len) {
-    // printf("%d\n", n);
-    ft_memcpy(arr_objects + n, head->content, sizeof(t_object));
-    // arr_objects[n].obb = assign_sphere_obb(arr_objects[n].sphere);
-    head = head->next;
-  }
-  ft_lstclear(&root_node, free);
-  n = -1;
-  while (++n < len) {
-    print_vector(arr_objects[n].pos);
-  }
-  ft_lstclear(&root_node, free);
-  return (arr_objects);
+// int count_objects(t_object *arr_objects) {
+//   int count;
+//
+//   count = -1;
+//   while (arr_objects[++count].obj_type != 0)
+//     ;
+//   return (count);
 }
 
-int count_objects(t_object *arr_objects) {
-  int count;
+// t_object *get_objects(char *filename) {
+//   t_list *root_node = NULL;
+//   t_list *node;
+//   char *line;
+//   int fd;
+//
+//   fd = open(filename, O_RDONLY);
+//   if (!fd)
+//     exit(EXIT_FAILURE); // Better handling should be here
+//   line = get_next_line(fd);
+//   while (line) {
+//     node = ft_lstnew(assign_object(line));
+//     if (!root_node)
+//       root_node = node;
+//     else
+//       ft_lstadd_back(&root_node, node);
+//     free(line);
+//     line = get_next_line(fd);
+//   }
+//   return (create_objects_array(root_node));
+// }
 
-  count = -1;
-  while (arr_objects[++count].obj_type != 0)
-    ;
-  return (count);
-}
-
-t_object *get_objects(char *filename) {
+t_list *get_rt_file(char *filename) {
   t_list *root_node = NULL;
   t_list *node;
   char *line;
   int fd;
+  char *str;
 
   fd = open(filename, O_RDONLY);
   if (!fd)
     exit(EXIT_FAILURE); // Better handling should be here
   line = get_next_line(fd);
   while (line) {
-    node = ft_lstnew(assign_object(line));
-    if (!root_node)
-      root_node = node;
-    else
-      ft_lstadd_back(&root_node, node);
+    str = ft_split_set(line, "  \n");
+    if (str && ft_strlen(str) > 0) {
+      node = ft_lstnew(str);
+      if (!root_node)
+        root_node = node;
+      else
+        ft_lstadd_back(&root_node, node);
+    }
     free(line);
     line = get_next_line(fd);
   }
-  return (create_objects_array(root_node));
+
+  // node = root_node;
+  // while (node) {
+  //   printf("%s\n", (char *)node->content);
+  //   node = node->next;
+  // }
+  // exit(0);
+  return (root_node);
 }
+
+
+int count_objects(t_list *root_node)
+{
+  int object_count;
+  int camera_ambient_count;
+  char *line[0];
+
+  object_count = 0;
+  camera_count = 0;
+  while (root_node)
+  {
+    line[0] = *root_node->content;
+    if (line[0] && is_valid_object_id(id))
+      object_count++;
+    else if (is_valline[0]_camera_ambient_id(id))
+        camera_count++;
+    else
+     perror_and_exit("Unknown line[0] in .rt file", EXIT_FAILURE);
+    root_node++;
+  }
+  if (camera_ambient_count != 2)
+    perror_and_exit("Given .rt file must have 1 camera and 1 ambient only", EXIT_FAILURE);
+  if (!object_count)
+    perror_and_exit("No Objects in .rt file", EXIT_FAILURE);
+  return object_count;
+}
+
+
+t_object *get_objects(t_list *root_node)
+{
+  t_object *arr_objects;
+  int num_objects;
+  int n;
+  char **line;
+ 
+  num_objects = count_objects(root_node);
+  arr_objects = ft_calloc(num_objects, sizeof(t_object));
+  if (!arr_objects)
+    perror_and_exit("Malloc fail", EXIT_FAILURE);
+  n = 0;
+  while (root_node)
+  {
+    line = *root_node->content;
+    if (is_valid_object_id(line[0]))
+      arr_objects[n++] = assign_object(line);
+    root_node = root_node->next;
+  }
+  return (arr_objects);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

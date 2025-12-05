@@ -24,7 +24,6 @@
 typedef struct __attribute__((aligned(16))) s_candidate
 {
   float3 radiance;
-  float3 incident_direction;
   float3 weight;
   float pdf;
 
@@ -46,7 +45,6 @@ typedef struct __attribute__((aligned(16))) s_camera
 	float	pixel_height;
 	int		win_height;
 	int		win_width;
-	char	num_objects;
 	int		bytes_per_pixel;
 	int		line_length;
   char  moved;
@@ -101,7 +99,7 @@ typedef struct __attribute__((aligned(16))) s_sample_data
 }       t_sample_data;
 
 float3			vector_normalize(float3 v);
-t_ray			create_ray(U __global t_camera *camera, float i, float j);
+t_ray			create_ray(U __global t_camera *camera, t_sample_data *sample_data);
 int				render_ray(t_ray ray, U __global t_object *objects);
 float3			vector_scalar_product(const float3 v, const float scalar);
 float2			intersect_ray_sphere(U __global t_object *object, t_ray ray);
@@ -126,3 +124,4 @@ float3 reservoir_final_color(t_reservoir *res);
 // utils
 
 float3 to_float3(float x);
+void print_vec(float3 vec);

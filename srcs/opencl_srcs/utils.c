@@ -21,7 +21,6 @@ t_candidate init_candidate()
   t_candidate candidate;
   
   candidate.radiance = (float3)(0.0f, 0.0f, 0.0f);
-  candidate.incident_direction = (float3)(0.0f, 0.0f, 0.0f);
   candidate.pdf = 0;
   candidate.weight =  (float3)(0.0f, 0.0f, 0.0f);
   return candidate;
@@ -37,5 +36,10 @@ t_reservoir init_reservoir()
   reservoir.seed = 0;
   
   return reservoir;
+}
+
+void print_vec(float3 vec)
+{
+  printf("%f %f %f\n", vec.x, vec.y, vec.z);
 }
 

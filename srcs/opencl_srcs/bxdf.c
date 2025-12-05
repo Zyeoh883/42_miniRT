@@ -120,12 +120,14 @@ float3 sample_specular(float2 s, float3 in, float3* out, float3 normal,t_object 
         wh = GGX_Sample(s, normal, hit_object->roughness_sqr);
         *out = reflect(in, wh);
 
+        n_dot = dot(normal, -in);
         n_dot_o = dot(normal, *out);
         n_dot_h = dot(normal, wh);
-        n_dot = dot(normal, -in);
         h_dot_o = dot(*out, wh);
         wi_dot_h = dot(-in, wh);       // Incident dot Halfway (Incident is -in)
-        if (n_dot_o <= 0.0f || n_dot_h <= 0.0f || wi_dot_h <= 0.0f) {
+        if (n_dot_o <= 0.0f || n_dot_h <= 0.0f || wi_dot_h <= 0.0f || n_dot <= 0.0f) {
+          // print_vec(wh);
+          // printf("%f %f %f\n", n_dot_o, n_dot_h, wi_dot_h);
           *pdf = 0.0f;
           return (float3)(0.0f);
         }

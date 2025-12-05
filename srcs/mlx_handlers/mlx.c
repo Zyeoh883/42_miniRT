@@ -79,8 +79,10 @@ int	deal_key_press(int key, t_data *data) // ! does not free
 		data->inputs.key_wasd[2] = 1;
 	else if (key == D_KEY)
 		data->inputs.key_wasd[3] = 1;
-	else
+	else if (key == SPACE_KEY || key == CTRL_KEY)
 		data->inputs.key = key;
+  else
+    return (0);
   data->camera->moved = true;
 	return (0);
 }

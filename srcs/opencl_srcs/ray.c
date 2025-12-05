@@ -32,8 +32,22 @@ unsigned int HashUInt32(unsigned int x) {
 
 // Linear congruential generator was here
 
-t_ray create_ray(U __global t_camera *camera, float i, float j) {
+t_ray create_ray(U __global t_camera *camera, t_sample_data *sample_data)
+{
   t_ray ray;
+  float i;
+  float j;
+  float offset;
+
+  i = sample_data->x;
+  j = sample_data->y;
+  // offset = (sample_random(sample_data, i + j) - 0.5f) * 0.5f;
+  i += (sample_random(sample_data, i) - 0.5f);
+  j += (sample_random(sample_data, j) - 0.5f);
+
+
+  // printf("offset: %f\n", offset);
+  
 
   ray.pos = camera->pos;
   ray.dir =
@@ -45,6 +59,21 @@ t_ray create_ray(U __global t_camera *camera, float i, float j) {
   ray.dir = fast_normalize(ray.dir);
   return (ray);
 }
+
+
+
+
+// if (t[0] > 0 && t[0] < *closest_t)
+// {
+// 	*closest_t = t[0];
+// 	*hit_object = *objects;
+// }
+// if (t[1] > 0 && t[1] < *closest_t)
+// {
+// 	*closest_t = t[1];
+//    *hit_object = *objects;
+// }
+// objects++;
 
 int intersect_scene(t_ray ray, U __global t_object *objects,
                     t_object *hit_object, float *closest_t) {
@@ -65,17 +94,6 @@ int intersect_scene(t_ray ray, U __global t_object *objects,
     *closest_t = select(*closest_t, t[1], condition);
     object_index = select(object_index, index, condition);
 
-    // if (t[0] > 0 && t[0] < *closest_t)
-    // {
-    // 	*closest_t = t[0];
-    // 	*hit_object = *objects;
-    // }
-    // if (t[1] > 0 && t[1] < *closest_t)
-    // {
-    // 	*closest_t = t[1];
-    //    *hit_object = *objects;
-    // }
-    // objects++;
   }
   if (*closest_t == INFINITY)
     return 0;
@@ -83,58 +101,40 @@ int intersect_scene(t_ray ray, U __global t_object *objects,
   return 1;
 }
 
-// t_ray sample_hemisphere(float3 hit_point, float3 normal, unsigned int *seed0)
-// {
-//   t_ray new_ray;
-//
-//   new_ray.pos = hit_point + normal * 0.0001f;
-//
-//
-//   /* compute two random numbers to pick a random point on the hemisphere
-//   above the hitpoint*/
-// 	float rand1 = 2.0f * M_PI * GetRandomFloat(seed0);
-// 	float rand2 = GetRandomFloat(seed0);
-// 	float rand2s = sqrt(rand2);
-//
-//   /* create a local orthogonal coordinate frame centered at the hitpoint */
-// 	float3 w = normal;
-// 	float3 axis = fabs(w.x) > 0.1f ? (float3)(0.0f, 1.0f, 0.0f) :
-// (float3)(1.0f, 0.0f, 0.0f); 	float3 u = normalize(cross(axis, w)); 	float3 v
-// = cross(w, u);
-//
-// 	/* use the coordinte frame and random numbers to compute the next ray
-// direction */ 	new_ray.dir = fast_normalize(u * cos(rand1)*rand2s +
-// v*sin(rand1)*rand2s + w*sqrt(1.0f - rand2));
-//
-//   return (new_ray);
-// }
-
-// t_ray sample_reflection(float3 hit_point, float3 normal, float3 view_dir,
-// float roughness, unsigned int* seed0)
-// {
-//     float2 rand = (float2)(GetRandomFloat(seed0), GetRandomFloat(seed0));
-//     float3 half_dir = GGX_Sample(rand, normal, roughness);
-//     float3 reflect_dir = reflect(-view_dir, half_dir);
-//     return (t_ray){hit_point + normal * 1e-5f, reflect_dir};
-// }
 
 float3 get_normal(t_object *hit_object, float3 hit_point, float3 ray_dir) {
   float3 normal;
 
-  normal = select(normal, hit_point - hit_object->pos,
-                  (int3)(hit_object->obj_type == SPHERE) << 31);
-  normal = select(normal, hit_object->dir,
-                  (int3)(hit_object->obj_type == PLANE) << 31);
+  // normal = select(normal, hit_point - hit_object->pos,
+  //                 (int3)(hit_object->obj_type == SPHERE) << 31);
+  // normal = select(normal, hit_object->dir,
+  //                 (int3)(hit_object->obj_type == PLANE) << 31);
 
-  // if (hit_object->obj_type == SPHERE)
-  //   normal = hit_point - hit_object->pos;
-  // else if (hit_object->obj_type == PLANE)
-  //   normal = hit_object->dir;
+  if (hit_object->obj_type == SPHERE)
+    normal = hit_point - hit_object->pos;
+  else if (hit_object->obj_type == PLANE)
+    normal = hit_object->dir;
 
   normal = fast_normalize(normal);
-  // return (dot(normal, ray_dir) < 0.0f ? normal : -normal);
-  return (select(normal, -normal, (int3)(dot(normal, ray_dir) > 0) << 31));
+  return (dot(normal, ray_dir) < 0.0f ? normal : -normal);
+  // return (select(normal, -normal, (int3)(dot(normal, ray_dir) > 0) << 31));
 }
+
+// t_candidate ambient_trace(t_ray in_ray, U __global t_object *objects, t_sample_data *sample_data, t_reservoir *reservoir)
+// {
+//   t_object hit_object;
+//   float2 t;
+//   t_candidate candidate;
+//
+//   candidate = init_candidate();
+//
+//   if(intersect_scene(in_ray, objects, &hit_object, &t))
+//   {
+//     candidate.radiance = hit_object.emission; 
+//   }
+//   return candidate;
+//
+// }
 
 t_candidate path_trace(t_ray in_ray, U __global t_object *objects,
                        t_sample_data *sample_data, t_reservoir *reservoir) {
@@ -166,15 +166,12 @@ t_candidate path_trace(t_ray in_ray, U __global t_object *objects,
       float t_val = 0.5f * (in_ray.dir.y + 1.0f);
       float3 top_color = (float3)(0.5f, 0.7f, 1.0f); // Sky
       float3 bot_color = (float3)(1.0f, 1.0f, 1.0f); // Horizon
-      float3 env_color = mix(bot_color, top_color, t_val) * 0.5f; // 0.5f is intensity
-      throughput = min(throughput, (float3)(2.0f, 2.0f, 2.0f));
-      candidate.radiance = throughput * env_color * 1e-1f;
+      float3 env_color = mix(bot_color, top_color, t_val) * 0.1f; // 0.5f is intensity
+      throughput = min(throughput, (float3)(0.1f));
+      candidate.radiance = throughput * env_color;
 
-      // candidate.radiance = throughput * (float3)(0.2f, 0.2f, 0.25f);
-      // candidate.radiance = throughput * (float3)(0.1f, 0.3f, 0.8f);
       candidate.pdf = max(pdf_temp, 1e-6f);
       candidate.weight = 1;
-      candidate.incident_direction = -in_ray.dir;
       return candidate;
     } // if (t < 1e-2f)
     if (hit_object.obj_type == LIGHT) {
@@ -190,7 +187,6 @@ t_candidate path_trace(t_ray in_ray, U __global t_object *objects,
         printf("radiance : %f %f %f\n", candidate.radiance.x,
                candidate.radiance.y, candidate.radiance.z);
       }
-      candidate.incident_direction = -in_ray.dir;
       candidate.pdf = pdf_temp;
       candidate.weight = throughput;
       return candidate;
@@ -203,14 +199,15 @@ t_candidate path_trace(t_ray in_ray, U __global t_object *objects,
     bxdf =
         sample_bxdf(sample_random(sample_data, 3), seed, normalize(in_ray.dir),
                     &out_ray.dir, normal, &hit_object, &pdf, sample_data);
-    candidate.radiance += hit_object.emission * throughput * 1e-1f;
+    // candidate.radiance += hit_object.emission * throughput;
+    // candidate.pdf = pdf_temp;
+    // candidate.weight = throughput;
     // if (pdf == -1)
     //   return candidate;
     if (pdf <= 0.0f) {
-      printf("here\n");
+      // printf("here\n");
       // Return current surface emission or black
       candidate.radiance = hit_object.emission * throughput;
-      candidate.incident_direction = -in_ray.dir;
       candidate.pdf = pdf_temp;
       candidate.weight = throughput;
       return candidate;
@@ -325,8 +322,9 @@ __kernel void render_scene(U __global uchar *addr,
   sample_data.y = get_global_id(1);
   // x = 1280 / 2;
   // y = 720 / 2;
+  
 
-  ray = create_ray(camera, sample_data.x, sample_data.y);
+  // ray = create_ray(camera, sample_data.x, sample_data.y);
 
   // float inv_samples = 1.0f / sample_data.sample_index;
 
@@ -334,19 +332,31 @@ __kernel void render_scene(U __global uchar *addr,
   t_candidate candidate;
 
   reservoir = reservoirs[(int)(sample_data.x + sample_data.y * camera->win_width)];
-
+  
   // if (sample_data.x == 0 && sample_data.y == 0)
   //   printf("seed = %f\n", reservoir.seed);
 
   // sample_data.seed = 0;
   sample_data.seed = reservoir.seed;
   sample_data.sample_index = 5;
+  // if (sample_data.x == 0 && sample_data.y == 0)
+  // {
+  //
+  //   int count = 25;
+  //
+  //   while (--count)
+  //   {
+  //     printf("test: %f\n", sample_random(&sample_data, 123));
+  //   }
+  // }
 
   if (camera->moved)
     reservoir = (t_reservoir){0};
   while (--sample_data.sample_index > 0) {
 
-    candidate = path_trace(create_ray(camera, sample_data.x, sample_data.y),
+    // candidate = ambient_trace(create_ray(came))
+
+    candidate = path_trace(create_ray(camera, &sample_data),
                            objects, &sample_data, &reservoir);
     // if (isnan(candidate.radiance.x) || isinf(candidate.radiance.x))
     //   printf("candidate.radiance, %f", candidate.radiance.x);

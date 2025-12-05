@@ -12,14 +12,7 @@
 
 #include "minirt.h"
 
-//   // At start of initialize()
-// Display *debug_display = XOpenDisplay(NULL);
-// if (!debug_display) {
-//     fprintf(stderr, "Error: Cannot connect to X server\n");
-//     return 0;
-// }
-// XCloseDisplay(debug_display);
-//
+
 
 void print_cl_error(cl_int error)
 {
@@ -56,7 +49,7 @@ t_camera	*init_camera(t_data *data, int win_height, int win_width)
 		exit(EXIT_FAILURE);
 	camera->pos = (cl_float4) {{0, 0, 0}};
 	camera->quat = (cl_float4) {{0, 0, 0, 1}};
-	fov = 60 * TO_RADIAN;
+	fov = FOV * TO_RADIAN;
 	aspect_ratio = (cl_float)win_width / win_height;
 	camera->pixel_width = 2 * tan(fov * 0.5f);
 	camera->pixel_height = camera->pixel_width / aspect_ratio;
@@ -100,7 +93,7 @@ t_opencl	*init_opencl(t_data *data)
 	ret = clGetPlatformIDs(2, opencl->platform, NULL);
 	if (ret != CL_SUCCESS)
 		print_cl_error(ret);
-  ret = clGetDeviceIDs(opencl->platform[1], CL_DEVICE_TYPE_GPU, 1, &opencl->device, NULL);
+  ret = clGetDeviceIDs(opencl->platform[0], CL_DEVICE_TYPE_GPU, 1, &opencl->device, NULL);
 	if (ret != CL_SUCCESS)
 		print_cl_error(ret);
 
@@ -195,14 +188,13 @@ t_opencl	*init_opencl(t_data *data)
 
 int	initialize(t_data *data, char *filename)
 {
+  data->file_content = get_rt_file(filename); 
 	data->objects = get_objects(filename);
 	data->mlx_ptr = mlx_init();
 	if (!data->mlx_ptr)
 		return (0);
 	data->win_width = 1980;
 	data->win_height = 1080;
-	// data->win_width = 600;
-	// data->win_height = 600;
 	data->img = mlx_new_image(data->mlx_ptr, data->win_width, data->win_height);
 	data->addr = mlx_get_data_addr(data->img, &data->bits_per_pixel,
 			&data->line_length, &data->endian);
@@ -220,7 +212,6 @@ int	initialize(t_data *data, char *filename)
   data->inputs.update = 1;
 	data->num_objects = count_objects(data->objects);
 	data->opencl = init_opencl(data);
-  render_frame(data);
 	return (1);
 }
 

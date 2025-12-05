@@ -13,10 +13,10 @@
 #ifndef DATA_STRUCT_H
 # define DATA_STRUCT_H
 
-# define SPHERE 'S'
-# define PLANE 'P'
-# define CYCLINDER 'C'
-# define LIGHT 'L'
+# define CL_SPHERE 'S'
+# define CL_PLANE 'P'
+# define CL_CYCLINDER 'C'
+# define CL_LIGHT 'L'
 
 typedef struct __attribute__ ((aligned(16))) s_ray
 {
