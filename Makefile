@@ -22,6 +22,7 @@ SRCS_FIL = \
 		main.c\
 		mlx_handlers/mlx.c \
 		create/scene_objects.c \
+		create/scene_objects_utils.c \
 		error_handling/memory_error.c \
 		utils/utils.c \
 		math_utils/vector.c \

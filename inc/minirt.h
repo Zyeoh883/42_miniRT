@@ -39,6 +39,8 @@
 #define PTR_NULL "(nil)"
 #endif
 
+#define BASE_10_DIGITS "1234567890"
+#define LONG_NUM_DIGITS 19
 #define CAM_SENS M_PI * 0.001
 #define CAM_LOCK 80 * TO_RADIAN
 #define FOV 60
@@ -62,9 +64,15 @@ typedef struct __attribute__((aligned(16))) s_camera {
   cl_float pixel_height;
   cl_int win_height;
   cl_int win_width;
-  // cl_uchar	num_objects;
+  cl_int fov;
   cl_int bytes_per_pixel;
   cl_int line_length;
+
+  cl_float amb_light_ratio;
+  cl_float amb_fade_ratio;
+  cl_float3 amb_top_color;
+  cl_float3 amb_bot_color;
+
   cl_uchar moved;
 } t_camera;
 // float pitch_angle;
@@ -108,8 +116,10 @@ int initialize(t_data *data, char *filename);
 t_list *create_ll_objects(void);
 t_object *create_objects_array(t_list *root_node);
 t_OBB assign_sphere_obb(t_sphere sphere);
-t_object *get_objects(char *filename);
 t_list *get_rt_file(char *filename);
+
+t_object *get_objects(t_list *root_node);
+t_camera get_camera(t_list *root_node);
 
 int render_frame(t_data *data);
 
@@ -119,7 +129,20 @@ void assign_sphere(t_object *object, char **split);
 void assign_plane(t_object *object, char **split);
 void assign_light(t_object *object, char **split);
 
-t_OBB assign_sphere_obb(t_sphere sphere);
+void assign_camera(t_camera *camera, char **line);
+void assign_ambient(t_camera *camera, char **line);
+// t_OBB assign_sphere_obb(t_sphere sphere);
+
+
+
+// create utils
+
+int is_valid_object_id(char *id);
+int is_valid_camera_ambient_id(char *id);
+cl_float get_cl_float(char *str);
+cl_float3 get_cl_float3(char *str);
+cl_float3 get_rgb_value(char *str);
+
 
 // tests
 // void			vector_test(void);
@@ -140,11 +163,10 @@ void perror_and_exit(char *str, int exit_code);
 void print_m128(__m128 m);
 char *read_cfile(char *name);
 void free_cfile(char **c_file);
-int count_objects(t_object *arr_objects);
 void free_str_arr(char **str_arr);
-int get_rgb_value(char *str);
+int count_objects(t_list *root_node);
 cl_float4 get_quat_value(char *str);
-cl_float3 get_vec_value(char *str);
 cl_float3 inv_rgb_float(int rgb);
+int ft_str_arr_len(char **str);
 
 #endif

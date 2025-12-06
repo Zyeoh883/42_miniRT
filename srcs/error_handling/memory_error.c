@@ -14,8 +14,8 @@
 
 void	perror_and_exit(char *str, int exit_code)
 {
-	ft_putstr_fd("minishell: ", STDERR_FILENO);
-	ft_putstr_fd(str, STDERR_FILENO);
+	ft_putstr_fd("minirt: ", STDERR_FILENO);
+	ft_putendl_fd(str, STDERR_FILENO);
 	perror(str);
 	exit(exit_code);
 }

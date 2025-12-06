@@ -44,12 +44,12 @@ typedef struct __attribute__ ((aligned(16))) s_OBB
 typedef struct __attribute__ ((aligned(16))) s_object
 {
 	/*struct s_OBB		obb;*/
+  /*cl_uchar		mat_type; // D, M, G, R, P*/
 	cl_uchar		obj_type;
-	/*cl_uchar		mat_type; // D, M, G, R, P*/
 	cl_int			color;
 	cl_float3		pos;
 	cl_float3		dir;
-  cl_float    k_ambient;
+  cl_float    k_ambient; //not used
   cl_float3   diffuse_albedo; //diffuse for lambartian_BRDF
   cl_float3   specular_albedo; 
   cl_float3   F_0; // basic_reflectivity; // F_0 Freshnel component

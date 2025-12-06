@@ -41,17 +41,17 @@ void print_cl_error(cl_int error)
 t_camera	*init_camera(t_data *data, int win_height, int win_width)
 {
 	t_camera		*camera;
-	cl_float		fov;
 	cl_float		aspect_ratio;
 
 	camera = ft_calloc(1, sizeof(t_camera));
 	if (!camera)
 		exit(EXIT_FAILURE);
+  *camera = get_camera(data->file_content);
 	camera->pos = (cl_float4) {{0, 0, 0}};
 	camera->quat = (cl_float4) {{0, 0, 0, 1}};
-	fov = FOV * TO_RADIAN;
+	// fov = FOV * TO_RADIAN;
 	aspect_ratio = (cl_float)win_width / win_height;
-	camera->pixel_width = 2 * tan(fov * 0.5f);
+	camera->pixel_width = 2 * tan(camera->fov * 0.5f);
 	camera->pixel_height = camera->pixel_width / aspect_ratio;
 	camera->win_width = win_width;
 	camera->win_height = win_height;
@@ -189,7 +189,7 @@ t_opencl	*init_opencl(t_data *data)
 int	initialize(t_data *data, char *filename)
 {
   data->file_content = get_rt_file(filename); 
-	data->objects = get_objects(filename);
+	data->objects = get_objects(data->file_content);
 	data->mlx_ptr = mlx_init();
 	if (!data->mlx_ptr)
 		return (0);
@@ -210,7 +210,8 @@ int	initialize(t_data *data, char *filename)
   // t_object *temp = data->objects;
   // printf("%c %x, %F %F %F, %F %F %F, %f\n", temp->type, temp->color, (double)(temp->pos.s[0]), (double)(temp->pos.s[1]), (double)temp->pos.s[2], (double)temp->quat.s[0], (double)temp->quat.s[1], (double)temp->quat.s[2], temp->sphere.radius);
   data->inputs.update = 1;
-	data->num_objects = count_objects(data->objects);
+  data->camera = init_camera(data, data->win_height, data->win_width);
+	// data->num_objects = count_objects(data->objects);
 	data->opencl = init_opencl(data);
 	return (1);
 }

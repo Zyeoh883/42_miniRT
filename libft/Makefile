@@ -51,6 +51,8 @@ SRCS_FILES = ft_atoi.c\
 	ft_print_xXp.c\
 	ft_printf.c\
 	ft_split_set.c\
+	ft_atol.c\
+	ft_atof.c\
 
 BONUS_FILES = ft_lstadd_back.c\
 	ft_lstadd_front.c\

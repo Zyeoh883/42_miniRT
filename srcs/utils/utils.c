@@ -77,28 +77,28 @@ void	free_str_arr(char **str_arr)
 	free(str_arr);
 }
 
-int	get_rgb_value(char *str)
-{
-	int	result;
-
-	str += 2;
-	result = 0;
-	while (ft_isalpha(*str) || ft_isdigit(*str))
-	{
-		result *= 16;
-		if (ft_isalpha(*str))
-		{
-			if (*str >= 97)
-				result += *str - 'a' + 10;
-			else
-				result += *str - 'A' + 10;
-		}
-		else
-			result += *str - '0';
-		++str;
-	}
-	return (result);
-} 
+// int	get_rgb_value(char *str)
+// {
+// 	int	result;
+//
+// 	str += 2;
+// 	result = 0;
+// 	while (ft_isalpha(*str) || ft_isdigit(*str))
+// 	{
+// 		result *= 16;
+// 		if (ft_isalpha(*str))
+// 		{
+// 			if (*str >= 97)
+// 				result += *str - 'a' + 10;
+// 			else
+// 				result += *str - 'A' + 10;
+// 		}
+// 		else
+// 			result += *str - '0';
+// 		++str;
+// 	}
+// 	return (result);
+// } 
 
 cl_float4 get_quat_value(char *str)
 {
@@ -113,19 +113,6 @@ cl_float4 get_quat_value(char *str)
   return(quat);  
 }
 
-cl_float3 get_vec_value(char *str)
-{
-  cl_float3 vec;
-  char **split;
- 
-  split = ft_split(str, '.');
-  if (!split)
-    perror_and_exit("malloc", EXIT_FAILURE);
-  vec = (cl_float3){{ft_atoi(split[0]), ft_atoi(split[1]), ft_atoi(split[2])}};
-  free_str_arr(split);
-  return(vec);  
-}
-
 cl_float3 inv_rgb_float(int rgb)
 {
   return ((cl_float3){{
@@ -138,5 +125,15 @@ cl_float3 inv_rgb_float(int rgb)
 cl_float3 to_float3(float x)
 {
     return (cl_float3){{x, x, x}};
+}
+
+int ft_str_arr_len(char **str)
+{
+  int n;
+
+  n = -1;
+  while (str[++n])
+    ;
+  return n;
 }
 
