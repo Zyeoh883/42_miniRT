@@ -48,6 +48,12 @@ typedef struct __attribute__((aligned(16))) s_camera
   int   fov;
 	int		bytes_per_pixel;
 	int		line_length;
+
+  float amb_light_ratio;
+  float amb_fade_ratio;
+  float3 amb_top_color;
+  float3 amb_bot_color;
+
   char  moved;
 }				t_camera;
 
@@ -73,16 +79,12 @@ typedef struct __attribute__((aligned(16))) s_object
 	/*struct s_OBB		obb;*/
 	uchar		obj_type;
   /*uchar   mat_type;*/
-	int			color;
 	float3	pos;
 	float3	dir;
-  float   k_ambient;
   float3  diffuse_albedo;
   float3  specular_albedo;
   float3  F_0;
   float   roughness_sqr;
-  /*float   metallic;*/
-  /*float   k_specular;*/
   float3   emission; 
 	union
 	{

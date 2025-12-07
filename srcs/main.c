@@ -189,7 +189,7 @@ t_opencl	*init_opencl(t_data *data)
 int	initialize(t_data *data, char *filename)
 {
   data->file_content = get_rt_file(filename); 
-	data->objects = get_objects(data->file_content);
+	data->objects = get_objects(data, data->file_content);
 	data->mlx_ptr = mlx_init();
 	if (!data->mlx_ptr)
 		return (0);
@@ -211,8 +211,11 @@ int	initialize(t_data *data, char *filename)
   // printf("%c %x, %F %F %F, %F %F %F, %f\n", temp->type, temp->color, (double)(temp->pos.s[0]), (double)(temp->pos.s[1]), (double)temp->pos.s[2], (double)temp->quat.s[0], (double)temp->quat.s[1], (double)temp->quat.s[2], temp->sphere.radius);
   data->inputs.update = 1;
   data->camera = init_camera(data, data->win_height, data->win_width);
-	// data->num_objects = count_objects(data->objects);
+	// data->num_objects = ;
+  printf("Init done\n");
+  // exit(1);
 	data->opencl = init_opencl(data);
+
 	return (1);
 }
 

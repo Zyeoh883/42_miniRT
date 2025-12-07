@@ -19,3 +19,10 @@ void	perror_and_exit(char *str, int exit_code)
 	perror(str);
 	exit(exit_code);
 }
+
+void	error_and_exit(char *str, int exit_code)
+{
+	ft_putstr_fd("minirt: ", STDERR_FILENO);
+	ft_putendl_fd(str, STDERR_FILENO);
+	exit(exit_code);
+}

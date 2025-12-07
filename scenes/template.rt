@@ -3,32 +3,15 @@
 
 
 
-A [Lighting Ratio] [Top color 256] [Bot color 256] [Fade ratio]             
+A 2.0 1.0 255,255,255 255,255,255
 
-C [Direction not-norm] [Position] [Fov]
-                
-L [Position] [Brightness ratio] [RGB 256]
+C   -50.0,0.0,20.0    0.0,0.0,1.0 70
 
-sp [Position] [ratio] [RGB 256]
+L   -40.0,50.0,0.0  20.3  1.0  255,255,255
 
-pl [Position] [Direction] [RGB 256]
+sp 0.0,0.0,20.6 12.6 10,0,255
 
-cy [Position] [Direction] [Diameter] [Height] [RGB 256]
-
-
-
-A 0.2 255,255,255
-
-C -50.0,0,20 0,0,1 70
-
-L -40.0,50.0,0.0 0.6 10,0,255
-
-sp 0.0,0.0,20.6 12.6 10,0,255:win_width
-
-pl 0.0,0.0,-10.0 0.0,1.0,0.0 0,0,225
-
-cy 50.0,0.0,20.6 0.0,0.0,1.0 14.2 21.42 10,0,255
-
+pl 0.0,0.0,-10.0   0.0,1.0,0.0   0,0,225
 
 
 

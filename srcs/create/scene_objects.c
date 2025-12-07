@@ -27,11 +27,11 @@ t_object assign_object(char **line) {
   object.pos = get_cl_float3(line[1]);
 
 
-  if (ft_strcmp(*line, SPHERE))
+  if (!ft_strcmp(*line, SPHERE))
     assign_sphere(&object, line);
-  else if (ft_strcmp(*line, PLANE))
+  else if (!ft_strcmp(*line, PLANE))
     assign_plane(&object, line);
-  else if (ft_strcmp(*line, LIGHT))
+  else if (!ft_strcmp(*line, LIGHT))
     assign_light(&object, line);
   return (object);
   // object->mat_type = split[4] ? *split[4] : 'D';
@@ -58,6 +58,9 @@ t_object assign_object(char **line) {
 // }
 
 void assign_sphere(t_object *object, char **line) {
+
+  printf("Assigning sphere\n");
+
   object->obj_type = CL_SPHERE; 
 
   if (!line[2])
@@ -70,6 +73,8 @@ void assign_sphere(t_object *object, char **line) {
 }
 
 void assign_plane(t_object *object, char **line) {
+
+  printf("Assigning plane\n");
   object->obj_type = CL_PLANE;
 
   if (!line[2])
@@ -85,17 +90,21 @@ void assign_plane(t_object *object, char **line) {
 void assign_light(t_object *object, char **line) {
   float light_ratio;
 
+  printf("Assigning light\n");
+
   object->obj_type = CL_LIGHT;
   object->emission = (cl_float3){{100.0f, 100.0f, 100.0f}};
+
   // object->obb = assign_sphere_obb(object->sphere);
+
   if (!line[2])
     perror_and_exit("Light Radius missing", EXIT_FAILURE);
-  object->sphere.radius = get_cl_float(line[3]);
+  object->sphere.radius = get_cl_float(line[2]);
   
   if (!line[3])
     perror_and_exit("Light ratio missing", EXIT_FAILURE);
-
   light_ratio = get_cl_float(line[3]);
+
   if (light_ratio < 0 || light_ratio > 1)
     perror_and_exit("Light ratio must be between 0-1", EXIT_FAILURE);
   object->emission = (cl_float3){{100.0f * light_ratio, 100.0f * light_ratio, 100.0f * light_ratio}};
@@ -282,6 +291,13 @@ t_list *get_rt_file(char *filename) {
     line = ft_split_set(str, "  \n");
     if (!line)
       perror_and_exit("malloc", EXIT_FAILURE);
+    if (!*line)
+    {
+      free(line);
+      free(str);
+      str = get_next_line(fd);
+      continue;
+    }
     node = ft_lstnew(line);
     if (!root_node)
       root_node = node;
@@ -317,7 +333,7 @@ int count_objects(t_list *root_node)
     else if (is_valid_camera_ambient_id(*line))
         camera_ambient_count++;
     else
-     perror_and_exit("Unknown line[0] in .rt file", EXIT_FAILURE);
+     perror_and_exit("Unknown object in .rt file", EXIT_FAILURE);
     root_node = root_node->next;
   }
   if (!object_count)
@@ -328,15 +344,14 @@ int count_objects(t_list *root_node)
 }
 
 
-t_object *get_objects(t_list *root_node)
+t_object *get_objects(t_data *data,t_list *root_node)
 {
   t_object *arr_objects;
-  int num_objects;
   int n;
   char **line;
  
-  num_objects = count_objects(root_node);
-  arr_objects = ft_calloc(num_objects, sizeof(t_object));
+  data->num_objects = count_objects(root_node);
+  arr_objects = ft_calloc(data->num_objects, sizeof(t_object));
   if (!arr_objects)
     perror_and_exit("Malloc fail", EXIT_FAILURE);
   n = 0;
@@ -358,38 +373,41 @@ void assign_camera(t_camera *camera, char **line)
 {
   cl_float3 dir;
 
+  printf("Assigning camera\n");
+
   if (!line[1])
-    perror_and_exit("Camera position missing", EXIT_FAILURE);
+    error_and_exit("Camera position missing", EXIT_FAILURE);
   camera->pos = get_cl_float3(line[1]);
 
   if (!line[2])
-    perror_and_exit("Camera direction missing", EXIT_FAILURE);
+    error_and_exit("Camera direction missing", EXIT_FAILURE);
   dir = get_cl_float3(line[2]);
   camera->quat = (cl_float4){{0, dir.x, dir.y, dir.z}};
 
   if (!line[3])
-    perror_and_exit("FOV missing", EXIT_FAILURE);
+    error_and_exit("FOV missing", EXIT_FAILURE);
   camera->fov = (int)ft_atof(line[3]) * TO_RADIAN;
 }
 
 
 void assign_ambient(t_camera *camera, char **line)
 {
+  printf("Assigning ambient");
   if (!line[1])
-    perror_and_exit("Ambient lighting ratio missing", EXIT_FAILURE);
+    error_and_exit("Ambient lighting ratio missing", EXIT_FAILURE);
   camera->amb_light_ratio = get_cl_float(line[1]);
 
   if (!line[2])
-    perror_and_exit("Ambient fade ratio missing", EXIT_FAILURE);
+    error_and_exit("Ambient fade ratio missing", EXIT_FAILURE);
   camera->amb_fade_ratio = get_cl_float(line[2]);
 
   if (!line[3])
-    perror_and_exit("Camera top color missing", EXIT_FAILURE);
-  camera->amb_top_color = get_cl_float3(line[3]);
+    error_and_exit("Camera top color missing", EXIT_FAILURE);
+  camera->amb_top_color = get_rgb_value(line[3]);
 
   if (!line[4])
-    perror_and_exit("Ambient bottom color missing", EXIT_FAILURE);
-  camera->amb_bot_color = get_cl_float3(line[4]);
+    error_and_exit("Ambient bottom color missing", EXIT_FAILURE);
+  camera->amb_bot_color = get_rgb_value(line[4]);
 
 }
 
@@ -403,12 +421,12 @@ t_camera get_camera(t_list *root_node)
   while (root_node)
   {
     line = root_node->content;
-    if (ft_strcmp(*line, CAMERA))
+    if (!ft_strcmp(*line, CAMERA))
     {
       assign_camera(&camera, line);
       camera_ambient_count[0]++;
     }
-    else if (ft_strcmp(*line, AMBIENT))
+    else if (!ft_strcmp(*line, AMBIENT))
     {
       assign_ambient(&camera, line);
       camera_ambient_count[1]++;
@@ -416,7 +434,7 @@ t_camera get_camera(t_list *root_node)
     root_node = root_node->next;
   }
   if (camera_ambient_count[0] + camera_ambient_count[1] != 2 || camera_ambient_count[0] != 1)
-    perror_and_exit("Must have only 1 Camera and Ambient" ,EXIT_FAILURE);
+    error_and_exit("Must have only 1 Camera and Ambient" ,EXIT_FAILURE);
   return camera;
 }
 

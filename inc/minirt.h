@@ -118,7 +118,7 @@ t_object *create_objects_array(t_list *root_node);
 t_OBB assign_sphere_obb(t_sphere sphere);
 t_list *get_rt_file(char *filename);
 
-t_object *get_objects(t_list *root_node);
+t_object *get_objects(t_data *data, t_list *root_node);
 t_camera get_camera(t_list *root_node);
 
 int render_frame(t_data *data);
@@ -158,6 +158,7 @@ int intersect_obb(t_ray *ray, t_OBB obb);
 
 // error_handling
 void perror_and_exit(char *str, int exit_code);
+void	error_and_exit(char *str, int exit_code);
 
 // utils
 void print_m128(__m128 m);
