@@ -13,6 +13,7 @@
 #include "minirt.h"
 // char type, cl_float3 pos, cl_float4 quat, int color)
 
+// object->mat_type = split[4] ? *split[4] : 'D';
 t_object assign_object(char **line) {
   t_object object;
   float metallic;
@@ -33,8 +34,6 @@ t_object assign_object(char **line) {
     assign_plane(&object, line);
   else if (!ft_strcmp(*line, LIGHT))
     assign_light(&object, line);
-  return (object);
-  // object->mat_type = split[4] ? *split[4] : 'D';
 
   object.specular_albedo = (cl_float3){{object.diffuse_albedo.x * metallic,
                                          object.diffuse_albedo.y * metallic,
@@ -44,6 +43,10 @@ t_object assign_object(char **line) {
                    object.diffuse_albedo.y * (1.0f - metallic),
                    object.diffuse_albedo.z * (1.0f - metallic)}};
 
+  printf("HEREEEE\n");
+  printf("%f %f\n", object.diffuse_albedo.x, object.diffuse_albedo.y);
+  print_vector(object.diffuse_albedo);
+  print_vector(object.specular_albedo);
   return object;
 }
 
@@ -70,6 +73,9 @@ void assign_sphere(t_object *object, char **line) {
   if (!line[3])
     perror_and_exit("RGB values missing", EXIT_FAILURE);
   object->diffuse_albedo = get_rgb_value(line[3]);
+
+  printf("sphere ");
+  ft_printf("%f ", object->sphere.radius);
 }
 
 void assign_plane(t_object *object, char **line) {
@@ -298,6 +304,7 @@ t_list *get_rt_file(char *filename) {
       str = get_next_line(fd);
       continue;
     }
+    printf("str :|%s|\n", str);
     node = ft_lstnew(line);
     if (!root_node)
       root_node = node;
@@ -392,7 +399,7 @@ void assign_camera(t_camera *camera, char **line)
 
 void assign_ambient(t_camera *camera, char **line)
 {
-  printf("Assigning ambient");
+  printf("Assigning ambient\n");
   if (!line[1])
     error_and_exit("Ambient lighting ratio missing", EXIT_FAILURE);
   camera->amb_light_ratio = get_cl_float(line[1]);

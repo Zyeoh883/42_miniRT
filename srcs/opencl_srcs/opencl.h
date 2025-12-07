@@ -77,8 +77,8 @@ typedef struct __attribute__((aligned(16))) s_sphere
 typedef struct __attribute__((aligned(16))) s_object
 {
 	/*struct s_OBB		obb;*/
-	uchar		obj_type;
   /*uchar   mat_type;*/
+	uchar		obj_type;
 	float3	pos;
 	float3	dir;
   float3  diffuse_albedo;

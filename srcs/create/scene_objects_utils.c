@@ -130,8 +130,9 @@ cl_float3 get_rgb_value(char *str)
   {
     if (!is_rgb(split[n]))
       error_and_exit("Integer must be between 0-256", EXIT_FAILURE);
-    num[n] = (float)ft_atol(split[n]);
-    num[n] = (cl_float)(num[n]) / 256;
+    num[n] = (cl_float)ft_atol(split[n]);
+    num[n] = num[n] / 256;
+    // printf("%f\n", num[n]);
   }
   result = (cl_float3){{num[0], num[1], num[2]}};
   free_str_arr(split);

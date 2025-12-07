@@ -204,7 +204,6 @@ int	initialize(t_data *data, char *filename)
 	data->inputs.mouse_x = data->win_width * 0.5f;
 	data->inputs.mouse_y = data->win_height * 0.5f;
 	data->inputs.pitch_angle = 0;
-	data->camera = init_camera(data, data->win_height, data->win_width);
   mlx_mouse_move(data->mlx_ptr, data->win_ptr, data->inputs.mouse_x, data->inputs.mouse_y);
 
   // t_object *temp = data->objects;
