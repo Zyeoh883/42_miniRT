@@ -52,7 +52,7 @@ char				*ft_strrchr(const char *s, int c);
 
 int					ft_atoi(const char *str);
 long	      ft_atol(const char *str);
-int	        ft_atof(const char *str);
+float       ft_atof(const char *str);
 char				*ft_itoa(int n);
 int					ft_tolower(int c);
 int					ft_toupper(int c);

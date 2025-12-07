@@ -18,13 +18,13 @@ t_object assign_object(char **line) {
   t_object object;
   float metallic;
 
-  object.emission = (cl_float3){{1, 1, 1}};
+  object.emission = (cl_float3){{10, 10, 10}};
   object.F_0 = (cl_float3){{0.1f, 0.071f, 0.029f}}; // never 0.0f
   object.roughness_sqr = 0.5e-10f;
   metallic = 0.2f;
 
   if (!line[1])
-    perror_and_exit("Position in float3 missing", EXIT_FAILURE);
+    error_and_exit("Position in float3 missing", EXIT_FAILURE);
   object.pos = get_cl_float3(line[1]);
 
 
@@ -43,10 +43,10 @@ t_object assign_object(char **line) {
                    object.diffuse_albedo.y * (1.0f - metallic),
                    object.diffuse_albedo.z * (1.0f - metallic)}};
 
-  printf("HEREEEE\n");
-  printf("%f %f\n", object.diffuse_albedo.x, object.diffuse_albedo.y);
-  print_vector(object.diffuse_albedo);
-  print_vector(object.specular_albedo);
+  // printf("HEREEEE\n");
+  // printf("%f %f\n", object.diffuse_albedo.x, object.diffuse_albedo.y);
+  // print_vector(object.diffuse_albedo);
+  // print_vector(object.specular_albedo);
   return object;
 }
 
@@ -67,15 +67,12 @@ void assign_sphere(t_object *object, char **line) {
   object->obj_type = CL_SPHERE; 
 
   if (!line[2])
-    perror_and_exit("Sphere Radius missing", EXIT_FAILURE);
+    error_and_exit("Sphere Radius missing", EXIT_FAILURE);
   object->sphere.radius = get_cl_float(line[2]);
   
   if (!line[3])
-    perror_and_exit("RGB values missing", EXIT_FAILURE);
+    error_and_exit("RGB values missing", EXIT_FAILURE);
   object->diffuse_albedo = get_rgb_value(line[3]);
-
-  printf("sphere ");
-  ft_printf("%f ", object->sphere.radius);
 }
 
 void assign_plane(t_object *object, char **line) {
@@ -84,11 +81,11 @@ void assign_plane(t_object *object, char **line) {
   object->obj_type = CL_PLANE;
 
   if (!line[2])
-    perror_and_exit("Plane Direction missing", EXIT_FAILURE);
-  object->dir = get_cl_float3(line[2]);
+    error_and_exit("Plane Direction missing", EXIT_FAILURE);
+  object->dir = vector_normalize(get_cl_float3(line[2]));
   
   if (!line[3])
-    perror_and_exit("RGB values missing", EXIT_FAILURE);
+    error_and_exit("RGB values missing", EXIT_FAILURE);
   object->diffuse_albedo = get_rgb_value(line[3]);
 
 }
@@ -104,19 +101,20 @@ void assign_light(t_object *object, char **line) {
   // object->obb = assign_sphere_obb(object->sphere);
 
   if (!line[2])
-    perror_and_exit("Light Radius missing", EXIT_FAILURE);
+    error_and_exit("Light Radius missing", EXIT_FAILURE);
   object->sphere.radius = get_cl_float(line[2]);
   
   if (!line[3])
-    perror_and_exit("Light ratio missing", EXIT_FAILURE);
+    error_and_exit("Light ratio missing", EXIT_FAILURE);
   light_ratio = get_cl_float(line[3]);
+  printf("light : %f\n", light_ratio);
 
-  if (light_ratio < 0 || light_ratio > 1)
-    perror_and_exit("Light ratio must be between 0-1", EXIT_FAILURE);
+  // if (light_ratio < 0 || light_ratio > 1)
+  //   error_and_exit("Light ratio must be between 0-1", EXIT_FAILURE);
   object->emission = (cl_float3){{100.0f * light_ratio, 100.0f * light_ratio, 100.0f * light_ratio}};
 
   if (!line[4])
-    perror_and_exit("RGB values missing", EXIT_FAILURE);
+    error_and_exit("RGB values missing", EXIT_FAILURE);
   object->diffuse_albedo = get_rgb_value(line[4]);
 
 }
@@ -289,9 +287,13 @@ t_list *get_rt_file(char *filename) {
   int fd;
   char *str;
 
+  fd = ft_strlen(filename);
+  if (!filename || fd < 3 || ft_strcmp(filename + (fd - 3), ".rt"))
+    error_and_exit("File must end with .rt", EXIT_FAILURE);
+
   fd = open(filename, O_RDONLY);
   if (!fd)
-    exit(EXIT_FAILURE); // Better handling should be here
+    perror_and_exit("open", EXIT_FAILURE); // Better handling should be here
   str = get_next_line(fd);
   while (str) {
     line = ft_split_set(str, "  \n");
@@ -340,13 +342,13 @@ int count_objects(t_list *root_node)
     else if (is_valid_camera_ambient_id(*line))
         camera_ambient_count++;
     else
-     perror_and_exit("Unknown object in .rt file", EXIT_FAILURE);
+      error_and_exit("Unknown object in .rt file", EXIT_FAILURE);
     root_node = root_node->next;
   }
   if (!object_count)
-    perror_and_exit("No Objects in .rt file", EXIT_FAILURE);
+    error_and_exit("No Objects in .rt file", EXIT_FAILURE);
   if (camera_ambient_count != 2)
-    perror_and_exit("Given .rt file must have 1 camera and 1 ambient only", EXIT_FAILURE);
+    error_and_exit("Given .rt file must have 1 camera and 1 ambient only", EXIT_FAILURE);
   return object_count;
 }
 
@@ -389,11 +391,15 @@ void assign_camera(t_camera *camera, char **line)
   if (!line[2])
     error_and_exit("Camera direction missing", EXIT_FAILURE);
   dir = get_cl_float3(line[2]);
-  camera->quat = (cl_float4){{0, dir.x, dir.y, dir.z}};
+  camera->quat = vector_normalize((cl_float4){{0, dir.x, dir.y, dir.z}});
 
   if (!line[3])
     error_and_exit("FOV missing", EXIT_FAILURE);
-  camera->fov = (int)ft_atof(line[3]) * TO_RADIAN;
+  camera->fov = get_cl_float(line[3]);
+
+  if (camera->fov >= 180 || camera->fov <= 0)
+    error_and_exit("Fov must be BETWEEN 0-180", EXIT_FAILURE);
+  camera->fov *= TO_RADIAN;
 }
 
 

@@ -60,16 +60,7 @@ cl_float get_cl_float(char *str)
   if (!str)
     error_and_exit("Float missing", EXIT_FAILURE);
   if(ft_strlen(str) > LONG_NUM_DIGITS + 1)
-    error_and_exit("Float digits must be less than 19 digits", EXIT_FAILURE);
-  
-  // split = ft_split_set(str, BASE_10_DIGITS);
-  // if (!split)
-  //   error_and_exit("malloc", EXIT_FAILURE);
-  //
-  // if (ft_str_arr_len(split) != 2 || !ft_strnstr(*split, ".", ft_strlen(*split)))
-  //   error_and_exit("Not in float format. One period and numbers only", EXIT_FAILURE);
-  // free_str_arr(split);
-  
+    error_and_exit("Float digits must be less than 19 digits", EXIT_FAILURE);  
   temp = str;
   if (*temp == '-' || *temp == '+')
     temp++;
@@ -77,12 +68,14 @@ cl_float get_cl_float(char *str)
     temp++;
   if (*temp++ != '.')
     error_and_exit("Period missing", EXIT_FAILURE);
+  if (!ft_isdigit(*temp))
+    error_and_exit("unknown character after period .", EXIT_FAILURE);
   while (ft_isdigit(*temp))
     temp++;
   if (*temp)
     error_and_exit("Trailing characters after float", EXIT_FAILURE);
 
-
+  printf("atof : %s | %f\n", str, ft_atof(str));
   return ft_atof(str);
 }
 

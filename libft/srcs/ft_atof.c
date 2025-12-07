@@ -7,7 +7,7 @@
 
 #include "libft.h"
 
-int	ft_atof(const char *str)
+float	ft_atof(const char *str)
 {
 	float	result;
   float decimal;
@@ -21,7 +21,7 @@ int	ft_atof(const char *str)
   {
     str++;
     decimal = (float)ft_atol(str);
-    while (decimal > 0)
+    while (*str++)
       decimal /= 10;
 
     if (result < 0)

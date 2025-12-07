@@ -195,6 +195,8 @@ int	initialize(t_data *data, char *filename)
 		return (0);
 	data->win_width = 1980;
 	data->win_height = 1080;
+	//  data->win_width = 2560;
+	// data->win_height = 1600;
 	data->img = mlx_new_image(data->mlx_ptr, data->win_width, data->win_height);
 	data->addr = mlx_get_data_addr(data->img, &data->bits_per_pixel,
 			&data->line_length, &data->endian);
@@ -204,12 +206,12 @@ int	initialize(t_data *data, char *filename)
 	data->inputs.mouse_x = data->win_width * 0.5f;
 	data->inputs.mouse_y = data->win_height * 0.5f;
 	data->inputs.pitch_angle = 0;
+  data->inputs.update = 1;
   mlx_mouse_move(data->mlx_ptr, data->win_ptr, data->inputs.mouse_x, data->inputs.mouse_y);
 
+  data->camera = init_camera(data, data->win_height, data->win_width);
   // t_object *temp = data->objects;
   // printf("%c %x, %F %F %F, %F %F %F, %f\n", temp->type, temp->color, (double)(temp->pos.s[0]), (double)(temp->pos.s[1]), (double)temp->pos.s[2], (double)temp->quat.s[0], (double)temp->quat.s[1], (double)temp->quat.s[2], temp->sphere.radius);
-  data->inputs.update = 1;
-  data->camera = init_camera(data, data->win_height, data->win_width);
 	// data->num_objects = ;
   printf("Init done\n");
   // exit(1);

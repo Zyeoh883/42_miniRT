@@ -64,7 +64,7 @@ typedef struct __attribute__((aligned(16))) s_camera {
   cl_float pixel_height;
   cl_int win_height;
   cl_int win_width;
-  cl_int fov;
+  cl_float fov;
   cl_int bytes_per_pixel;
   cl_int line_length;
 
