@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 13:41:56 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/11 10:15:17 by zyeoh            ###   ########.fr       */
+/*   Updated: 2026/01/09 22:18:23 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,4 +27,16 @@ typedef struct s_opencl
   cl_mem        reservoirs;
 }						t_opencl;
 
+char **get_cfiles(size_t c_size[9]);
+void print_cl_error(cl_int error);
+
+void get_platform_and_devices(t_opencl *opencl, cl_device_id *gpu_list, cl_platform_id *platform_list, cl_uint total_gpus);
+
+void get_context(t_opencl *opencl, t_data *data);
+
+void get_program(t_opencl *opencl, char **c_files, size_t c_size[9]);
+
+void get_kernel(t_opencl *opencl);
+
+void queue_buffer(t_opencl *opencl, t_data *data);
 #endif

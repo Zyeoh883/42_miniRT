@@ -29,7 +29,7 @@ typedef struct __attribute__ ((aligned(16))) s_sphere
 	cl_float		radius;
 }						t_sphere;
 
-typedef struct __attribute__ ((aligned(16))) s_cyclinder
+typedef struct __attribute__ ((aligned(16))) s_cylinder
 {
 	cl_float		radius;
 	cl_float		height;
@@ -56,6 +56,7 @@ typedef struct __attribute__ ((aligned(16))) s_object
 	union
 	{
 		struct s_sphere	sphere;
+		struct s_cylinder	cylinder;
 	};
 }						t_object;
 

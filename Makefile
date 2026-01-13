@@ -20,6 +20,12 @@ SRCDIR = srcs/
 # intersects/object_intercept.c
 SRCS_FIL = \
 		main.c\
+		opencl_handlers/get_platform_and_devices.c\
+		opencl_handlers/get_cfile.c\
+		opencl_handlers/get_context.c\
+		opencl_handlers/get_program.c\
+		opencl_handlers/get_kernel.c\
+		opencl_handlers/queue_buffer.c\
 		mlx_handlers/mlx.c \
 		create/scene_objects.c \
 		create/scene_objects_utils.c \

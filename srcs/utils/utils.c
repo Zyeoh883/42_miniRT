@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 19:25:24 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/12 12:05:59 by zyeoh            ###   ########.fr       */
+/*   Updated: 2026/01/09 22:11:39 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,10 @@ void free_cfile(char **c_file)
 
   n = -1;
   while (c_file[++n])
-    free(c_file[n]);
+  {
+    // printf("\n\n\n %d \n\n\n %s", n, c_file[n]);
+    free(c_file[n]); 
+  }
   free(c_file);
 }
 

@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/14 15:30:40 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/15 14:57:55 by zyeoh            ###   ########.fr       */
+/*   Updated: 2026/01/09 19:23:54 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 
 #define SPHERE 'S'
 #define PLANE 'P'
+#define CYLINDER 'C'
 #define LIGHT 'L'
 
 #define INV_PI 1 / (float)M_PI
@@ -37,6 +38,13 @@ typedef struct __attribute__((aligned(16))) s_reservoir
   float seed;
 }       t_reservoir;
 
+typedef struct __attribute__((aligned(16))) s_ambient
+{
+  float amb_light_ratio;
+  float3 amb_top_color;
+  float3 amb_bot_color;
+} t_ambient;
+
 typedef struct __attribute__((aligned(16))) s_camera
 {
 	float3	pos;
@@ -48,11 +56,12 @@ typedef struct __attribute__((aligned(16))) s_camera
   float   fov;
 	int		bytes_per_pixel;
 	int		line_length;
-
-  float amb_light_ratio;
-  float amb_fade_ratio;
-  float3 amb_top_color;
-  float3 amb_bot_color;
+  
+  t_ambient ambient;
+  // float amb_light_ratio;
+  // float amb_fade_ratio;
+  // float3 amb_top_color;
+  // float3 amb_bot_color;
 
   char  moved;
 }				t_camera;
@@ -67,6 +76,12 @@ typedef struct __attribute__((aligned(16))) s_sphere
 {
 	float	radius;
 }				t_sphere;
+
+typedef struct __attribute__ ((aligned(16))) s_cylinder
+{
+	float		radius;
+	float		height;
+}						t_cyclinder;
 
 /*typedef struct __attribute__ ((aligned(16))) s_OBB*/
 /*{*/
@@ -89,6 +104,7 @@ typedef struct __attribute__((aligned(16))) s_object
 	union
 	{
 		struct s_sphere	sphere;
+    struct s_cylinder cyclinder;
 	};
 }				t_object;
 

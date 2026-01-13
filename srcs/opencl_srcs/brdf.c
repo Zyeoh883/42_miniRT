@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   brdf.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/08/22 20:32:42 by zyeoh            ###   ########.fr       */
+/*   Updated: 2026/01/09 22:01:51 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
-float V_SmithGGXCorrelated(float n_dot_i, float n_dot_o, float alphaG)
+float G_SmithGGXCorrelated(float n_dot_i, float n_dot_o, float alphaG)
 {
     // Original formulation of G_SmithGGX Correlated
     // lambda_v = ( -1 + sqrt ( alphaG2 * (1 - NdotL2 ) / NdotL2 + 1)) * 0.5 f;
@@ -20,11 +20,17 @@ float V_SmithGGXCorrelated(float n_dot_i, float n_dot_o, float alphaG)
     // V_SmithGGXCorrelated = G_SmithGGXCorrelated / (4.0 f * NdotL * NdotV );
 
     // This is the optimize version
-    float alphaG2 = alphaG * alphaG;
-    // Caution : the " NdotL *" and " NdotV *" are explicitely inversed , this is not a mistake .
-    float Lambda_GGXV = n_dot_o * sqrt((-n_dot_i * alphaG2 + n_dot_i) * n_dot_i + alphaG2);
-    float Lambda_GGXL = n_dot_i * sqrt((-n_dot_o * alphaG2 + n_dot_o) * n_dot_o + alphaG2);
+    // float alphaG2 = alphaG * alphaG;
+    // // Caution : the " NdotL *" and " NdotV *" are explicitely inversed , this is not a mistake .
+    // float Lambda_GGXV = n_dot_o * sqrt((-n_dot_i * alphaG2 + n_dot_i) * n_dot_i + alphaG2);
+    // float Lambda_GGXL = n_dot_i * sqrt((-n_dot_o * alphaG2 + n_dot_o) * n_dot_o + alphaG2);
+    //
+    // return 0.5f / (Lambda_GGXV + Lambda_GGXL);
 
+    float alphaG2 = alphaG * alphaG;
+    float Lambda_GGXV = n_dot_i * sqrt(alphaG2 + n_dot_o * n_dot_o * (1.0f - alphaG2));
+    float Lambda_GGXL = n_dot_o * sqrt(alphaG2 + n_dot_i * n_dot_i * (1.0f - alphaG2));
+    
     return 0.5f / (Lambda_GGXV + Lambda_GGXL);
 }
 
@@ -32,7 +38,7 @@ float NDF_GGX(float alphaSqr, float NdotH)
 {
   float denom;
 
-  denom = NdotH * NdotH * (alphaSqr + 1.0f) + 1.0f;
+  denom = NdotH * NdotH * (alphaSqr - 1.0f) + 1.0f;
 
 
   // printf("%f %f %f\n", denom, NdotHSqr, TanNdotHSqr);
@@ -49,7 +55,7 @@ float geometric_smith(float3 in, float NdotL, float alphaSqr, float3 normal, flo
   float G1;
   float G2;
 
-  k = alphaSqr / 2.0f;
+  k = alphaSqr;
   // G1 = 2.0f * NdotH / (NdotH + k);
   G1 = NdotL / (NdotL * (1.0f - k) + k);
   G2 = NdotV / (NdotV * (1.0f - k) + k);
@@ -79,7 +85,6 @@ float3 freshnel_schlick(float3 F_0, float NdotH)
 
    // Calculate Geometry term (Smith's method with Schlick-GGX)
    G = geometric_smith(out, NdotL, hit_object->roughness_sqr, normal, NdotV);
-
    // Calculate Fresnel term (Schlick's approximation)
    F = freshnel_schlick(hit_object->F_0, NdotH);
 

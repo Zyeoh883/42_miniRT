@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   bxdf.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/08/22 20:32:42 by zyeoh            ###   ########.fr       */
+/*   Updated: 2026/01/09 22:01:45 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,14 +106,14 @@ float3 sample_specular(float2 s, float3 in, float3* out, float3 normal,t_object 
     {
         *out = reflect(in, normal);
         *pdf = 1.0;
-        n_dot_o = dot(*out, normal);
-        if (n_dot_o <= 0.0f)
-        {
-          *pdf = 0;
-          return (float3)(0.0f);
-        }
+        // n_dot_o = dot(*out, normal);
+        // if (n_dot_o <= 0.0f)
+        // {
+        //   *pdf = 0;
+        //   return (float3)(0.0f);
+        // }
         // Don't apply fresnel here, it's applied in the external function
-        return to_float3(1.0f / n_dot_o);
+        return hit_object->specular_albedo;
     }
     else
     {
@@ -134,12 +134,18 @@ float3 sample_specular(float2 s, float3 in, float3* out, float3 normal,t_object 
         float D = NDF_GGX(hit_object->roughness_sqr, n_dot_h);
         // Don't apply fresnel here, it's applied in the external function
         //float3 F = FresnelSchlick(f0, h_dot_o);
-        float G = V_SmithGGXCorrelated(n_dot, n_dot_o, hit_object->roughness_sqr);
+        float G = G_SmithGGXCorrelated(n_dot, n_dot_o, hit_object->roughness_sqr);
+        
+    
+        if (wi_dot_h <= 1e-6f)
+          *pdf = 0.0f;
+        else
+          *pdf = D * n_dot_h / (4.0f * wi_dot_h);   // **no G here**
 
-        *pdf = D * n_dot_h / (4.0f * wi_dot_h);
+        // *pdf = D * n_dot_h / (4.0f * wi_dot_h);
 
-        float denominator = 4.0f * fabs(n_dot) * fabs(n_dot_o) + 1e-5f;
-        return to_float3(D * G) / denominator;  // Full BRDF value
+        float denominator = 4.0f * n_dot_o + 1e-5f;
+        return D * G * hit_object->specular_albedo / denominator;  // Full BRDF value
         // return to_float3(D /* F */ * G);
     }
 }
@@ -195,20 +201,23 @@ float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, 
     float pdf_proposal;
     float3 bxdf;
 
-    constant char *str;
+    // constant char *str;
 
     // Choose between specular and diffuse
     if (seed <= specular_sampling_pdf)
     {
         bxdf = freshnel * sample_specular(s, in, &out_dir, normal, hit_object, &pdf_proposal);
+        // bxdf *= hit_object->F_0;
         pdf_proposal *= specular_sampling_pdf;
     }
     else
     {
         bxdf = (1.0f - freshnel) * sample_diffuse(s, &out_dir, normal, hit_object->diffuse_albedo, &pdf_proposal);
+        // bxdf *= hit_object->F_0;
         pdf_proposal *= diffuse_sampling_pdf;
     }
 
+    // bxdf *= hit_object->F_0;
     if (isnan(bxdf.x) || isnan(bxdf.y) || isnan(bxdf.z)
       || isinf(bxdf.x) || isinf(bxdf.y) || isinf(bxdf.z))
   {

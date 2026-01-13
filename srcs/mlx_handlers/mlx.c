@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/21 17:31:34 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/08/22 17:47:37 by zyeoh            ###   ########.fr       */
+/*   Updated: 2026/01/09 22:48:23 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,17 +51,24 @@ int	deal_key_press(int key, t_data *data) // ! does not free
     clReleaseMemObject(data->opencl->addr);
     clReleaseMemObject(data->opencl->camera);
     clReleaseMemObject(data->opencl->objects);
-    clReleaseKernel(data->opencl->kernel);
+    clReleaseMemObject(data->opencl->reservoirs);
     clReleaseProgram(data->opencl->program);
+    clReleaseKernel(data->opencl->kernel);
     clReleaseCommandQueue(data->opencl->queue);
     clReleaseContext(data->opencl->context);
     clReleaseDevice(data->opencl->device);
     free(data->camera);
     free(data->objects);
-    free(data->opencl);
+    if (data->file_content)
+      ft_lstclear(&data->file_content, (void *)free_str_arr);
     mlx_destroy_window(data->mlx_ptr, data->win_ptr);
     mlx_destroy_image(data->mlx_ptr, data->img);
     mlx_destroy_display(data->mlx_ptr);
+    free(data->mlx_ptr);
+    // clUnloadPlatformCompiler(data->opencl->platform[0]);
+    if (clUnloadPlatformCompiler(data->opencl->platform[0]) != CL_SUCCESS)
+      perror_and_exit("Failed to unload platform compiler", EXIT_FAILURE);
+    free(data->opencl);
     // free(data->mlx_ptr);
     // sleep(5);
 		exit(0);

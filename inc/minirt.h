@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:49 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/08/22 20:24:32 by zyeoh            ###   ########.fr       */
+/*   Updated: 2026/01/09 19:46:16 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,8 +54,26 @@
 #define PLANE "pl"
 #define CYLINDER "cy"
 
+// Material Types
+#define MAT_DIFFUSE "D"
+#define MAT_METAL_COPPER "MC"
+#define MAT_METAL_GOLD "MG"
+#define MAT_METAL_SILVER "MS"
+#define MAT_METAL_IRON "MI"
+#define MAT_DIELECTRIC_GLASS "DG"
+#define MAT_METAL_DIELECTRIC_COPPER "MDC"
+#define MAT_METAL_DIELECTRIC_GOLD "MDG"
+#define MAT_MIRROR "M"
+
 
 //__attribute__((packed))
+typedef struct __attribute__((aligned(16))) s_ambient
+{
+  cl_float amb_light_ratio;
+  cl_float amb_fade_ratio;
+  cl_float3 amb_top_color;
+  cl_float3 amb_bot_color;
+} t_ambient;
 
 typedef struct __attribute__((aligned(16))) s_camera {
   cl_float3 pos;
@@ -68,10 +86,11 @@ typedef struct __attribute__((aligned(16))) s_camera {
   cl_int bytes_per_pixel;
   cl_int line_length;
 
-  cl_float amb_light_ratio;
-  cl_float amb_fade_ratio;
-  cl_float3 amb_top_color;
-  cl_float3 amb_bot_color;
+  t_ambient ambient;
+  // cl_float amb_light_ratio;
+  // cl_float amb_fade_ratio;
+  // cl_float3 amb_top_color;
+  // cl_float3 amb_bot_color;
 
   cl_uchar moved;
 } t_camera;
@@ -125,9 +144,10 @@ int render_frame(t_data *data);
 
 // create_objects
 
-void assign_sphere(t_object *object, char **split);
-void assign_plane(t_object *object, char **split);
-void assign_light(t_object *object, char **split);
+void assign_sphere(t_object *object, char **split, int *line_offset);
+void assign_plane(t_object *object, char **split, int *line_offset);
+void assign_cylinder(t_object *object, char **line, int *line_offset);
+void assign_light(t_object *object, char **split, int *line_offset);
 
 void assign_camera(t_camera *camera, char **line);
 void assign_ambient(t_camera *camera, char **line);
@@ -139,10 +159,11 @@ void assign_ambient(t_camera *camera, char **line);
 
 int is_valid_object_id(char *id);
 int is_valid_camera_ambient_id(char *id);
+int is_material_type(char *id);
 cl_float get_cl_float(char *str);
 cl_float3 get_cl_float3(char *str);
 cl_float3 get_rgb_value(char *str);
-
+cl_float3 get_dir(char *str);
 
 // tests
 // void			vector_test(void);
