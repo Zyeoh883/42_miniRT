@@ -21,7 +21,7 @@ void	print_vector(cl_float4 v)
 // void	print_quat(t_quat q)
 // {
 // 	float	angle;
-	
+
 // 	print_m128(q);
 // 	angle = acos(_mm_blend_ps(q, _mm_setzero_ps(), 14));
 //     printf("angle : %f\n", angle * 180 / M_PI);

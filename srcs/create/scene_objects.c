@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/25 14:31:11 by zyeoh             #+#    #+#             */
-/*   Updated: 2026/01/12 21:24:37 by zyeoh            ###   ########.fr       */
+/*   Updated: 2026/01/16 17:34:56 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,91 +15,6 @@
 // char type, cl_float3 pos, cl_float4 quat, int color)
 
 // Set material-specific properties (F_0 and roughness)
-
-float	apply_material_properties_base2(t_object *object, char *material_type)
-{
-	if (!ft_strcmp(material_type, MAT_METAL_IRON))
-	{
-		object->F_0 = (cl_float3){{0.56f, 0.57f, 0.58f}};
-		object->roughness_sqr = 0.4f;
-		return (1.0f);
-	}
-	else if (!ft_strcmp(material_type, MAT_DIELECTRIC_GLASS))
-	{
-		object->F_0 = (cl_float3){{0.02f, 0.02f, 0.02f}};
-		object->roughness_sqr = 0.01f;
-		return (0.0f);
-	}
-	else if (!ft_strcmp(material_type, MAT_METAL_DIELECTRIC_COPPER))
-		object->F_0 = (cl_float3){{0.7f, 0.4f, 0.3f}};
-	else if (!ft_strcmp(material_type, MAT_METAL_DIELECTRIC_GOLD))
-		object->F_0 = (cl_float3){{0.8f, 0.6f, 0.3f}};
-	else if (!ft_strcmp(material_type, MAT_MIRROR))
-	{
-		object->F_0 = (cl_float3){{0.8f, 0.8f, 0.8f}};
-		object->roughness_sqr = 0.001f;
-		return (1.0f);
-	}
-	object->roughness_sqr = 0.2f;
-	return (0.5f);
-}
-
-float	apply_material_properties_base(t_object *object, char *material_type)
-{
-	if (!material_type || !ft_strcmp(material_type, MAT_DIFFUSE))
-	{
-		object->F_0 = (cl_float3){{0.0f, 0.0f, 0.0f}};
-		object->roughness_sqr = 1.0f;
-		return (0.0f);
-	}
-	else if (!ft_strcmp(material_type, MAT_METAL_COPPER))
-	{
-		object->F_0 = (cl_float3){{0.95f, 0.42f, 0.17f}};
-		object->roughness_sqr = 0.0000003f;
-		return (1.0f);
-	}
-	else if (!ft_strcmp(material_type, MAT_METAL_GOLD))
-	{
-		object->F_0 = (cl_float3){{1.0f, 0.86f, 0.57f}};
-		object->roughness_sqr = 0.3f;
-		return (1.0f);
-	}
-	else if (!ft_strcmp(material_type, MAT_METAL_SILVER))
-	{
-		object->F_0 = (cl_float3){{0.95f, 0.93f, 0.88f}};
-		object->roughness_sqr = 0.1f;
-		return (1.0f);
-	}
-	return (apply_material_properties_base2(object, material_type));
-}
-
-t_object	assign_object(char **line)
-{
-	t_object	object;
-	int			line_offset;
-	float		m;
-
-	line_offset = 0;
-	object.emission = (cl_float3){{0, 0, 0}};
-	if (line[0] && line[1] && is_material_type(line[1]))
-		m = apply_material_properties_base(&object, line[++line_offset]);
-	if (!line[++line_offset])
-		error_and_exit("Position in float3 missing", EXIT_FAILURE);
-	object.pos = get_cl_float3(line[line_offset]);
-	if (!ft_strcmp(*line, SPHERE))
-		assign_sphere(&object, line, &line_offset);
-	else if (!ft_strcmp(*line, PLANE))
-		assign_plane(&object, line, &line_offset);
-	else if (!ft_strcmp(*line, CYLINDER))
-		assign_cylinder(&object, line, &line_offset);
-	else if (!ft_strcmp(*line, LIGHT))
-		assign_light(&object, line, &line_offset);
-	if (line[++line_offset])
-		error_and_exit("Unknown trailing characters", EXIT_FAILURE);
-	object.specular_albedo = vector_scalar_product(object.diffuse_albedo, m);
-	object.diffuse_albedo = vector_scalar_product(object.diffuse_albedo, 1 - m);
-	return (object);
-}
 
 // object.diffuse_albedo = (cl_float3){{object.cdiffuse_albedo.x * (1.0f
 // 		- metallic), object.diffuse_albedo.y * (1.0f - metallic),
@@ -118,69 +33,6 @@ t_object	assign_object(char **line)
 //   obb.half_len = to_float3(sphere.radius);
 //   return (obb);
 // }
-
-void	assign_sphere(t_object *object, char **line, int *line_offset)
-{
-	printf("Assigning sphere\n");
-	object->obj_type = CL_SPHERE;
-	if (!line[++*line_offset])
-		error_and_exit("Sphere Radius missing", EXIT_FAILURE);
-	object->sphere.radius = get_cl_float(line[*line_offset]);
-	if (!line[++*line_offset])
-		error_and_exit("RGB values missing", EXIT_FAILURE);
-	object->diffuse_albedo = get_rgb_value(line[*line_offset]);
-}
-
-void	assign_plane(t_object *object, char **line, int *line_offset)
-{
-	printf("Assigning plane\n");
-	object->obj_type = CL_PLANE;
-	if (!line[++*line_offset])
-		error_and_exit("Plane Direction missing", EXIT_FAILURE);
-	object->dir = get_dir(line[*line_offset]);
-	if (!line[++*line_offset])
-		error_and_exit("RGB values missing", EXIT_FAILURE);
-	object->diffuse_albedo = get_rgb_value(line[*line_offset]);
-}
-
-void	assign_light(t_object *object, char **line, int *line_offset)
-{
-	float	light_ratio;
-
-	printf("Assigning light\n");
-	object->obj_type = CL_LIGHT;
-	object->emission = (cl_float3){{100.0f, 100.0f, 100.0f}};
-	if (!line[++*line_offset])
-		error_and_exit("Light Radius missing", EXIT_FAILURE);
-	object->sphere.radius = get_cl_float(line[*line_offset]);
-	if (!line[++*line_offset])
-		error_and_exit("Light ratio missing", EXIT_FAILURE);
-	light_ratio = get_cl_float(line[*line_offset]);
-	printf("light : %f\n", light_ratio);
-	object->emission = (cl_float3){{100.0f * light_ratio, 100.0f * light_ratio,
-		100.0f * light_ratio}};
-	if (!line[++*line_offset])
-		error_and_exit("RGB values missing", EXIT_FAILURE);
-	object->diffuse_albedo = get_rgb_value(line[*line_offset]);
-}
-
-void	assign_cylinder(t_object *object, char **line, int *line_offset)
-{
-	printf("Assigning cylinder\n");
-	object->obj_type = CL_CYCLINDER;
-	if (!line[++*line_offset])
-		error_and_exit("Cylinder Direction missing", EXIT_FAILURE);
-	object->dir = get_dir(line[*line_offset]);
-	if (!line[++*line_offset])
-		error_and_exit("Cylinder Diameter missing", EXIT_FAILURE);
-	object->cylinder.radius = get_cl_float(line[*line_offset]) / 2.0f;
-	if (!line[++*line_offset])
-		error_and_exit("Cylinder Height missing", EXIT_FAILURE);
-	object->cylinder.height = get_cl_float(line[*line_offset]);
-	if (!line[++*line_offset])
-		error_and_exit("Cylinder RGB values missing", EXIT_FAILURE);
-	object->diffuse_albedo = get_rgb_value(line[*line_offset]);
-}
 
 // t_list	*create_ll_objects(void) // !parsing to execution starts here
 // {
@@ -434,41 +286,6 @@ t_object	*get_objects(t_data *data, t_list *root_node)
 		root_node = root_node->next;
 	}
 	return (arr_objects);
-}
-
-void	assign_camera(t_camera *camera, char **line)
-{
-	printf("Assigning camera\n");
-	if (!line[1])
-		error_and_exit("Camera position missing", EXIT_FAILURE);
-	camera->pos = get_cl_float3(line[1]);
-	if (!line[2])
-		error_and_exit("Camera direction missing", EXIT_FAILURE);
-	camera->quat = get_dir(line[2]);
-	if (!line[3])
-		error_and_exit("FOV missing", EXIT_FAILURE);
-	camera->fov = get_cl_float(line[3]);
-	if (camera->fov >= 180 || camera->fov <= 0)
-		error_and_exit("Fov must be BETWEEN 0-180", EXIT_FAILURE);
-	camera->fov *= TO_RADIAN;
-	if (line[4])
-		error_and_exit("Unknown trailing characters", EXIT_FAILURE);
-}
-
-void	assign_ambient(t_camera *camera, char **line)
-{
-	printf("Assigning ambient\n");
-	if (!line[1])
-		error_and_exit("Ambient lighting ratio missing", EXIT_FAILURE);
-	camera->ambient.amb_light_ratio = get_cl_float(line[1]);
-	if (!line[2])
-		error_and_exit("Camera top color missing", EXIT_FAILURE);
-	camera->ambient.amb_top_color = get_rgb_value(line[2]);
-	if (!line[3])
-		error_and_exit("Ambient bottom color missing", EXIT_FAILURE);
-	camera->ambient.amb_bot_color = get_rgb_value(line[3]);
-	if (line[4])
-		error_and_exit("Unknown trailing characters", EXIT_FAILURE);
 }
 
 t_camera	get_camera(t_list *root_node)

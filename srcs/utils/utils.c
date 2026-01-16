@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 19:25:24 by zyeoh             #+#    #+#             */
-/*   Updated: 2026/01/09 22:11:39 by zyeoh            ###   ########.fr       */
+/*   Updated: 2026/01/16 17:24:16 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ char	*read_cfile(char *name)
 	if (!result || fd == -1)
 		exit(1);
 	size = 13;
-	while (--size > 0) // skips 42_header
+	while (--size > 0)
 		free(get_next_line(fd));
 	line = get_next_line(fd);
 	while (line)
@@ -52,17 +52,17 @@ char	*read_cfile(char *name)
 	return (result);
 }
 
-void free_cfile(char **c_file)
+// printf("\n\n\n %d \n\n\n %s", n, c_file[n]);
+void	free_cfile(char **c_file)
 {
-  int n;
+	int	n;
 
-  n = -1;
-  while (c_file[++n])
-  {
-    // printf("\n\n\n %d \n\n\n %s", n, c_file[n]);
-    free(c_file[n]); 
-  }
-  free(c_file);
+	n = -1;
+	while (c_file[++n])
+	{
+		free(c_file[n]);
+	}
+	free(c_file);
 }
 
 void	free_str_arr(char **str_arr)
@@ -101,42 +101,14 @@ void	free_str_arr(char **str_arr)
 // 		++str;
 // 	}
 // 	return (result);
-// } 
+// }
 
-cl_float4 get_quat_value(char *str)
+int	ft_str_arr_len(char **str)
 {
-  cl_float4 quat;
-  char **split;
- 
-  split = ft_split(str, '.');
-  if (!split)
-    perror_and_exit("malloc", EXIT_FAILURE);
-  quat = (cl_float4){{ft_atoi(split[0]), ft_atoi(split[1]), ft_atoi(split[2]), 0}};
-  free_str_arr(split);
-  return(quat);  
+	int	n;
+
+	n = -1;
+	while (str[++n])
+		;
+	return (n);
 }
-
-cl_float3 inv_rgb_float(int rgb)
-{
-  return ((cl_float3){{
-    (float)((rgb >> 16) % 0x100) / 0xFF,
-    (float)((rgb >> 8)  % 0x100) / 0xFF,
-    (float)((rgb % 0x100) / 0xFF)
-  }});
-}
-
-cl_float3 to_float3(float x)
-{
-    return (cl_float3){{x, x, x}};
-}
-
-int ft_str_arr_len(char **str)
-{
-  int n;
-
-  n = -1;
-  while (str[++n])
-    ;
-  return n;
-}
-

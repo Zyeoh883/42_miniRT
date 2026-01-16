@@ -12,66 +12,6 @@
 
 #include "minirt.h"
 
-void	print_cl_error(cl_int error)
-{
-	switch (error)
-	{
-	case CL_IMAGE_FORMAT_NOT_SUPPORTED:
-		printf("Error: CL_IMAGE_FORMAT_NOT_SUPPORTED\n");
-		break ;
-	case CL_IMAGE_FORMAT_MISMATCH:
-		printf("Error: CL_IMAGE_FORMAT_MISMATCH\n");
-		break ;
-	case CL_MEM_COPY_OVERLAP:
-		printf("Error: CL_MEM_COPY_OVERLAP\n");
-		break ;
-	case CL_PROFILING_INFO_NOT_AVAILABLE:
-		printf("Error: CL_PROFILING_INFO_NOT_AVAILABLE\n");
-		break ;
-	case CL_COMPILER_NOT_AVAILABLE:
-		printf("Error: CL_COMPILER_NOT _AVAILABLE\n");
-		break ;
-	case CL_DEVICE_NOT_AVAILABLE:
-		printf("Error: CL_DEVICE_NOT_AVAILABLE\n");
-		break ;
-	case CL_DEVICE_NOT_FOUND:
-		printf("Error: CL_DEVICE_NOT_FOUND\n");
-		break ;
-	case CL_INVALID_KERNEL:
-		printf("Error: CL_INVALID_KERNEL\n");
-		break ;
-	case CL_INVALID_WORK_DIMENSION:
-		printf("Error: CL_INVALID_WORK_DIMENSION\n");
-		break ;
-	case CL_INVALID_WORK_GROUP_SIZE:
-		printf("Error: CL_INVALID_WORK_GROUP_SIZE\n");
-		break ;
-	case CL_INVALID_WORK_ITEM_SIZE:
-		printf("Error: CL_INVALID_WORK_ITEM_SIZE\n");
-		break ;
-	case CL_INVALID_GLOBAL_OFFSET:
-		printf("Error: CL_INVALID_GLOBAL_OFFSET\n");
-		break ;
-	case CL_OUT_OF_RESOURCES:
-		printf("Error: CL_OUT_OF_RESOURCES\n");
-		break ;
-	case CL_MEM_OBJECT_ALLOCATION_FAILURE:
-		printf("Error: CL_MEM_OBJECT_ALLOCATION_FAILURE\n");
-		break ;
-	case CL_INVALID_EVENT_WAIT_LIST:
-		printf("Error: CL_INVALID_EVENT_WAIT_LIST\n");
-		break ;
-	case CL_OUT_OF_HOST_MEMORY:
-		printf("Error: CL_OUT_OF_HOST_MEMORY\n");
-		break ;
-  case CL_INVALID_VALUE:
-		printf("Error: CL_INVALID_VALUE\n");
-		break ;
-	default:
-		printf("Unknown OpenCL error: %d\n", error);
-	}
-}
-
 // fov = FOV * TO_RADIAN;
 t_camera	*init_camera(t_data *data, int win_height, int win_width)
 {
@@ -114,8 +54,7 @@ t_opencl	*init_opencl(t_data *data)
 	get_program(opencl, c_files, c_size);
 	get_kernel(opencl);
 	free_cfile(c_files);
-  data->opencl = opencl;
-  
+	data->opencl = opencl;
 	return (opencl);
 }
 
@@ -126,44 +65,17 @@ int	initialize(t_data *data, char *filename)
 	data->file_content = get_rt_file(filename);
 	data->objects = get_objects(data, data->file_content);
 	data->mlx_ptr = mlx_init();
-  if (!data->mlx_ptr)
-    return (0);
-
-
-
-
-	data->win_width = 1980;
-	data->win_height = 1080;
+	if (!data->mlx_ptr)
+		return (0);
+	data->win_width = 2560;
+	data->win_height = 1600;
 	data->img = mlx_new_image(data->mlx_ptr, data->win_width, data->win_height);
 	data->addr = mlx_get_data_addr(data->img, &data->bits_per_pixel,
 			&data->line_length, &data->endian);
-  data->camera = init_camera(data, data->win_height, data->win_width);
+	data->camera = init_camera(data, data->win_height, data->win_width);
 	data->opencl = init_opencl(data);
 	data->win_ptr = mlx_new_window(data->mlx_ptr, data->win_width,
 			data->win_height, "miniRT");
-
-  //   clReleaseMemObject(data->opencl->addr);
-  //   clReleaseMemObject(data->opencl->camera);
-  //   clReleaseMemObject(data->opencl->objects);
-  //   clReleaseMemObject(data->opencl->reservoirs);
-  //   clReleaseProgram(data->opencl->program);
-  //   clReleaseKernel(data->opencl->kernel);
-  //   clReleaseCommandQueue(data->opencl->queue);
-  //   clReleaseContext(data->opencl->context);
-  //   clReleaseDevice(data->opencl->device);
-  // if (data->file_content)
-  //   ft_lstclear(&data->file_content, (void *)free_str_arr);
-  // free(data->camera);
-  // free(data->objects);
-  // free(data->opencl);
-  // mlx_destroy_window(data->mlx_ptr, data->win_ptr);
-  // mlx_destroy_image(data->mlx_ptr, data->img);
-  // mlx_destroy_display(data->mlx_ptr);
-  // free(data->mlx_ptr);
-  // free(data->win_ptr);
-  // clUnloadPlatformCompiler(data->opencl->platform[1]);
-  // exit(1);
-
 	ft_bzero(&data->inputs, sizeof(t_inputs));
 	data->inputs.key = -1;
 	data->inputs.mouse_x = data->win_width * 0.5f;

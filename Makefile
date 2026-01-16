@@ -28,11 +28,17 @@ SRCS_FIL = \
 		opencl_handlers/queue_buffer.c\
 		mlx_handlers/mlx.c \
 		create/scene_objects.c \
+		create/scene_assign_objects.c \
+		create/scene_assign_objects2.c \
 		create/scene_objects_utils.c \
+		create/scene_objects_utils2.c \
 		error_handling/memory_error.c \
 		utils/utils.c \
+		utils/utils2.c \
 		math_utils/vector.c \
+		math_utils/vector2.c \
 		math_utils/quaternion.c \
+		math_utils/quaternion2.c \
 		math_utils/print_math.c \
 		mlx_handlers/input_translate.c \
 

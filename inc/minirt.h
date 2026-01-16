@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:49 by zyeoh             #+#    #+#             */
-/*   Updated: 2026/01/09 19:46:16 by zyeoh            ###   ########.fr       */
+/*   Updated: 2026/01/16 18:23:21 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,8 +187,25 @@ char *read_cfile(char *name);
 void free_cfile(char **c_file);
 void free_str_arr(char **str_arr);
 int count_objects(t_list *root_node);
+int ft_str_arr_len(char **str);
+int	is_rgb(char *str);
 cl_float4 get_quat_value(char *str);
 cl_float3 inv_rgb_float(int rgb);
-int ft_str_arr_len(char **str);
+cl_float	get_cl_float(char *str);
+cl_float3	get_cl_float3(char *str);
+cl_float3	get_dir(char *str);
+cl_float3	get_rgb_value(char *str);
 
+t_object	assign_object(char **line);
+void	assign_cylinder(t_object *object, char **line, int *line_offset);
+void	assign_light(t_object *object, char **line, int *line_offset);
+void	assign_plane(t_object *object, char **line, int *line_offset);
+void	assign_sphere(t_object *object, char **line, int *line_offset);
+void	assign_camera(t_camera *camera, char **line);
+void	assign_ambient(t_camera *camera, char **line);
+
+float	apply_material_properties_base(t_object *object, char *material_type);
+float	apply_material_properties_base2(t_object *object, char *material_type);
+
+void end_program(t_data *data);
 #endif

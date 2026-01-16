@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/21 17:31:34 by zyeoh             #+#    #+#             */
-/*   Updated: 2026/01/09 22:48:23 by zyeoh            ###   ########.fr       */
+/*   Updated: 2026/01/16 18:22:57 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,9 @@ inline void	my_mlx_put_pixels(t_data *data, int x, int y, int color)
 	*(unsigned int *)dst = color;
 }
 
+// printf("MLX Key is %d\n", key);
 int	deal_key_release(int key, t_data *data)
 {
-  // printf("MLX Key is %d\n", key);
 	if (data->inputs.key == key)
 	{
 		data->inputs.key = -1;
@@ -38,41 +38,15 @@ int	deal_key_release(int key, t_data *data)
 		data->inputs.key_wasd[2] = 0;
 	else if (key == D_KEY)
 		data->inputs.key_wasd[3] = 0;
-  data->camera->moved = false;
-
+	data->camera->moved = false;
 	return (0);
 }
 
+// printf("MLX Key is %d\n", key);
 int	deal_key_press(int key, t_data *data) // ! does not free
 {
-  // printf("MLX Key is %d\n", key);
-	if (key == ESC_KEY) // ! free everything in data
-	{
-    clReleaseMemObject(data->opencl->addr);
-    clReleaseMemObject(data->opencl->camera);
-    clReleaseMemObject(data->opencl->objects);
-    clReleaseMemObject(data->opencl->reservoirs);
-    clReleaseProgram(data->opencl->program);
-    clReleaseKernel(data->opencl->kernel);
-    clReleaseCommandQueue(data->opencl->queue);
-    clReleaseContext(data->opencl->context);
-    clReleaseDevice(data->opencl->device);
-    free(data->camera);
-    free(data->objects);
-    if (data->file_content)
-      ft_lstclear(&data->file_content, (void *)free_str_arr);
-    mlx_destroy_window(data->mlx_ptr, data->win_ptr);
-    mlx_destroy_image(data->mlx_ptr, data->img);
-    mlx_destroy_display(data->mlx_ptr);
-    free(data->mlx_ptr);
-    // clUnloadPlatformCompiler(data->opencl->platform[0]);
-    if (clUnloadPlatformCompiler(data->opencl->platform[0]) != CL_SUCCESS)
-      perror_and_exit("Failed to unload platform compiler", EXIT_FAILURE);
-    free(data->opencl);
-    // free(data->mlx_ptr);
-    // sleep(5);
-		exit(0);
-	}
+	if (key == ESC_KEY)
+		end_program(data);
 	if (key == SHIFT_KEY)
 	{
 		data->inputs.shift = true;
@@ -88,72 +62,51 @@ int	deal_key_press(int key, t_data *data) // ! does not free
 		data->inputs.key_wasd[3] = 1;
 	else if (key == SPACE_KEY || key == CTRL_KEY)
 		data->inputs.key = key;
-  else
-    return (0);
-  data->camera->moved = true;
+	else
+		return (0);
+	data->camera->moved = true;
 	return (0);
 }
 
 int	deal_input(t_data *data)
 {
-  if (data->inputs.key == 107)
-    return 0;
-	if (data->camera->moved == false && data->inputs.key == -1 && !data->inputs.key_wasd[0] && !data->inputs.key_wasd[1] && !data->inputs.key_wasd[2] && !data->inputs.key_wasd[3])
+	if (data->inputs.key == 107)
+		return (0);
+	if (data->camera->moved == false && data->inputs.key == -1
+		&& !data->inputs.key_wasd[0] && !data->inputs.key_wasd[1]
+		&& !data->inputs.key_wasd[2] && !data->inputs.key_wasd[3])
 	{
-    return (0);
-  }
-  data->camera->moved = true;
-
-  // ft_bzero(data->reservoirs, sizeof(t_reservoir) * data->win_width * data->win_height);
-  // ft_bzero(data->reservoirs, sizeof(t_reservoir) * data->win_width * data->win_height);
-  // clEnqueueFillBuffer(data->opencl->queue, data->opencl->reservoirs, NULL, 0, 0, sizeof(t_reservoir) * data->win_width * data->win_height, 0, NULL, NULL);
-  data->inputs.update = 1;
-  input_translate(data, data->inputs);
-  
-	// ! add slerp to reset key
-	// else if (data->inputs.key == B_KEY && !data->inputs.key_held)
-	// {
-	// 	// free_map(data->inputs.map);
-	// 	data->inputs.map = copy_map(data->inputs.map_copy);
-	// 	if (!data->inputs.map)
-	// 	{
-	// 		free_map(data->inputs.map_copy);
-	// 		free_map(data->inputs.map);
-	// 		error_reset();
-	// 		return (-1);
-	// 	}
-	// }
-	// data->inputs.key_held = true;
-	// render_frame(data, data->opencl);
+		return (0);
+	}
+	data->camera->moved = true;
+	data->inputs.update = 1;
+	input_translate(data, data->inputs);
 	return (0);
 }
 
 int	mouse_hook(int x, int y, t_data *data)
 {
-	int dy;
-	int dx;
-	
+	int	dy;
+	int	dx;
+
 	dy = y - data->inputs.mouse_y;
 	dx = x - data->inputs.mouse_x;
-  // printf("%d %d\n", dy, dx);
-
-  if (!dy && !dx)
-    return 0;
-  // data->camera->moved = true;
-  data->inputs.update = 1;
-
-	// input_translate(data, data->inputs);
-	// deal_input(data);
+	if (!dy && !dx)
+		return (0);
+	data->inputs.update = 1;
 	data->camera->quat = quat_normalize(data->camera->quat);
-	if ((dy > 0 && data->inputs.pitch_angle < CAM_LOCK) || (dy < 0 && data->inputs.pitch_angle > -CAM_LOCK))
+	if ((dy > 0 && data->inputs.pitch_angle < CAM_LOCK) || (dy < 0
+			&& data->inputs.pitch_angle > -CAM_LOCK))
 	{
 		data->inputs.pitch_angle += CAM_SENS * dy;
-		data->camera->quat = quat_product(data->camera->quat, angle_to_quat((cl_float4){{1, 0, 0, 0}}, CAM_SENS * dy));
+		data->camera->quat = quat_product(data->camera->quat,
+				angle_to_quat((cl_float4){{1, 0, 0, 0}}, CAM_SENS * dy));
 	}
 	if (dx != 0)
-		data->camera->quat = quat_product(angle_to_quat((cl_float4){{0, 1, 0, 0}}, CAM_SENS * dx), data->camera->quat);
-	mlx_mouse_move(data->mlx_ptr, data->win_ptr, data->win_width * 0.5, data->win_height * 0.5); // ! might not work with int
-	// render_frame(data, data->opencl);
-  data->camera->moved = true;
+		data->camera->quat = quat_product(angle_to_quat((cl_float4){{0, 1, 0,
+					0}}, CAM_SENS * dx), data->camera->quat);
+	mlx_mouse_move(data->mlx_ptr, data->win_ptr, data->win_width * 0.5,
+		data->win_height * 0.5);
+	data->camera->moved = true;
 	return (0);
 }
