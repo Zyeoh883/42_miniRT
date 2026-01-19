@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   libft.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sting <sting@student.42kl.edu.my>          +#+  +:+       +#+        */
+/*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/16 15:17:43 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/05/16 15:29:25 by sting            ###   ########.fr       */
+/*   Updated: 2026/01/19 19:56:53 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,8 +51,8 @@ char				*ft_strnstr(const char *haystack, const char *needle,
 char				*ft_strrchr(const char *s, int c);
 
 int					ft_atoi(const char *str);
-long	      ft_atol(const char *str);
-float       ft_atof(const char *str);
+long				ft_atol(const char *str);
+float				ft_atof(const char *str);
 char				*ft_itoa(int n);
 int					ft_tolower(int c);
 int					ft_toupper(int c);
@@ -66,7 +66,7 @@ char				*ft_substr(char const *s, unsigned int start, size_t len);
 char				*ft_strmapi(char const *s, char (*f)(unsigned int, char));
 void				ft_striteri(char *s, void (*f)(unsigned int, char *));
 
-char        **ft_split_set(const char *str, char *set);
+char				**ft_split_set(const char *str, char *set);
 
 typedef struct s_list
 {

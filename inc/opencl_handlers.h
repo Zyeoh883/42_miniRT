@@ -6,14 +6,14 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 13:41:56 by zyeoh             #+#    #+#             */
-/*   Updated: 2026/01/17 16:19:55 by zyeoh            ###   ########.fr       */
+/*   Updated: 2026/01/19 19:56:11 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef OPENCL_HANDLERS_H
 # define OPENCL_HANDLERS_H
 
-#define TOTAL_C_FILES 9
+# define TOTAL_C_FILES 13
 
 typedef struct s_opencl
 {
@@ -26,19 +26,21 @@ typedef struct s_opencl
 	cl_mem				addr; // the result back to host
 	cl_mem				camera;
 	cl_mem				objects;
-	cl_mem		        reservoirs;
+	cl_mem				reservoirs;
 }						t_opencl;
 
-char **get_cfiles(size_t *c_size);
-void print_cl_error(cl_int error);
+char	**get_cfiles(size_t *c_size);
+void	print_cl_error(cl_int error);
 
-void get_platform_and_devices(t_opencl *opencl, cl_device_id *gpu_list, cl_platform_id *platform_list, cl_uint total_gpus);
+void	get_platform_and_devices(t_opencl *opencl,
+			cl_device_id *gpu_list, cl_platform_id *platform_list,
+			cl_uint total_gpus);
 
-void get_context(t_opencl *opencl, t_data *data);
+void	get_context(t_opencl *opencl, t_data *data);
 
-void get_program(t_opencl *opencl, char **c_files, size_t c_size[9]);
+void	get_program(t_opencl *opencl, char **c_files, size_t c_size[9]);
 
-void get_kernel(t_opencl *opencl);
+void	get_kernel(t_opencl *opencl);
 
-void queue_buffer(t_opencl *opencl, t_data *data);
+void	queue_buffer(t_opencl *opencl, t_data *data);
 #endif

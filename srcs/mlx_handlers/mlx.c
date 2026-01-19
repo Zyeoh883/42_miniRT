@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/21 17:31:34 by zyeoh             #+#    #+#             */
-/*   Updated: 2026/01/16 18:22:57 by zyeoh            ###   ########.fr       */
+/*   Updated: 2026/01/19 20:03:30 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,23 +88,25 @@ int	mouse_hook(int x, int y, t_data *data)
 {
 	int	dy;
 	int	dx;
+	int	cam_lock;
 
 	dy = y - data->inputs.mouse_y;
 	dx = x - data->inputs.mouse_x;
 	if (!dy && !dx)
 		return (0);
+	cam_lock = CAM_LOCK * M_PI / 180;
 	data->inputs.update = 1;
 	data->camera->quat = quat_normalize(data->camera->quat);
-	if ((dy > 0 && data->inputs.pitch_angle < CAM_LOCK) || (dy < 0
-			&& data->inputs.pitch_angle > -CAM_LOCK))
+	if ((dy > 0 && data->inputs.pitch_angle < cam_lock) || (dy < 0
+			&& data->inputs.pitch_angle > -cam_lock))
 	{
 		data->inputs.pitch_angle += CAM_SENS * dy;
 		data->camera->quat = quat_product(data->camera->quat,
-				angle_to_quat((cl_float4){{1, 0, 0, 0}}, CAM_SENS * dy));
+				angle_to_quat((cl_float4){{1, 0, 0, 0}}, M_PI * CAM_SENS * dy));
 	}
 	if (dx != 0)
 		data->camera->quat = quat_product(angle_to_quat((cl_float4){{0, 1, 0,
-					0}}, CAM_SENS * dx), data->camera->quat);
+					0}}, M_PI * CAM_SENS * dx), data->camera->quat);
 	mlx_mouse_move(data->mlx_ptr, data->win_ptr, data->win_width * 0.5,
 		data->win_height * 0.5);
 	data->camera->moved = true;

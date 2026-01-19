@@ -6,15 +6,15 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/14 11:30:35 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/15 09:47:42 by zyeoh            ###   ########.fr       */
+/*   Updated: 2026/01/19 19:44:30 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MATH_UTILS_H
 # define MATH_UTILS_H
 
-# define TO_RADIAN M_PI / 180
-# define TO_DEGREE M_PI / 180
+// # define TO_RADIAN M_PI / 180
+// # define TO_DEGREE M_PI / 180
 
 // void		vector_cross_product(float A[3], float B[3], float result[3]);
 // float		vector_dot_product(float A[3], float B[3]);
@@ -53,5 +53,5 @@ cl_float4	quat_normalize(cl_float4 q);
 
 void		print_vector(cl_float4 v);
 
-cl_float3 to_float3(float x);
+cl_float3	to_float3(float x);
 #endif

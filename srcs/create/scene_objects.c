@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/25 14:31:11 by zyeoh             #+#    #+#             */
-/*   Updated: 2026/01/16 17:34:56 by zyeoh            ###   ########.fr       */
+/*   Updated: 2026/01/19 19:47:02 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 // char type, cl_float3 pos, cl_float4 quat, int color)
 
-// Set material-specific properties (F_0 and roughness)
+// Set material-specific properties (f_0 and roughness)
 
 // object.diffuse_albedo = (cl_float3){{object.cdiffuse_albedo.x * (1.0f
 // 		- metallic), object.diffuse_albedo.y * (1.0f - metallic),

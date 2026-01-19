@@ -6,12 +6,12 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/24 10:43:27 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/08/13 14:19:40 by zyeoh            ###   ########.fr       */
+/*   Updated: 2026/01/19 19:52:47 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MLX_HANLDERS_H
-# define MLX_HANLDERS_H
+#ifndef MLX_HANDLERS_H
+# define MLX_HANDLERS_H
 
 typedef struct s_data	t_data;
 typedef struct s_camera	t_camera;
