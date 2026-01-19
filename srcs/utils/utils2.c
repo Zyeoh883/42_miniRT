@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/16 17:23:07 by zyeoh             #+#    #+#             */
-/*   Updated: 2026/01/16 22:42:07 by zyeoh            ###   ########.fr       */
+/*   Updated: 2026/01/19 16:41:37 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,7 @@ cl_float4	get_quat_value(char *str)
 cl_float3	inv_rgb_float(int rgb)
 {
 	return ((cl_float3){{(float)((rgb >> 16) % 0x100) / 0xFF,
-		(float)((rgb >> 8) % 0x100) / 0xFF,
-		(float)((rgb % 0x100) / 0xFF)}});
+		(float)((rgb >> 8) % 0x100) / 0xFF, (float)((rgb % 0x100) / 0xFF)}});
 }
 
 cl_float3	to_float3(float x)
@@ -38,8 +37,10 @@ cl_float3	to_float3(float x)
 	return ((cl_float3){{x, x, x}});
 }
 
+// clReleaseDevice(data->opencl->device);
 void	end_program(t_data *data)
 {
+	clFinish(data->opencl->queue);
 	clReleaseMemObject(data->opencl->addr);
 	clReleaseMemObject(data->opencl->camera);
 	clReleaseMemObject(data->opencl->objects);
@@ -48,7 +49,6 @@ void	end_program(t_data *data)
 	clReleaseKernel(data->opencl->kernel);
 	clReleaseCommandQueue(data->opencl->queue);
 	clReleaseContext(data->opencl->context);
-	clReleaseDevice(data->opencl->device);
 	free(data->camera);
 	free(data->objects);
 	if (data->file_content)

@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2026/01/16 18:30:48 by zyeoh            ###   ########.fr       */
+/*   Updated: 2026/01/19 16:18:34 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ void	create_buffer(t_opencl *opencl, t_data *data)
 {
 	cl_int	ret;
 
-	opencl->addr = clCreateBuffer(opencl->context, CL_MEM_WRITE_ONLY,
+	opencl->addr = clCreateBuffer(opencl->context, CL_MEM_READ_WRITE,
 			sizeof(int) * data->win_width * data->win_height, NULL, &ret);
 	if (ret != CL_SUCCESS)
 		print_cl_error(ret);
@@ -28,7 +28,7 @@ void	create_buffer(t_opencl *opencl, t_data *data)
 			sizeof(t_object) * data->num_objects, NULL, &ret);
 	if (ret != CL_SUCCESS)
 		print_cl_error(ret);
-	opencl->reservoirs = clCreateBuffer(opencl->context, CL_MEM_WRITE_ONLY,
+	opencl->reservoirs = clCreateBuffer(opencl->context, CL_MEM_READ_WRITE,
 			sizeof(t_reservoir) * data->win_width * data->win_height, NULL,
 			&ret);
 	if (ret != CL_SUCCESS)

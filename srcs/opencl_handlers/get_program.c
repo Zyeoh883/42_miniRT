@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/08 17:26:19 by zyeoh             #+#    #+#             */
-/*   Updated: 2026/01/16 22:31:44 by zyeoh            ###   ########.fr       */
+/*   Updated: 2026/01/17 15:53:41 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ void	get_program(t_opencl *opencl, char **c_files, size_t c_size[9])
 	cl_device_info	power_info;
 	char			*build_options;
 
-	opencl->program = clCreateProgramWithSource(opencl->context, 8,
+	opencl->program = clCreateProgramWithSource(opencl->context, TOTAL_C_FILES,
 			(const char **)c_files, c_size, &ret);
 	if (ret != CL_SUCCESS)
 		print_cl_error(ret);

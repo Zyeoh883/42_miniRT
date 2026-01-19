@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2026/01/09 21:43:58 by zyeoh            ###   ########.fr       */
+/*   Updated: 2026/01/19 16:31:46 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ t_camera	*init_camera(t_data *data, int win_height, int win_width)
 	camera->win_height = win_height;
 	camera->bytes_per_pixel = data->bits_per_pixel * 0.125f;
 	camera->line_length = data->line_length;
+	camera->moved = true;
 	return (camera);
 }
 
@@ -41,19 +42,23 @@ t_camera	*init_camera(t_data *data, int win_height, int win_width)
 t_opencl	*init_opencl(t_data *data)
 {
 	char		**c_files;
-	size_t		c_size[9];
+	size_t		*c_size;
 	t_opencl	*opencl;
 
 	c_files = NULL;
 	opencl = ft_calloc(1, sizeof(t_opencl));
 	if (!opencl)
 		exit(EXIT_FAILURE);
+	c_size = ft_calloc(TOTAL_C_FILES, sizeof(size_t));
+	if (!c_size)
+		perror_and_exit("Malloc for c_size failed", EXIT_FAILURE);
 	c_files = get_cfiles(c_size);
 	get_platform_and_devices(opencl, NULL, NULL, 0);
 	get_context(opencl, data);
 	get_program(opencl, c_files, c_size);
 	get_kernel(opencl);
 	free_cfile(c_files);
+	free(c_size);
 	data->opencl = opencl;
 	return (opencl);
 }
@@ -67,8 +72,8 @@ int	initialize(t_data *data, char *filename)
 	data->mlx_ptr = mlx_init();
 	if (!data->mlx_ptr)
 		return (0);
-	data->win_width = 2560;
-	data->win_height = 1600;
+	data->win_width = WIN_WIDTH;
+	data->win_height = WIN_HEIGHT;
 	data->img = mlx_new_image(data->mlx_ptr, data->win_width, data->win_height);
 	data->addr = mlx_get_data_addr(data->img, &data->bits_per_pixel,
 			&data->line_length, &data->endian);

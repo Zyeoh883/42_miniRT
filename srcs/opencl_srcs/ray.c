@@ -6,22 +6,12 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 16:33:56 by zyeoh             #+#    #+#             */
-/*   Updated: 2026/01/09 22:03:08 by zyeoh            ###   ########.fr       */
+/*   Updated: 2026/01/19 16:30:30 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-float GetRandomFloat(unsigned int *seed) {
-  *seed = (*seed ^ 61) ^ (*seed >> 16);
-  *seed = *seed + (*seed << 3);
-  *seed = *seed ^ (*seed >> 4);
-  *seed = *seed * 0x27d4eb2d;
-  *seed = *seed ^ (*seed >> 15);
-  *seed = 1103515245 * (*seed) + 12345;
 
-  return (float)(*seed) * 2.3283064365386963e-10f;
-}
-
-unsigned int HashUInt32(unsigned int x) {
+uint HashUInt32(uint x) {
   x = (x ^ 61) ^ (x >> 16);
   x = x + (x << 3);
   x = x ^ (x >> 4);
@@ -41,20 +31,13 @@ t_ray create_ray(U __global t_camera *camera, t_sample_data *sample_data)
 
   i = sample_data->x;
   j = sample_data->y;
-  // offset = (sample_random(sample_data, i + j) - 0.5f) * 0.5f;
-  i += (sample_random(sample_data, i) - 0.5f);
-  j += (sample_random(sample_data, j) - 0.5f);
-
-
-  // printf("offset: %f\n", offset);
-  
-
+  i += (sample_random(sample_data) - 0.5f);
+  j += (sample_random(sample_data) - 0.5f);
   ray.pos = camera->pos;
   ray.dir =
       (float3)((2 * i / (float)camera->win_width - 1) * camera->pixel_width,
                (1 - 2 * j / (float)camera->win_height) * camera->pixel_height,
                1);
-  // ray.dir = (float3)(camera->win_width / 2, camera->win_height / 2, 1);
   ray.dir = quat_rotate(camera->quat, ray.dir);
   ray.dir = fast_normalize(ray.dir);
   return (ray);
@@ -83,6 +66,7 @@ int intersect_scene(t_ray ray, U __global t_object *objects,
   float2 t;
   *closest_t = INFINITY;
 
+  object_index = 0;
   index = -1;
   while (objects[++index].obj_type != 0) {
     t = ray_intersection(objects + index, ray);
@@ -165,11 +149,12 @@ float3 get_normal(t_object *hit_object, float3 hit_point, float3 ray_dir) {
 //
 // }
 
-t_candidate path_trace(t_ray in_ray, U __global t_object *objects,
-                       t_sample_data *sample_data, t_reservoir *reservoir, t_ambient ambient) 
+t_candidate path_trace(__global t_camera *camera, U __global t_object *objects,
+                       t_sample_data *sample_data) 
 {
   t_object hit_object;
   t_ray out_ray;
+  t_ray in_ray;
   float3 hit_point;
   float3 normal;
   float3 bxdf;
@@ -179,44 +164,42 @@ t_candidate path_trace(t_ray in_ray, U __global t_object *objects,
   float pdf_temp = 1;
   // float3 accum_color = (float3)(0.0f, 0.0f, 0.0f);
   float3 throughput = (float3)(1.0f, 1.0f, 1.0f);
-  float3 k_ambient = (float3)(0.1f, 0.1f, 0.5f);
   t_candidate candidate;
 
   candidate = init_candidate();
+  in_ray = create_ray(camera, sample_data);
 
   // if (!intersect_scene(in_ray, objects, &hit_object, &t))
   //   return candidate;
-  sample_data->n_bounce = 5;
   while (true) {
-    // printf("%d\n", sample_data.n_bounce);
-    if (!intersect_scene(in_ray, objects, &hit_object, &t)) {
-      // update_reservoir(reservoir, candidate, sample_data);
-      
+    if (!intersect_scene(in_ray, objects, &hit_object, &t)) 
+    {
       // Mix between blue (up) and white (horizon)
       float t_val = 0.5f * (in_ray.dir.y + 1.0f);
-      float3 top_color = ambient.amb_top_color; // Sky
-      float3 bot_color = ambient.amb_bot_color; // Horizon
+      float3 top_color = camera->ambient.amb_top_color; // Sky
+      float3 bot_color = camera->ambient.amb_bot_color; // Horizon
       float3 env_color = mix(bot_color, top_color, t_val); // 0.5f is intensity
       throughput *= min(throughput, (float3)(0.1f));
-      candidate.radiance = throughput * env_color * ambient.amb_light_ratio;
+      candidate.radiance = throughput * env_color * camera->ambient.amb_light_ratio;
 
       candidate.pdf = max(pdf_temp, 1e-6f);
       candidate.weight = throughput;
       return candidate;
     } // if (t < 1e-2f)
-    if (hit_object.obj_type == LIGHT) {
+    if (hit_object.obj_type == LIGHT) 
+    {
       // printf("%f, %f\n", hit_object.emission.x, throughput.x);
       candidate.radiance += hit_object.emission * throughput * hit_object.diffuse_albedo;
 
-      if (isnan(candidate.radiance.x) || isnan(candidate.radiance.y) ||
-          isnan(candidate.radiance.z) || isinf(candidate.radiance.x) ||
-          isinf(candidate.radiance.y) || isinf(candidate.radiance.z)) {
-        printf("emission: %f %f %f, throughput : %f %f %f\n",
-               hit_object.emission.x, hit_object.emission.y,
-               hit_object.emission.z, throughput.x, throughput.y, throughput.z);
-        printf("radiance : %f %f %f\n", candidate.radiance.x,
-               candidate.radiance.y, candidate.radiance.z);
-      }
+      // if (isnan(candidate.radiance.x) || isnan(candidate.radiance.y) ||
+      //     isnan(candidate.radiance.z) || isinf(candidate.radiance.x) ||
+      //     isinf(candidate.radiance.y) || isinf(candidate.radiance.z)) {
+      //   printf("emission: %f %f %f, throughput : %f %f %f\n",
+      //          hit_object.emission.x, hit_object.emission.y,
+      //          hit_object.emission.z, throughput.x, throughput.y, throughput.z);
+      //   printf("radiance : %f %f %f\n", candidate.radiance.x,
+      //          candidate.radiance.y, candidate.radiance.z);
+      // }
       candidate.pdf = pdf_temp;
       candidate.weight = throughput;
       return candidate;
@@ -224,19 +207,11 @@ t_candidate path_trace(t_ray in_ray, U __global t_object *objects,
     //   return (throughput * 0.1f);
     hit_point = in_ray.pos + normalize(in_ray.dir) * t;
     normal = get_normal(&hit_object, hit_point, normalize(in_ray.dir));
-    seed.x = sample_random(sample_data, 1);
-    seed.y = sample_random(sample_data, 2);
-    bxdf =
-        sample_bxdf(sample_random(sample_data, 3), seed, normalize(in_ray.dir),
-                    &out_ray.dir, normal, &hit_object, &pdf, sample_data);
-    // candidate.radiance += hit_object.emission * throughput;
-    // candidate.pdf = pdf_temp;
-    // candidate.weight = throughput;
-    // if (pdf == -1)
-    //   return candidate;
+    seed = (float2){sample_random(sample_data), sample_random(sample_data)};
+
+    bxdf = sample_bxdf(normalize(in_ray.dir), &out_ray.dir, normal, &hit_object, &pdf, seed);
     if (pdf <= 0.0f) {
       // printf("here\n");
-      // Return current surface emission or black
       candidate.radiance = hit_object.emission * throughput;
       candidate.pdf = pdf_temp;
       candidate.weight = throughput;
@@ -248,32 +223,33 @@ t_candidate path_trace(t_ray in_ray, U __global t_object *objects,
     // throughput *= bxdf / max(pdf, 1e-5f);
     float cos_theta = fabs(dot(out_ray.dir, normal));
     throughput *= bxdf * cos_theta / max(pdf, 1e-5f);
-    // throughput *= hit_object.F_0;
-    if (isnan(throughput.x) || isnan(throughput.y) || isnan(throughput.z) ||
-        isinf(throughput.x) || isinf(throughput.y) || isinf(throughput.z)) {
-      printf("throughput: %f %f %f\nbxdf: %f %f %f\npdf: %f\n", throughput.x,
-             throughput.y, throughput.z, bxdf.x, bxdf.y, bxdf.z, pdf);
-      break;
-    }
-
+    // throughput *= hit_object.f_0;
+    // if (isnan(throughput.x) || isnan(throughput.y) || isnan(throughput.z) ||
+    // isinf(throughput.x) || isinf(throughput.y) || isinf(throughput.z)) 
+    // {
+    //   printf("throughput: %f %f %f\nbxdf: %f %f %f\npdf: %f\n", throughput.x,
+    //     throughput.y, throughput.z, bxdf.x, bxdf.y, bxdf.z, pdf);
+    //     break;
+    // }
+      
     in_ray = out_ray;
     in_ray.pos = hit_point + normal * 0.001f;
     // update_reservoir(reservoir, candidate, sample_data);
     if (sample_data->n_bounce-- == 0)
       break;
-    // sample_data.n_bounce--;
+      // sample_data.n_bounce--;
+    }
+    // printf("hit-----------------------\n");
+    // candidate.radiance = throughput * 0.5f;
+    // if (isnan(candidate.radiance.x) || isinf(candidate.radiance.x))
+    //     printf("candidate.radiance, %f", candidate.radiance.x);
+    return candidate;
   }
-  // printf("hit-----------------------\n");
-  // candidate.radiance = throughput * 0.5f;
-  // if (isnan(candidate.radiance.x) || isinf(candidate.radiance.x))
-  //     printf("candidate.radiance, %f", candidate.radiance.x);
-  return candidate;
-}
-
-float3 linear_to_gamma(float3 x) 
-{ 
-  return sqrt(x); 
-}
+  
+  float3 linear_to_gamma(float3 x) 
+  { 
+    return sqrt(x); 
+  }
 
 float calculate_candidate_importance_weight(t_candidate candidate) {
 
@@ -305,10 +281,10 @@ void update_reservoir(t_reservoir *res, t_candidate new_candidate, t_sample_data
   res->weighted_sum += candidate_importance_weight;
 
   // 3. Increment the count of candidates seen (M)
-  res->M++;
+  res->m++;
 
   // float random_val = sample_random(sample_data, 999);
-  if (sample_random(sample_data,999) < (candidate_importance_weight / res->weighted_sum))
+  if ((sample_random(sample_data)) < (candidate_importance_weight / res->weighted_sum))
     res->candidate = new_candidate; // Replace the chosen candidate 
 }
 
@@ -317,14 +293,19 @@ float3 reservoir_final_color(t_reservoir *res)
   float avg_luminence;
   float selected_luminence;
   float3 final_color;
-  if (isnan(res->candidate.pdf) || isinf(res->candidate.pdf))
-    printf("its Pdf");
+  
+  // if (isnan(res->candidate.pdf) || isinf(res->candidate.pdf))
+  //   printf("its Pdf");
 
-  if (res->M == 0 || res->weighted_sum <= 0.0f || res->candidate.pdf <= 0.0f)
+  if (res->m == 0 || res->weighted_sum <= 0.0f || res->candidate.pdf <= 0.0f)
     return (float3)(0, 0, 0); // No valid light found, pixel is black
 
-  avg_luminence = res->weighted_sum / (float)res->M;
+  avg_luminence = res->weighted_sum / (float)res->m;
   selected_luminence = luma(res->candidate.radiance);
+
+    // ✓ Check for zero luminance
+  if (selected_luminence <= 1e-10f)
+    return (float3)(0, 0, 0);
   final_color = (res->candidate.radiance / selected_luminence) * avg_luminence; 
 
   if (isnan(final_color.x) || isnan(final_color.y) || isnan(final_color.z) ||
@@ -340,33 +321,36 @@ __kernel void render_scene(U __global uchar *addr,
   U __global uchar *dst;
   t_ray ray;
   float3 color = (float3)(0.0f, 0.0f, 0.0f);
-  t_sample_data sample_data;
+  // uint pixel_pos[2];
   unsigned int result = 0;
+  t_sample_data sample_data;
+  t_reservoir reservoir;
+  t_candidate candidate;
+  
 
   sample_data.x = get_global_id(0);
   sample_data.y = get_global_id(1);
+  // if (*get_seed() == 0)
+  //   set_seed(sample_data.x, sample_data.y);
 
-
-  t_reservoir reservoir;
-  t_candidate candidate;
 
   reservoir = reservoirs[(int)(sample_data.x + sample_data.y * camera->win_width)];
-  sample_data.seed = reservoir.seed;
-  sample_data.sample_index = 5;
+  // *get_seed() = reservoir.seed;
 
+  sample_data.sample_index = SAMPLES_PER_RUN;
+  sample_data.n_bounce = BOUNCE;
+  
   if (camera->moved)
     reservoir = (t_reservoir){0};
-
+  sample_data.seed = reservoir.seed;
   while (sample_data.sample_index-- > 0) 
   {
-    candidate = path_trace(create_ray(camera, &sample_data),
-                           objects, &sample_data, &reservoir, camera->ambient);
+    candidate = path_trace(camera, objects, &sample_data);
     update_reservoir(&reservoir, candidate, &sample_data);
   }
 
   reservoir.seed = sample_data.seed;
-  reservoirs[(int)(sample_data.x + sample_data.y * camera->win_width)] =
-      reservoir;
+  reservoirs[(int)(sample_data.x + sample_data.y * camera->win_width)] = reservoir;
 
   dst = addr + (sample_data.y * camera->line_length +
                 sample_data.x * (camera->bytes_per_pixel));

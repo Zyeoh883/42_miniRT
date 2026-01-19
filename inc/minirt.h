@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:49 by zyeoh             #+#    #+#             */
-/*   Updated: 2026/01/16 18:23:21 by zyeoh            ###   ########.fr       */
+/*   Updated: 2026/01/19 14:00:59 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,10 @@
 
 #define BASE_10_DIGITS "1234567890"
 #define LONG_NUM_DIGITS 19
+
+
+#define WIN_WIDTH 2560
+#define WIN_HEIGHT 1600
 #define CAM_SENS M_PI * 0.001
 #define CAM_LOCK 80 * TO_RADIAN
 #define FOV 60

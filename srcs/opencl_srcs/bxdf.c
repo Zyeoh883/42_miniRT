@@ -6,273 +6,193 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2026/01/09 22:01:45 by zyeoh            ###   ########.fr       */
+/*   Updated: 2026/01/19 15:20:04 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-unsigned int WangHash(unsigned int x)
+unsigned int	wang_hash(unsigned int x)
 {
-    x = (x ^ 61) ^ (x >> 16);
-    x = x + (x << 3);
-    x = x ^ (x >> 4);
-    x = x * 0x27d4eb2d;
-    x = x ^ (x >> 15);
-    return x;
+	x = (x ^ 61) ^ (x >> 16);
+	x = x + (x << 3);
+	x = x ^ (x >> 4);
+	x = x * 0x27d4eb2d;
+	x = x ^ (x >> 15);
+	return (x);
 }
 
-uint pcg_hash(uint input) {
-    uint state = input * 747796405u + 2891336453u; // LCG step
-    uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u; // Permutation
-    return (word >> 22u) ^ word; // Final mix
+// LCG step
+uint	pcg_hash(uint input)
+{
+	uint	state;
+	uint	word;
+
+	state = input * 747796405u + 2891336453u;
+	word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
+	return ((word >> 22u) ^ word);
 }
 
-float sample_random(t_sample_data *sample_data, uint type)
+// return (dot(rgb, (float3)(1.0f, 1.0f, 1.0f)));
+float	luma(float3 rgb)
 {
-    uint seed;
-
-    seed = sample_data->seed;
-    seed = pcg_hash(seed ^ pcg_hash(sample_data->x));
-    seed = pcg_hash(seed ^ pcg_hash(sample_data->y));
-    seed = pcg_hash(seed ^ pcg_hash(sample_data->sample_index));
-    seed = pcg_hash(seed ^ pcg_hash(type));
-    sample_data->seed = seed;
-    return seed * 2.3283064365386963e-10f;
-;
+	return (dot(rgb, (float3)(0.2126f, 0.7152f, 0.0722f)));
 }
 
-
-float luma(float3 rgb)
+float3	reflect(float3 v, float3 n)
 {
-    // return dot(rgb, (float3)(1.0f, 1.0f, 1.0f));
-    return dot(rgb, (float3)(0.2126f, 0.7152f, 0.0722f));
+	return (normalize(v - 2.0f * dot(v, n) * n));
 }
 
-float3 reflect(float3 v, float3 n)
+float3	ggx_sample(float3 n, float alpha, float2 s)
 {
-    return normalize(v - 2.0f * dot(v, n) * n);
-}
+	float phi = 2.0f * (float)M_PI * s.x;
+	float tan_theta_sq = alpha * alpha * s.y / (1.0f - s.y);
+	float cos_theta = 1.0f / sqrt(1.0f + tan_theta_sq);
+	float sin_theta = sqrt(max(0.0f, 1.0f - cos_theta * cos_theta));
 
+	// Optimized tangent space calculation
+	float3 axis = select((float3)(1.0f, 0.0f, 0.0f), (float3)(0.0f, 1.0f, 0.0f),
+			(int3)(fabs(n.x) > 0.1f)); // Increased threshold for stability
+	float3 t = normalize(cross(axis, n));
+	float3 b = cross(n, t);
 
-float3 GGX_Sample(float2 s, float3 n, float alpha)
-{
-    float phi = TWO_PI * s.x;
-    float cos_theta = 1.0f / sqrt(1.0 + (alpha * alpha * s.y) / (1.0 - s.y));
-    float sin_theta = sqrt(max(0.0f, 1.0f - cos_theta * cos_theta));
+	float cos_phi = cos(phi);
+	float sin_phi = sin(phi);
 
-    float3 axis = fabs(n.x) > 0.001f ? (float3)(0.0f, 1.0f, 0.0f) : (float3)(1.0f, 0.0f, 0.0f);
-    float3 t = normalize(cross(axis, n));
-    float3 b = cross(n, t);
-
-    return normalize(b * cos(phi) * sin_theta + t * sin(phi) * sin_theta + n * cos_theta);
+	return normalize(b * cos_phi * sin_theta +
+	                t * sin_phi * sin_theta +
+	                n * cos_theta);
 }
 
 // TODO: reduce variable count
-float3 sample_diffuse(float2 s, float3 *out, float3 n, float3 diffuse_albedo, float *pdf)
+/* create a local orthogonal coordinate frame centered at the hitpoint */
+float3	sample_diffuse(float3 *out, float *pdf, t_args_sample a)
 {
-  float phi = TWO_PI * s.x;
-  float sin_theta = sqrt(s.y);
+	t_sample_diffuse	x;
 
-  float cos_theta = sqrt(1.0f - s.y);
-
-  *pdf = cos_theta * INV_PI;
-  if (*pdf <= 0.0f) {
-      *pdf = 0.0f;
-      return (float3)(0.0f);
-  }
-  float3 dir = (float3)(cos(phi) * sin_theta, sin(phi) * sin_theta, cos_theta);
-
-  /* create a local orthogonal coordinate frame centered at the hitpoint */
-	float3 axis = fabs(n.x) > 0.1f ? (float3)(0.0f, 1.0f, 0.0f) : (float3)(1.0f, 0.0f, 0.0f);
-	float3 u = normalize(cross(axis, n));
-	float3 v = cross(n, u);
-
-	/* use the coordinte frame and random numbers to compute the next ray direction */
-	*out = fast_normalize(v * dir.x + u * dir.y + n * dir.z);
-
-  return (diffuse_albedo * INV_PI);
+	x.phi = 2 * (float)M_PI * a.s.x;
+	x.sin_theta = sqrt(a.s.y);
+	x.cos_theta = sqrt(1.0f - a.s.y);
+	*pdf = x.cos_theta * (float) M_1_PI;
+	if (*pdf <= 0.0f)
+	{
+		*pdf = 0.0f;
+		return ((float3)(0.0f));
+	}
+	x.dir = (float3)(cos(x.phi) * x.sin_theta, sin(x.phi) * x.sin_theta,
+			x.cos_theta);
+	x.axis = select((float3)(1.0f, 0.0f, 0.0f), (float3)(0.0f, 1.0f, 0.0f),
+			(int3)(fabs(a.n.x) > 0.001f));
+	x.u = normalize(cross(x.axis, a.n));
+	x.v = cross(a.n, x.u);
+	*out = fast_normalize(x.v * x.dir.x + x.u * x.dir.y + a.n * x.dir.z);
+	return (a.diffuse_albedo * (float) M_1_PI);
 }
 
+// n_dot_o = dot(*out, normal);
+// if (n_dot_o <= 0.0f)
+// {
+//   *pdf = 0;
+//   return (float3)(0.0f);
+// }
+// Don't apply fresnel here, it's applied in the external function
 
-float3 sample_specular(float2 s, float3 in, float3* out, float3 normal,t_object *hit_object, float* pdf)
+float3	sample_specular(float3 *out, t_object *hit_object, float *pdf, t_args_sample a)
 {
-  float n_dot_o;
-  float n_dot_h;
-  float n_dot;
-  float h_dot_o;
-  float3 wh;
-  float wi_dot_h;
+	t_dot	x;
+	float	d;
+	float	g;
+	float	denominator;
 
-    if (hit_object->roughness_sqr <= 1e-4f)
-    {
-        *out = reflect(in, normal);
-        *pdf = 1.0;
-        // n_dot_o = dot(*out, normal);
-        // if (n_dot_o <= 0.0f)
-        // {
-        //   *pdf = 0;
-        //   return (float3)(0.0f);
-        // }
-        // Don't apply fresnel here, it's applied in the external function
-        return hit_object->specular_albedo;
-    }
-    else
-    {
-        wh = GGX_Sample(s, normal, hit_object->roughness_sqr);
-        *out = reflect(in, wh);
-
-        n_dot = dot(normal, -in);
-        n_dot_o = dot(normal, *out);
-        n_dot_h = dot(normal, wh);
-        h_dot_o = dot(*out, wh);
-        wi_dot_h = dot(-in, wh);       // Incident dot Halfway (Incident is -in)
-        if (n_dot_o <= 0.0f || n_dot_h <= 0.0f || wi_dot_h <= 0.0f || n_dot <= 0.0f) {
-          // print_vec(wh);
-          // printf("%f %f %f\n", n_dot_o, n_dot_h, wi_dot_h);
-          *pdf = 0.0f;
-          return (float3)(0.0f);
-        }
-        float D = NDF_GGX(hit_object->roughness_sqr, n_dot_h);
-        // Don't apply fresnel here, it's applied in the external function
-        //float3 F = FresnelSchlick(f0, h_dot_o);
-        float G = G_SmithGGXCorrelated(n_dot, n_dot_o, hit_object->roughness_sqr);
-        
-    
-        if (wi_dot_h <= 1e-6f)
-          *pdf = 0.0f;
-        else
-          *pdf = D * n_dot_h / (4.0f * wi_dot_h);   // **no G here**
-
-        // *pdf = D * n_dot_h / (4.0f * wi_dot_h);
-
-        float denominator = 4.0f * n_dot_o + 1e-5f;
-        return D * G * hit_object->specular_albedo / denominator;  // Full BRDF value
-        // return to_float3(D /* F */ * G);
-    }
+	if (hit_object->roughness_sqr <= 1e-4f)
+	{
+		*out = reflect(a.in, a.n);
+		*pdf = 1.0f;
+		return (hit_object->specular_albedo);
+	}
+	else
+	{
+		x.wh = ggx_sample(a.n, hit_object->roughness_sqr, a.s);
+		*out = reflect(a.in, x.wh);
+		x.n_dot = dot(a.n, -a.in);
+		x.n_dot_o = dot(a.n, *out);
+		x.n_dot_h = dot(a.n, x.wh);
+		x.h_dot_o = dot(*out, x.wh);
+		x.wi_dot_h = dot(-a.in, x.wh); // Incident dot Halfway (Incident is -in)
+		if (x.n_dot_o <= 0.0f || x.n_dot_h <= 0.0f || x.wi_dot_h <= 0.0f
+			|| x.n_dot <= 0.0f)
+		{
+			// printf("here\n");
+			*pdf = 0.0f;
+			return ((float3)(0.0f));
+		}
+		d = ndf_ggx(hit_object->roughness_sqr, x.n_dot_h);
+		g = g_smith_ggx_correlated(x.n_dot, x.n_dot_o,
+				hit_object->roughness_sqr);
+		*pdf = d * x.n_dot_h / (4.0f * x.wi_dot_h);
+		denominator = 4.0f * x.n_dot_o + 1e-5f;
+		return (d * g * hit_object->specular_albedo / denominator);
+	}
 }
 
-int check_checkerboard(float3 normal)
+int	check_checkerboard(float3 normal)
 {
-  float theta;
-  float phi;
+	t_checkerboard	x;
 
-  theta = acos(-normal.y);
-  phi = atan2(-normal.z, normal.x) + M_PI;
-
-  float u = phi * 0.5f * INV_PI;
-  float v = theta * INV_PI;
-
-  int tile_u = floor(u * 12.0f);
-  int tile_v = floor(v * 12.0f);
-
-  if ((tile_u + tile_v) % 2 == 0)
-    return 1;
-
-  return 0;
+	x.theta = acos(-normal.y);
+	x.phi = atan2(-normal.z, normal.x) + (float)M_PI;
+	x.u = x.phi * 0.5f * (float) M_1_PI;
+	x.v = x.theta * (float) M_1_PI;
+	x.tile_u = floor(x.u * 12.0f);
+	x.tile_v = floor(x.v * 12.0f);
+	if ((x.tile_u + x.tile_v) % 2 == 0)
+		return (1);
+	return (0);
 }
 
-float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, t_object *hit_object, float *pdf, t_sample_data *sample_data)
+float3	sample_bxdf(float3 in, float3 *out, float3 normal,
+		t_object *hit_object, float *pdf, float2 seed)
 {
-    // #define M 1 // Number of candidates
-    // int i = 0;
-    // float3 candidates[M];
-    // float3 out_dirs[M];
-    // float pdfs_proposal[M];
-    // float weights[M];
-    // float W = 0.0f;
+	t_bxdf	x;
 
-    // Precompute Fresnel term (same for all candidates)
-    float3 freshnel = freshnel_schlick(hit_object->F_0, dot(normalize(normal), normalize(-in)));
-    float specular_weight = luma(freshnel * hit_object->specular_albedo);
-    float diffuse_weight = luma((to_float3(1.0f) - freshnel) * hit_object->diffuse_albedo);
-    float inv_weight_sum = 1.0f / (specular_weight + diffuse_weight + 1e-5f);
-    float specular_sampling_pdf = specular_weight * inv_weight_sum;
-    float diffuse_sampling_pdf = diffuse_weight * inv_weight_sum;
+	x.freshnel = freshnel_schlick(hit_object->f_0, dot(normal,-in));
+	x.specular_weight = luma(x.freshnel * hit_object->specular_albedo);
+	x.diffuse_weight = luma((1.0f - x.freshnel) * hit_object->diffuse_albedo);
+	x.inv_weight_sum = 1.0f / (x.specular_weight + x.diffuse_weight + 1e-5f);
+	x.specular_sampling_pdf = x.specular_weight * x.inv_weight_sum;
+	x.diffuse_sampling_pdf = x.diffuse_weight * x.inv_weight_sum;
+	x.args_sample = (t_args_sample){in, normal, hit_object->diffuse_albedo, seed};
+	if (seed.x <= x.specular_sampling_pdf)
+		// x.bxdf = x.freshnel * sample_specular(in, &x.out_dir, normal,
+		// 		hit_object, &x.pdf_proposal);
+		x.bxdf = x.freshnel * sample_specular(&x.out_dir, hit_object, &x.pdf_proposal, x.args_sample);
+		// x.pdf_proposal *= x.specular_sampling_pdf;
+	else
 
+		x.bxdf = (1.0f - x.freshnel) * sample_diffuse(&x.out_dir, &x.pdf_proposal, x.args_sample);
+		// x.pdf_proposal *= x.diffuse_sampling_pdf;
 
-
-    // float seed = sample_random(sample_data, i + 6);
-    // float2 s = (float2)(
-    //     sample_random(sample_data, i + 4),
-    //     sample_random(sample_data, i + 5)
-    // );
-
-    // Temporary variables
-    float3 out_dir;
-    float pdf_proposal;
-    float3 bxdf;
-
-    // constant char *str;
-
-    // Choose between specular and diffuse
-    if (seed <= specular_sampling_pdf)
-    {
-        bxdf = freshnel * sample_specular(s, in, &out_dir, normal, hit_object, &pdf_proposal);
-        // bxdf *= hit_object->F_0;
-        pdf_proposal *= specular_sampling_pdf;
-    }
-    else
-    {
-        bxdf = (1.0f - freshnel) * sample_diffuse(s, &out_dir, normal, hit_object->diffuse_albedo, &pdf_proposal);
-        // bxdf *= hit_object->F_0;
-        pdf_proposal *= diffuse_sampling_pdf;
-    }
-
-    // bxdf *= hit_object->F_0;
-    if (isnan(bxdf.x) || isnan(bxdf.y) || isnan(bxdf.z)
-      || isinf(bxdf.x) || isinf(bxdf.y) || isinf(bxdf.z))
-  {
-      printf("freshnel: %f %f %f, %f %f %f, %f\n", freshnel.x, freshnel.y, freshnel.z, hit_object->F_0.x, hit_object->F_0.y, hit_object->F_0.z, dot(normal, -in));
-      printf("type: %d\n", seed <= specular_sampling_pdf);
-      printf("bxdf %f %f %f\n", bxdf.x, bxdf.y, bxdf.z);
-  }
-
-    // Store results
-    // candidates[i] = bxdf;
-    // out_dirs[i] = out_dir;
-    // pdfs_proposal[i] = pdf_proposal;
-
-    // Compute weight (handle zero PDF to avoid NaNs)
-    // float weight = select(0.0f, luma(bxdf / pdf_proposal), (int)(pdf_proposal > 0.0f));
-    // // float weight = (pdf_proposal > 0.0f) ? luma(bxdf / pdf_proposal) : 0.0f;
-    // weights[i] = weight;
-    // W += weight;
-    // }
-
-    // // Handle zero total weight
-    // if (W <= 0.0f)
-    // {
-    //     *pdf = 0.0f;
-    //     return (float3)(0.0f);
-    // }
-
-    // Select a candidate based on weights
-    // float selector = sample_random(sample_data, 7);
-    // float accum = 0.0f;
-    // int selected = 0;
-    // for (int i = 0; i < M; ++i)
-    // {
-    //     accum += weights[i] / W;
-    //     if (selector <= accum)
-    //     {
-    //         selected = i;
-    //         break;
-    //     }
-    // }
-    if (pdf_proposal <= 0.0f) {
-        *pdf = 0.0f;
-        return (float3)(0.0f);
-    }
-    // Set output and PDF
-    *out = normalize(out_dir);
-    *pdf = pdf_proposal; // Effective PDF after resampling
-  
-    // *pdf = fmax(pdf_proposal, 1e-6f);
-  // printf("pdf = %f\n", *pdf)
-
-    // Return adjusted BxDF contribution
-    return bxdf;
+	x.pdf_proposal *= select(x.specular_sampling_pdf, x.diffuse_sampling_pdf, seed.x > x.specular_sampling_pdf);
+	// if (isnan(x.bxdf.x) || isnan(x.bxdf.y) || isnan(x.bxdf.z) || isinf(x.bxdf.x)
+	// || isinf(x.bxdf.y) || isinf(x.bxdf.z))
+	// {
+	// 	printf("freshnel: %f %f %f, %f %f %f, %f\n", x.freshnel.x, x.freshnel.y,
+	// 		x.freshnel.z, hit_object->f_0.x, hit_object->f_0.y,
+	// 		hit_object->f_0.z, dot(normal, -in));
+	// 	// printf("type: %d\n", seed <= x.specular_sampling_pdf);
+	// 	printf("bxdf %f %f %f\n", x.bxdf.x, x.bxdf.y, x.bxdf.z);
+	// }
+	if (x.pdf_proposal <= 0.0f)
+	{
+		*pdf = 0.0f;
+		return ((float3)(0.0f));
+	}
+	*out = x.out_dir;
+	*pdf = x.pdf_proposal;
+	return (x.bxdf);
 }
-// float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, t_object *hit_object, float *pdf)
+
+// float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out,
+// float3 normal, t_object *hit_object, float *pdf)
 // {
 //   float3 freshnel;
 //   float specular_weight;
@@ -292,7 +212,8 @@ float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, 
 //
 //   in = fast_normalize(in);
 //
-//   freshnel = freshnel_schlick(hit_object->F_0, dot(normal, -in)) * hit_object->specular_albedo;
+//   freshnel = freshnel_schlick(hit_object->f_0, dot(normal, -in))
+// * hit_object->specular_albedo;
 //
 //   specular_weight = luma(hit_object->specular_albedo * freshnel);
 //   diffuse_weight = luma(hit_object->diffuse_albedo * (1 - freshnel));
@@ -301,14 +222,15 @@ float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, 
 //   specular_sampling_pdf = specular_weight * inv_weight_sum;
 //   diffuse_sampling_pdf = diffuse_weight * inv_weight_sum;
 //
-//   // int condition = seed <= specular_sampling_pdf; 
+//   // int condition = seed <= specular_sampling_pdf;
 //   // //                         // seed <= specular_sampling_pdf,
-//   // //                         // seed <= specular_sampling_pdf); 
+//   // //                         // seed <= specular_sampling_pdf);
 //   // //
 //   // // // condition.x = seed <= specular_sampling_pdf;
 //   // //
 //   // bxdf = select(1 - freshnel, freshnel, (int3) condition);
-//   // bxdf *= select(sample_diffuse(s, out, normal, hit_object->diffuse_albedo, pdf)
+//   // bxdf *= select(sample_diffuse(s, out, normal,
+// hit_object->diffuse_albedo, pdf)
 //   //             , sample_specular(s, in, out, normal, hit_object, pdf)
 //   //             , (int3)condition);
 //   // *pdf *= select(diffuse_sampling_pdf, specular_sampling_pdf, condition);
@@ -320,12 +242,13 @@ float3 sample_bxdf(float seed, float2 s, float3 in, float3 *out, float3 normal, 
 //   }
 //   else
 //   {
-//     bxdf = (1 - freshnel) * sample_diffuse(s, out, normal, hit_object->diffuse_albedo, pdf);
+//     bxdf = (1 - freshnel) * sample_diffuse(s, out, normal,
+// hit_object->diffuse_albedo, pdf);
 //     *pdf *= diffuse_sampling_pdf;
 //   }
 //
 //   *pdf = select(*pdf, 1e-5f, *pdf == 0);
 //   // if (*pdf == 0)
 //   //   *pdf = 1e-5f;
-//   return bxdf * fmax(dot(*out, normal), 0.0f);
+//   return (bxdf * fmax(dot(*out, normal), 0.0f));
 // }

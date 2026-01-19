@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/13 19:16:07 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/07/15 15:42:11 by zyeoh            ###   ########.fr       */
+/*   Updated: 2026/01/19 14:02:40 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,11 +48,11 @@ typedef struct __attribute__ ((aligned(16))) s_object
 	cl_uchar		obj_type;
 	cl_float3		pos;
 	cl_float3		dir;
-  cl_float3   diffuse_albedo; //diffuse for lambartian_BRDF
-  cl_float3   specular_albedo; 
-  cl_float3   F_0; // basic_reflectivity; // F_0 Freshnel component
-  cl_float    roughness_sqr; // NDF and geometric component
-  cl_float3    emission; 
+	cl_float3   diffuse_albedo; //diffuse for lambartian_BRDF
+	cl_float3   specular_albedo; 
+	cl_float3   F_0; // basic_reflectivity; // F_0 Freshnel component
+	cl_float    roughness_sqr; // NDF and geometric component
+	cl_float3    emission; 
 	union
 	{
 		struct s_sphere	sphere;
@@ -72,7 +72,7 @@ typedef struct __attribute__ ((aligned(16))) s_BHVnode
 typedef struct __attribute__((aligned(16))) s_candidate
 {
   cl_float3 radiance;
-  cl_float3 incident_direction;
+//   cl_float3 incident_direction;
   cl_float3 weight;
   float pdf;
 
@@ -83,7 +83,7 @@ typedef struct __attribute__((aligned(16))) s_reservoir
   t_candidate candidate;
   float weighted_sum;
   uint M;
-  float seed;
+  uint seed;
 }       t_reservoir;
 
 // __attribute__((packed,aligned(4))
