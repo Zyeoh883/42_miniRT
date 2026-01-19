@@ -1,0 +1,24 @@
+{
+    "files.associations": {
+        "nmmintrin.h": "c",
+        "immintrin.h": "c",
+        "minirt.h": "c",
+        "__locale": "c",
+        "math_utils.h": "c",
+        "opencl.h": "c",
+        "mlx_handlers.h": "c",
+        "float.h": "c",
+        "opencl_handlers.h": "c",
+        "__split_buffer": "c",
+        "functional": "c",
+        "locale": "c",
+        "vector": "c",
+        "__functional_base": "c",
+        "array": "c",
+        "istream": "c",
+        "memory": "c",
+        "tuple": "c",
+        "utility": "c",
+        "algorithm": "c"
+    }
+}

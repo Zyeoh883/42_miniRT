@@ -1,8 +1,8 @@
 # Compiler and flags
-CC = gcc #-o3 -march=native -flto -fno-strict-aliasing -ffast-math -funroll-loops
-CFLAGS = -Wall -Wextra -Werror $(INCLUDES) -fsanitize=address -g #-std=c99 
+CC = gcc -o3 -march=native -flto -fno-strict-aliasing -ffast-math -funroll-loops -msse4 -std=gnu11
+CFLAGS = -Wall -Wextra -Werror $(INCLUDES) #-g -fsanitize=address #-std=c99 
 INCLUDES = -Iinc -I$(LIBFT_DIR) -I$(MLX_DIR)
-MLX = -lmlx -framework OpenGL -framework AppKit
+MLX = -L$(MLX_DIR) -lGL -lOpenCL -lX11 -lXext -lm
 
 # Output executable
 NAME = miniRT
@@ -16,19 +16,31 @@ ORANGE = \033[0;38;5;166m
 # Source files
 SRCDIR = srcs/
 
+# create/oriented_bounding_box.c
+# intersects/object_intercept.c
 SRCS_FIL = \
 		main.c\
-		math_utils/vector.c \
-		math_utils/quaternion.c \
-		math_utils/print_math.c \
+		opencl_handlers/get_platform_and_devices.c\
+		opencl_handlers/get_cfile.c\
+		opencl_handlers/get_context.c\
+		opencl_handlers/get_program.c\
+		opencl_handlers/get_kernel.c\
+		opencl_handlers/queue_buffer.c\
 		mlx_handlers/mlx.c \
-		mlx_handlers/input_translate.c \
 		create/scene_objects.c \
+		create/scene_assign_objects.c \
+		create/scene_assign_objects2.c \
+		create/scene_objects_utils.c \
+		create/scene_objects_utils2.c \
 		error_handling/memory_error.c \
-		intersects/object_intercept.c \
 		utils/utils.c \
-		test.c \
-		ray.c \
+		utils/utils2.c \
+		math_utils/vector.c \
+		math_utils/vector2.c \
+		math_utils/quaternion.c \
+		math_utils/quaternion2.c \
+		math_utils/print_math.c \
+		mlx_handlers/input_translate.c \
 
 SRCS = $(addprefix $(SRCDIR), $(SRCS_FIL))
 
@@ -40,7 +52,7 @@ OBJS = $(patsubst $(SRCDIR)%.c, $(OBJDIR)%.o, $(SRCS))
 LIBFT_DIR = libft/
 LIBFT_A = $(LIBFT_DIR)libft.a
 
-MLX_DIR = minilibx_opengl_20191021/
+MLX_DIR = minilibx-linux/
 MLX_A = $(MLX_DIR)libmlx.a
 
 # Build targets
@@ -54,7 +66,11 @@ $(OBJDIR):
 $(NAME): $(OBJS)
 	@make -C $(LIBFT_DIR)
 	@make -C $(MLX_DIR)
-	@$(CC) $(LIBFT_A) $(MLX_A) $(CFLAGS) $(MLX) $(OBJS) -o $(NAME) && echo "$(GREEN)$(NAME) was created$(RESET)"
+	@$(CC) $(OBJS) $(CFLAGS) $(LIBFT_A) $(MLX_A) $(MLX) -o $(NAME) && echo "$(GREEN)$(NAME) was created$(RESET)"
+	export DISPLAY=:0	
+
+# export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}'):0.0
+	# @$(CC) $(LIBFT_A) $(MLX_A) $(CFLAGS) $(MLX) $(OBJS) -o $(NAME) && echo "$(GREEN)$(NAME) was created$(RESET)"
 
 $(OBJDIR)%.o: $(SRCDIR)%.c
 	@$(CC) $(CFLAGS) -c $< -o $@ && echo "$(GREEN)object files were created$(RESET)"

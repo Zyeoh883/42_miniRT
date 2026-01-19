@@ -6,17 +6,109 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/26 19:25:24 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/26 20:17:37 by zyeoh            ###   ########.fr       */
+/*   Updated: 2026/01/16 17:24:16 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minirt.h"
 
-inline void	swap_floats(float *A, float *B)
+char	*ft_strcat_free(char *str1, char *str2)
 {
-	float	tmp;
+	char	*result;
+	int		size;
 
-	tmp = *A;
-	*A = *B;
-	*B = tmp;
+	if (!str1 || !str2)
+		return (NULL);
+	size = ft_strlen(str1) + ft_strlen(str2) + 1;
+	result = ft_calloc(size, sizeof(char));
+	ft_strlcat(result, str1, size);
+	ft_strlcat(result, str2, size);
+	free(str1);
+	free(str2);
+	return (result);
+}
+
+char	*read_cfile(char *name)
+{
+	char	*result;
+	char	*line;
+	int		size;
+	int		fd;
+
+	result = ft_strdup("");
+	fd = open(name, O_RDONLY);
+	if (!result || fd == -1)
+		exit(1);
+	size = 13;
+	while (--size > 0)
+		free(get_next_line(fd));
+	line = get_next_line(fd);
+	while (line)
+	{
+		result = ft_strcat_free(result, line);
+		line = get_next_line(fd);
+	}
+	close(fd);
+	return (result);
+}
+
+// printf("\n\n\n %d \n\n\n %s", n, c_file[n]);
+void	free_cfile(char **c_file)
+{
+	int	n;
+
+	n = -1;
+	while (c_file[++n])
+	{
+		free(c_file[n]);
+	}
+	free(c_file);
+}
+
+void	free_str_arr(char **str_arr)
+{
+	int	i;
+
+	i = 0;
+	if (str_arr == NULL)
+		return ;
+	while (str_arr[i] != NULL)
+	{
+		free(str_arr[i]);
+		i++;
+	}
+	free(str_arr);
+}
+
+// int	get_rgb_value(char *str)
+// {
+// 	int	result;
+//
+// 	str += 2;
+// 	result = 0;
+// 	while (ft_isalpha(*str) || ft_isdigit(*str))
+// 	{
+// 		result *= 16;
+// 		if (ft_isalpha(*str))
+// 		{
+// 			if (*str >= 97)
+// 				result += *str - 'a' + 10;
+// 			else
+// 				result += *str - 'A' + 10;
+// 		}
+// 		else
+// 			result += *str - '0';
+// 		++str;
+// 	}
+// 	return (result);
+// }
+
+int	ft_str_arr_len(char **str)
+{
+	int	n;
+
+	n = -1;
+	while (str[++n])
+		;
+	return (n);
 }

@@ -5,39 +5,50 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/06/23 13:24:03 by zyeoh             #+#    #+#             */
-/*   Updated: 2024/06/25 10:50:47 by zyeoh            ###   ########.fr       */
+/*   Created: 2026/01/19 19:43:02 by zyeoh             #+#    #+#             */
+/*   Updated: 2026/01/19 20:10:06 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef LINUX_DEFINES_H
 # define LINUX_DEFINES_H
 
-# define Q_KEY 12
-# define W_KEY 13
-# define E_KEY 14
-# define A_KEY 0
-# define S_KEY 1
-# define D_KEY 2
-# define PLUS_KEY 24
-# define MINUS_KEY 27
-# define I_KEY 34
-# define J_KEY 38
-# define K_KEY 40
-# define L_KEY 37
-# define R_KEY 15
-# define T_KEY 17
-# define Y_KEY 16
-# define F_KEY 3
-# define G_KEY 5
-# define H_KEY 4
-# define FIVE_KEY 23
-# define SIX_KEY 22
-# define SEVEN_KEY 26
-# define B_KEY 11
-# define ESC_KEY 53
-# define SPACE_KEY 49
-# define CTRL_KEY 256
-# define SHIFT_KEY 257
+# define A_KEY 97
+# define B_KEY 98
+# define C_KEY 99
+# define D_KEY 100
+# define E_KEY 101
+# define F_KEY 102
+# define G_KEY 103
+# define H_KEY 104
+# define I_KEY 105
+# define J_KEY 106
+# define K_KEY 107
+# define L_KEY 108
+# define M_KEY 109
+# define N_KEY 110
+# define O_KEY 111
+# define P_KEY 112
+# define Q_KEY 113
+# define R_KEY 114
+# define S_KEY 115
+# define T_KEY 116
+# define U_KEY 117
+# define V_KEY 118
+# define W_KEY 119
+# define X_KEY 120
+# define Y_KEY 121
+# define Z_KEY 122
+
+# define SPACE_KEY 32
+# define ESC_KEY 65307
+
+# define PLUS_KEY      61  // Plus key (+) on numpad
+# define MINUS_KEY     63  // Minus key (-) on numpad
+# define FIVE_KEY      71  // 5 key
+# define SIX_KEY       72  // 6 key
+# define SEVEN_KEY     73  // 7 key
+# define CTRL_KEY      65507  // Left Control key
+# define SHIFT_KEY     65505  // Left Shift key
 
 #endif
