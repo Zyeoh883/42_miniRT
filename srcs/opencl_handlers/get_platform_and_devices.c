@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 13:46:32 by zyeoh             #+#    #+#             */
-/*   Updated: 2026/01/16 22:24:14 by zyeoh            ###   ########.fr       */
+/*   Updated: 2026/01/19 20:54:09 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ cl_uint	count_total_gpus(cl_platform_id *platforms, cl_uint num_platforms)
 	return (total);
 }
 
+// perror_and_exit("Platform fetch failed", EXIT_FAILURE);
 void	fill_gpu_list(t_opencl *opencl, cl_device_id *gpu_list,
 		cl_platform_id *platform_list, cl_uint num_platforms)
 {
@@ -44,9 +45,8 @@ void	fill_gpu_list(t_opencl *opencl, cl_device_id *gpu_list,
 	current_idx = 0;
 	while (++n < num_platforms)
 	{
-		if (clGetDeviceIDs(opencl->platform[n], CL_DEVICE_TYPE_GPU, 0, NULL,
-				&platform_gpus) != CL_SUCCESS)
-			perror_and_exit("Platform fetch failed", EXIT_FAILURE);
+		clGetDeviceIDs(opencl->platform[n], CL_DEVICE_TYPE_GPU, 0, NULL,
+			&platform_gpus);
 		if (platform_gpus > 0)
 		{
 			if (clGetDeviceIDs(opencl->platform[n], CL_DEVICE_TYPE_GPU,
