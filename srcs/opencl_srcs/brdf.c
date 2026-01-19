@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2026/01/17 16:25:23 by zyeoh            ###   ########.fr       */
+/*   Updated: 2026/01/19 16:45:27 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,18 +52,18 @@ float	ndf_ggx(float alpha_sqr, float n_dot_h)
 }
 
 // g1 = 2.0f * n_dot_h / (n_dot_h + k);
-float	geometric_smith(float3 in, float n_dot_l, float alpha_sqr,
-		float3 normal, float n_dot_v)
-{
-	float	k;
-	float	g1;
-	float	g2;
+// float	geometric_smith(float3 in, float n_dot_l, float alpha_sqr,
+// 		float3 normal, float n_dot_v)
+// {
+// 	float	k;
+// 	float	g1;
+// 	float	g2;
 
-	k = alpha_sqr;
-	g1 = n_dot_l / (n_dot_l * (1.0f - k) + k);
-	g2 = n_dot_v / (n_dot_v * (1.0f - k) + k);
-	return (g1 * g2);
-}
+// 	k = alpha_sqr;
+// 	g1 = n_dot_l / (n_dot_l * (1.0f - k) + k);
+// 	g2 = n_dot_v / (n_dot_v * (1.0f - k) + k);
+// 	return (g1 * g2);
+// }
 
 float3	freshnel_schlick(float3 f_0, float n_dot_h)
 {
@@ -75,23 +75,24 @@ float3	freshnel_schlick(float3 f_0, float n_dot_h)
 // n_dot_h = max(dot(normal, halfDir), 0.0f);
 // printf("D = %f, G = %f, F = %f %f %f\n", D, G, F[0], F[1], F[2]);
 // return (D * G);
-float3	cook_torrance_brdf(float3 in, float3 out, float3 normal, float n_dot_h,
-		t_object *hit_object)
-{
-	float	d;
-	float	g;
-	float3	f;
-	float	n_dot_l;
-	float	n_dot_v;
+// float3	cook_torrance_brdf(float3 in, float3 out, 
+// float3 normal, float n_dot_h,
+// 		t_object *hit_object)
+// {
+// 	float	d;
+// 	float	g;
+// 	float3	f;
+// 	float	n_dot_l;
+// 	float	n_dot_v;
 
-	n_dot_l = max(dot(normal, out), 0.0f);
-	n_dot_v = -max(dot(normal, in), 0.0f);
-	d = ndf_ggx(hit_object->roughness_sqr, n_dot_h);
-	g = geometric_smith(out, n_dot_l, hit_object->roughness_sqr, normal,
-			n_dot_v);
-	f = freshnel_schlick(hit_object->f_0, n_dot_h);
-	return ((d * g) / (4.0f * n_dot_l * n_dot_v + 1e-5f));
-}
+// 	n_dot_l = max(dot(normal, out), 0.0f);
+// 	n_dot_v = -max(dot(normal, in), 0.0f);
+// 	d = ndf_ggx(hit_object->roughness_sqr, n_dot_h);
+// 	g = geometric_smith(out, n_dot_l, hit_object->roughness_sqr, normal,
+// 			n_dot_v);
+// 	f = freshnel_schlick(hit_object->f_0, n_dot_h);
+// 	return ((d * g) / (4.0f * n_dot_l * n_dot_v + 1e-5f));
+// }
 
 float3	lambertian_brdf(float3 albedo)
 {

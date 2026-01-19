@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 18:56:38 by zyeoh             #+#    #+#             */
-/*   Updated: 2026/01/19 16:42:25 by zyeoh            ###   ########.fr       */
+/*   Updated: 2026/01/19 19:31:50 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,12 @@ void	read_each_cfile(char **c_files)
 	c_files[4] = read_cfile("srcs/opencl_srcs/opencl_quaternion2.c");
 	c_files[5] = read_cfile("srcs/opencl_srcs/opencl_object_intercept.c");
 	c_files[6] = read_cfile("srcs/opencl_srcs/brdf.c");
-	c_files[7] = read_cfile("srcs/opencl_srcs/bxdf.c");
-	c_files[8] = read_cfile("srcs/opencl_srcs/utils.c");
+	c_files[7] = read_cfile("srcs/opencl_srcs/bxdf2.c");
+	c_files[8] = read_cfile("srcs/opencl_srcs/bxdf.c");
+	c_files[9] = read_cfile("srcs/opencl_srcs/utils.c");
+	c_files[10] = read_cfile("srcs/opencl_srcs/utils2.c");
+	c_files[11] = read_cfile("srcs/opencl_srcs/reservoir.c");
+	c_files[12] = read_cfile("srcs/opencl_srcs/path_trace.c");
 }
 
 void	read_each_csize(char **c_files, size_t *c_size)
@@ -36,6 +40,10 @@ void	read_each_csize(char **c_files, size_t *c_size)
 	c_size[6] = ft_strlen(c_files[6]);
 	c_size[7] = ft_strlen(c_files[7]);
 	c_size[8] = ft_strlen(c_files[8]);
+	c_size[9] = ft_strlen(c_files[9]);
+	c_size[10] = ft_strlen(c_files[10]);
+	c_size[11] = ft_strlen(c_files[11]);
+	c_size[12] = ft_strlen(c_files[12]);
 }
 
 char	**get_cfiles(size_t *c_size)

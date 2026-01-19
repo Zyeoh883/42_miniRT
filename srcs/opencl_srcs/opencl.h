@@ -6,7 +6,7 @@
 /*   By: zyeoh <zyeoh@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/14 15:30:40 by zyeoh             #+#    #+#             */
-/*   Updated: 2026/01/19 16:02:38 by zyeoh            ###   ########.fr       */
+/*   Updated: 2026/01/19 19:30:19 by zyeoh            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,9 @@
 #define PLANE 'P'
 #define CYLINDER 'C'
 #define LIGHT 'L'
+
+#define KERNEL __kernel
+#define GLOBAL __global
 
 typedef struct __attribute__((aligned(16))) s_candidate
 {
@@ -113,38 +116,6 @@ typedef struct __attribute__((aligned(16))) s_sample_data
 	uint	seed;
 }							t_sample_data;
 
-float3		vector_normalize(float3 v);
-t_ray		create_ray(U __global t_camera *camera, t_sample_data *sample_data);
-// int		render_ray(t_ray ray, U __global t_object *objects);
-float3		vector_scalar_product(const float3 v, const float scalar);
-float2		intersect_ray_sphere(U __global t_object *object, t_ray ray);
-float3		quat_rotate(float4 q, const float3 q_v);
-float2		ray_intersection(U __global t_object *object, t_ray ray);
-
-t_candidate	init_candidate(void);
-t_reservoir	init_reservoir(void);
-
-float3		sample_bxdf(float3 in,
-float3 *out, float3 normal,
-t_object *hit_object, float *pdf,
-float2 seed);
-
-float		luma(float3 rgb);
-void		update_reservoir(t_reservoir *res,
-t_candidate new_candidate,
-t_sample_data *sample_data);
-float3		reservoir_final_color(t_reservoir *res);
-					
-// utils
-					
-float		sample_random(t_sample_data *sample_data);
-float3		to_float3(float x);
-void		print_vec(float3 vec);
-// uint		*get_seed(void);
-// void 		set_seed(uint val);
-// float 		gen_seed(uint *seed);
-
-
 //  ============================================ //
 
 // typedef for function variables
@@ -179,33 +150,41 @@ typedef struct s_dot
 	float	wi_dot_h;
 }							t_dot;
 
-
 typedef struct s_args_sample
 {
-	float3 in;
-	// float3 *out;
-	float3 n;
-	float3 diffuse_albedo;
-	// t_object *hit_object;
-	// float *pdf;
-	float2 s;
+	float3	in;
+	float3	n;
+	float3	diffuse_albedo;
+	float2	s;
+	//	float3	*out;
+	//	t_object	*hit_object;
+	//	float	*pdf;
 	// t_sample_data *sample_data;
 }							t_args_sample;
 
+typedef struct s_args_bxdf
+{
+	float3		in;
+	float3		*out;
+	float3		normal;
+	t_object	*hit_object;
+	float		*pdf;
+	float2		seed;
+}							t_args_bxdf;
 
 typedef struct s_bxdf
 {
-	float3	freshnel;
-	float	specular_weight;
-	float	diffuse_weight;
-	float	inv_weight_sum;
-	float	specular_sampling_pdf;
-	float	diffuse_sampling_pdf;
-	float3	out_dir;
-	float	pdf_proposal;
+	float3			freshnel;
+	float			specular_weight;
+	float			diffuse_weight;
+	float			inv_weight_sum;
+	float			specular_sampling_pdf;
+	float			diffuse_sampling_pdf;
+	float3			out_dir;
+	float			pdf_proposal;
+	float3			bxdf;
+	t_args_sample	args_sample;
 	// float2	s;
-	float3	bxdf;
-	t_args_sample args_sample;
 }							t_bxdf;
 
 typedef struct s_sample_diffuse
@@ -239,13 +218,90 @@ typedef struct s_vars_cyclinder
 	float	temp;
 }							t_vars_cyclinder;
 
+typedef struct s_vars_ggx_sample
+{
+	float	phi;
+	float	tan_theta_sq;
+	float	cos_theta;
+	float	sin_theta;
+	float3	axis;
+	float3	t;
+	float3	b;
+	float	cos_phi;
+	float	sin_phi;
+}							t_vars_ggx_sample;
 
-// typedef struct s_args_sample_diffuse
-// {
-// 	// float3 *out;
-// 	float3 n;
-// 	float3 diffuse_albedo;
-// 	// float *pdf;
-// 	float2 s;
-// 	// t_sample_data *sample_data;
-// }							t_args_sample_diffuse;
+typedef struct s_vars_get_normal
+{
+	float3	normal;
+	float3	center;
+	float3	axis;
+	float	height;
+	float	dist_along_axis;
+	float3	to_hit;
+	float	proj_on_axis;
+}							t_vars_get_normal;
+
+typedef struct s_vars_path_trace
+{
+	t_object	hit_object;
+	t_ray		out_ray;
+	t_ray		in_ray;
+	float3		hit_point;
+	float3		normal;
+	float3		bxdf;
+	float		t;
+	float2		seed;
+	float		pdf;
+	float		pdf_temp;
+	float3		throughput;
+	t_candidate	candidate;
+	float		t_val;
+	float		cos_theta;
+	float3		env_color;
+}							t_vars_path_trace;
+
+typedef struct s_vars_render_scene
+{
+	GLOBAL uchar	*dst;
+	t_ray			ray;
+	float3			color;
+	t_sample_data	sample_data;
+	t_reservoir		reservoir;
+	t_candidate		candidate;
+}							t_vars_render_scene;
+
+// ===============================
+
+// Prototypes
+
+float3		vector_normalize(float3 v);
+t_ray		create_ray(U __global t_camera *camera, t_sample_data *sample_data);
+// int		render_ray(t_ray ray, U __global t_object *objects);
+float3		vector_scalar_product(const float3 v, const float scalar);
+float2		intersect_ray_sphere(U __global t_object *object, t_ray ray);
+float3		quat_rotate(float4 q, const float3 q_v);
+float2		ray_intersection(U __global t_object *object, t_ray ray);
+
+t_candidate	init_candidate(void);
+t_reservoir	init_reservoir(void);
+
+t_candidate	path_trace(__global t_camera *camera, U __global t_object *objects,
+				t_sample_data *sample_data);
+float3		sample_bxdf(t_args_bxdf a);
+
+float		luma(float3 rgb);
+float3		linear_to_gamma(float3 x);
+void		update_reservoir(t_reservoir *res,
+				t_candidate new_candidate,
+				t_sample_data *sample_data);
+float3		reservoir_final_color(t_reservoir *res);
+
+// utils
+
+float		sample_random(t_sample_data *sample_data);
+// float3		to_float3(float x);
+// void		print_vec(float3 vec);
+// uint		*get_seed(void);
+// void 		set_seed(uint val);
+// float 		gen_seed(uint *seed);
