@@ -89,7 +89,7 @@ typedef struct __attribute__((aligned(16))) s_reservoir
 // __attribute__((packed,aligned(4))
 // __attribute__ ((aligned(16)))
 
-/*// light*/
+// light*/
 /* typedef struct __attribute__ ((aligned(16))) s_light {*/
 /**/
 /* }          t_light;*/
